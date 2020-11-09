@@ -6,6 +6,7 @@ import {
   import * as THREE from 'three';
   import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
+
 function getpanorama(coordinates) {
 
   let opts = {config:EarthmineConfig};
@@ -13,8 +14,9 @@ function getpanorama(coordinates) {
   getPanorama(coordinates,opts).then(panorama=>
     {
 
+         
+           setConnectedPanoramas(panorama,scene);
            setPanoramaCube(panorama,scene);
-   
           }
     );
 
@@ -63,6 +65,55 @@ function getpanorama(coordinates) {
    return promiseArray.pop();
     
   }
+
+  function setConnectedPanoramas(panorama,scene)
+  {
+     let i = 0;
+    panorama.panoramaobject.connections.forEach(connection => {
+     
+      setArrow(connection["pano-id"],connection["relative-location"],scene,i)
+      i++;
+    })
+
+  }
+
+function setArrow(panoramaid,direction,scene,i)
+{
+  let url = "./next.png"
+console.log(direction)
+  const loader = new THREE.TextureLoader();
+
+  loader.load(url,
+  
+    function (texture) {
+  
+      const geometry = new THREE.CircleGeometry(64, 32 );
+      const material =  new THREE.MeshBasicMaterial({ map: texture , side: THREE.DoubleSide})
+      const circle = new THREE.Mesh( geometry, material );
+   
+      const geometry2 = new THREE.CircleGeometry(64, 32 );
+      const material2 =  new THREE.MeshBasicMaterial({ map: texture , side: THREE.DoubleSide})
+      const center = new THREE.Mesh( geometry2, material2 );
+
+      circle.position.set( Math.sin(45*i)* 300, 0, Math.cos(45*i) * 300 );
+           
+       circle.rotateX(90*0.01745329251)
+       circle.rotateZ( 45*i*0.01745329251)
+
+      scene.add(circle);
+      scene.add(center);
+    }
+    ,
+    function () {},  // onProgress function
+    function ( error ) { console.log( error ) } // onError function
+  );
+
+
+
+
+  
+
+}
 
 
 function setPanoramaCube(panorama,scene)
@@ -137,7 +188,7 @@ function setPanoramaCube(panorama,scene)
     controls.enableZoom = false;
     controls.enablePan = false;
     controls.minPolarAngle =  Math.PI / 3;
-  
+    controls.rotateSpeed = -1
 
    
     window.addEventListener( 'resize', onWindowResize, false );
@@ -175,7 +226,7 @@ function setPanoramaCube(panorama,scene)
 
   init();
   animate();
-  getpanorama([28.988291871101335,41.032021944600736]);
+  getpanorama([29.0064474,41.0412218]);
 
 
 window.getpanorama = getpanorama;

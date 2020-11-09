@@ -105228,6 +105228,7 @@ function getpanorama(coordinates) {
     config: _config__WEBPACK_IMPORTED_MODULE_1__["default"]
   };
   Object(_utils__WEBPACK_IMPORTED_MODULE_0__["default"])(coordinates, opts).then(function (panorama) {
+    setConnectedPanoramas(panorama, scene);
     setPanoramaCube(panorama, scene);
   });
 }
@@ -105264,6 +105265,43 @@ function getCanvasImage(images, direction) {
   }
 
   return promiseArray.pop();
+}
+
+function setConnectedPanoramas(panorama, scene) {
+  var i = 0;
+  panorama.panoramaobject.connections.forEach(function (connection) {
+    setArrow(connection["pano-id"], connection["relative-location"], scene, i);
+    i++;
+  });
+}
+
+function setArrow(panoramaid, direction, scene, i) {
+  var url = "./next.png";
+  console.log(direction);
+  var loader = new three__WEBPACK_IMPORTED_MODULE_3__["TextureLoader"]();
+  loader.load(url, function (texture) {
+    var geometry = new three__WEBPACK_IMPORTED_MODULE_3__["CircleGeometry"](64, 32);
+    var material = new three__WEBPACK_IMPORTED_MODULE_3__["MeshBasicMaterial"]({
+      map: texture,
+      side: three__WEBPACK_IMPORTED_MODULE_3__["DoubleSide"]
+    });
+    var circle = new three__WEBPACK_IMPORTED_MODULE_3__["Mesh"](geometry, material);
+    var geometry2 = new three__WEBPACK_IMPORTED_MODULE_3__["CircleGeometry"](64, 32);
+    var material2 = new three__WEBPACK_IMPORTED_MODULE_3__["MeshBasicMaterial"]({
+      map: texture,
+      side: three__WEBPACK_IMPORTED_MODULE_3__["DoubleSide"]
+    });
+    var center = new three__WEBPACK_IMPORTED_MODULE_3__["Mesh"](geometry2, material2);
+    circle.position.set(Math.sin(45 * i) * 300, 0, Math.cos(45 * i) * 300);
+    circle.rotateX(90 * 0.01745329251);
+    circle.rotateZ(45 * i * 0.01745329251);
+    scene.add(circle);
+    scene.add(center);
+  }, function () {}, // onProgress function
+  function (error) {
+    console.log(error);
+  } // onError function
+  );
 }
 
 function setPanoramaCube(panorama, scene) {
@@ -105316,6 +105354,7 @@ function init() {
   controls.enableZoom = false;
   controls.enablePan = false;
   controls.minPolarAngle = Math.PI / 3;
+  controls.rotateSpeed = -1;
   window.addEventListener('resize', onWindowResize, false);
 }
 
@@ -105339,7 +105378,7 @@ var camera, scene, renderer;
 var pointLight;
 init();
 animate();
-getpanorama([28.988291871101335, 41.032021944600736]);
+getpanorama([29.0064474, 41.0412218]);
 window.getpanorama = getpanorama;
 
 /***/ }),
@@ -105354,19 +105393,19 @@ window.getpanorama = getpanorama;
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 var EarthMineConfig = {
-  serviceUrl: "https://localhost:5001/service",
-  baseDataUrl: "https://localhost:5001/www",
+  serviceUrl: "http://192.168.1.80/emp/service",
+  baseDataUrl: "http://192.168.1.80/emp/www",
   showcoverage: 0,
   CoverageLevel: 0,
   //0:Normal; 1:Yüksek çözünürlük; -1:Düşük çözünürlük
   usecoverageurl: true,
   //UseCoverageURL kullanılmak isteniyorsa true olmalıdır, false yapılırsa global sunucu kullanılacaktır.
-  coverageDataUrl: "https://localhost:5001/map",
+  coverageDataUrl: "http://192.168.1.80/emp/map",
   spatiallayerdistance: 50,
   TableNameTabela: "Tabela",
   TableNameBillboard: "Pano",
-  apiKey: "-",
-  secretKey: "-",
+  apiKey: "f4pwfzs99d1dugz8uhe2iuvs",
+  secretKey: "ZzYnWnExFR",
   globalcoverageDataUrl: "-"
 };
 /* harmony default export */ __webpack_exports__["default"] = (EarthMineConfig);
