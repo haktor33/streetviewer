@@ -1,8 +1,9 @@
 import EarthmineConfig from './config';
 
 const directions = {
-    left : "l",
+   
     right : "r",
+    left : "l",
      up : "u",
     down : "d",
     back : "b",

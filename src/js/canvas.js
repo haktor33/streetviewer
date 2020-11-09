@@ -17,6 +17,8 @@ function getpanorama(coordinates) {
          
            setConnectedPanoramas(panorama,scene);
            setPanoramaCube(panorama,scene);
+           setNorthArrow(panorama,scene);
+
           }
     );
 
@@ -68,19 +70,40 @@ function getpanorama(coordinates) {
 
   function setConnectedPanoramas(panorama,scene)
   {
-     let i = 0;
+;
     panorama.panoramaobject.connections.forEach(connection => {
      
-      setArrow(connection["pano-id"],connection["relative-location"],scene,i)
-      i++;
+      setArrow(connection["pano-id"],connection["relative-location"],scene)
+      
     })
 
   }
 
-function setArrow(panoramaid,direction,scene,i)
+  function setNorthArrow(panorama,scene)
+{
+  console.log(panorama);
+  let url = "./northarrow.png"
+  const loader = new THREE.TextureLoader();
+
+  loader.load(url,
+  
+    function (texture) {
+      const geometry = new THREE.CircleGeometry(64, 64 );
+      const material =  new THREE.MeshBasicMaterial({ map: texture ,side: THREE.DoubleSide})
+      material.color.set(0xffffff);
+      const northarrow = new THREE.Mesh( geometry, material );
+      northarrow.rotateX(THREE.MathUtils.degToRad(90))
+      const panoramayaw = panorama.panoramaobject["pano-orientation"].yaw-90;
+      northarrow.rotateZ(THREE.MathUtils.degToRad(panoramayaw));
+      scene.add(northarrow);
+     
+    });
+}
+
+function setArrow(panoramaid,direction,scene)
 {
   let url = "./next.png"
-console.log(direction)
+
   const loader = new THREE.TextureLoader();
 
   loader.load(url,
@@ -90,18 +113,17 @@ console.log(direction)
       const geometry = new THREE.CircleGeometry(64, 32 );
       const material =  new THREE.MeshBasicMaterial({ map: texture , side: THREE.DoubleSide})
       const circle = new THREE.Mesh( geometry, material );
-   
-      const geometry2 = new THREE.CircleGeometry(64, 32 );
-      const material2 =  new THREE.MeshBasicMaterial({ map: texture , side: THREE.DoubleSide})
-      const center = new THREE.Mesh( geometry2, material2 );
 
-      circle.position.set( Math.sin(45*i)* 300, 0, Math.cos(45*i) * 300 );
+      const yaw = direction.yaw;
+    
+      circle.position.set(
+      Math.cos(THREE.MathUtils.degToRad(yaw+135))* 300, 0,Math.sin(THREE.MathUtils.degToRad(yaw+135)) * 300 );
            
-       circle.rotateX(90*0.01745329251)
-       circle.rotateZ( 45*i*0.01745329251)
+       circle.rotateX(THREE.MathUtils.degToRad(90))
+       circle.rotateZ(THREE.MathUtils.degToRad(yaw))
 
       scene.add(circle);
-      scene.add(center);
+   
     }
     ,
     function () {},  // onProgress function
@@ -140,7 +162,11 @@ function setPanoramaCube(panorama,scene)
        if(direction == directions.up ||direction == directions.down )
       {
      texture.flipY =false;
-     texture.wrapS = THREE.RepeatWrapping;
+    
+
+     }
+     else{
+      texture.wrapS = THREE.RepeatWrapping;
        texture.repeat.x = - 1;
 
      }
@@ -226,7 +252,7 @@ function setPanoramaCube(panorama,scene)
 
   init();
   animate();
-  getpanorama([29.0064474,41.0412218]);
+  getpanorama([29.0246371505,  41.0476496167 ]);
 
 
 window.getpanorama = getpanorama;

@@ -105230,6 +105230,7 @@ function getpanorama(coordinates) {
   Object(_utils__WEBPACK_IMPORTED_MODULE_0__["default"])(coordinates, opts).then(function (panorama) {
     setConnectedPanoramas(panorama, scene);
     setPanoramaCube(panorama, scene);
+    setNorthArrow(panorama, scene);
   });
 }
 
@@ -105268,16 +105269,33 @@ function getCanvasImage(images, direction) {
 }
 
 function setConnectedPanoramas(panorama, scene) {
-  var i = 0;
+  ;
   panorama.panoramaobject.connections.forEach(function (connection) {
-    setArrow(connection["pano-id"], connection["relative-location"], scene, i);
-    i++;
+    setArrow(connection["pano-id"], connection["relative-location"], scene);
   });
 }
 
-function setArrow(panoramaid, direction, scene, i) {
+function setNorthArrow(panorama, scene) {
+  console.log(panorama);
+  var url = "./northarrow.png";
+  var loader = new three__WEBPACK_IMPORTED_MODULE_3__["TextureLoader"]();
+  loader.load(url, function (texture) {
+    var geometry = new three__WEBPACK_IMPORTED_MODULE_3__["CircleGeometry"](64, 64);
+    var material = new three__WEBPACK_IMPORTED_MODULE_3__["MeshBasicMaterial"]({
+      map: texture,
+      side: three__WEBPACK_IMPORTED_MODULE_3__["DoubleSide"]
+    });
+    material.color.set(0xffffff);
+    var northarrow = new three__WEBPACK_IMPORTED_MODULE_3__["Mesh"](geometry, material);
+    northarrow.rotateX(three__WEBPACK_IMPORTED_MODULE_3__["MathUtils"].degToRad(90));
+    var panoramayaw = panorama.panoramaobject["pano-orientation"].yaw - 90;
+    northarrow.rotateZ(three__WEBPACK_IMPORTED_MODULE_3__["MathUtils"].degToRad(panoramayaw));
+    scene.add(northarrow);
+  });
+}
+
+function setArrow(panoramaid, direction, scene) {
   var url = "./next.png";
-  console.log(direction);
   var loader = new three__WEBPACK_IMPORTED_MODULE_3__["TextureLoader"]();
   loader.load(url, function (texture) {
     var geometry = new three__WEBPACK_IMPORTED_MODULE_3__["CircleGeometry"](64, 32);
@@ -105286,17 +105304,11 @@ function setArrow(panoramaid, direction, scene, i) {
       side: three__WEBPACK_IMPORTED_MODULE_3__["DoubleSide"]
     });
     var circle = new three__WEBPACK_IMPORTED_MODULE_3__["Mesh"](geometry, material);
-    var geometry2 = new three__WEBPACK_IMPORTED_MODULE_3__["CircleGeometry"](64, 32);
-    var material2 = new three__WEBPACK_IMPORTED_MODULE_3__["MeshBasicMaterial"]({
-      map: texture,
-      side: three__WEBPACK_IMPORTED_MODULE_3__["DoubleSide"]
-    });
-    var center = new three__WEBPACK_IMPORTED_MODULE_3__["Mesh"](geometry2, material2);
-    circle.position.set(Math.sin(45 * i) * 300, 0, Math.cos(45 * i) * 300);
-    circle.rotateX(90 * 0.01745329251);
-    circle.rotateZ(45 * i * 0.01745329251);
+    var yaw = direction.yaw;
+    circle.position.set(Math.cos(three__WEBPACK_IMPORTED_MODULE_3__["MathUtils"].degToRad(yaw + 135)) * 300, 0, Math.sin(three__WEBPACK_IMPORTED_MODULE_3__["MathUtils"].degToRad(yaw + 135)) * 300);
+    circle.rotateX(three__WEBPACK_IMPORTED_MODULE_3__["MathUtils"].degToRad(90));
+    circle.rotateZ(three__WEBPACK_IMPORTED_MODULE_3__["MathUtils"].degToRad(yaw));
     scene.add(circle);
-    scene.add(center);
   }, function () {}, // onProgress function
   function (error) {
     console.log(error);
@@ -105319,6 +105331,7 @@ function setPanoramaCube(panorama, scene) {
 
       if (direction == _panorama__WEBPACK_IMPORTED_MODULE_2__["directions"].up || direction == _panorama__WEBPACK_IMPORTED_MODULE_2__["directions"].down) {
         texture.flipY = false;
+      } else {
         texture.wrapS = three__WEBPACK_IMPORTED_MODULE_3__["RepeatWrapping"];
         texture.repeat.x = -1;
       }
@@ -105378,7 +105391,7 @@ var camera, scene, renderer;
 var pointLight;
 init();
 animate();
-getpanorama([29.0064474, 41.0412218]);
+getpanorama([29.0246371505, 41.0476496167]);
 window.getpanorama = getpanorama;
 
 /***/ }),
@@ -105433,8 +105446,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 
 var directions = {
-  left: "l",
   right: "r",
+  left: "l",
   up: "u",
   down: "d",
   back: "b",
