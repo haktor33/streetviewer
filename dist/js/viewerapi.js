@@ -1,3 +1,4 @@
+var viewerapi =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -81,7 +82,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./src/js/canvas.js");
+/******/ 	return __webpack_require__(__webpack_require__.s = "./src/js/viewerapi.js");
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -105207,32 +105208,17 @@ module.exports = function(module) {
 /*!**************************!*\
   !*** ./src/js/canvas.js ***!
   \**************************/
-/*! no exports provided */
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils */ "./src/js/utils.js");
-/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./config */ "./src/js/config.js");
-/* harmony import */ var _panorama__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./panorama */ "./src/js/panorama.js");
-/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
-/* harmony import */ var three_examples_jsm_controls_OrbitControls__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
+/* harmony import */ var _panorama__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./panorama */ "./src/js/panorama.js");
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+/* harmony import */ var three_examples_jsm_controls_OrbitControls__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
 
 
 
-
-
-
-function getpanorama(coordinates) {
-  var opts = {
-    config: _config__WEBPACK_IMPORTED_MODULE_1__["default"]
-  };
-  Object(_utils__WEBPACK_IMPORTED_MODULE_0__["default"])(coordinates, opts).then(function (panorama) {
-    setConnectedPanoramas(panorama, scene);
-    setPanoramaCube(panorama, scene);
-    setNorthArrow(panorama, scene);
-  });
-}
 
 function getCanvasImage(images, direction) {
   var tilesnumber = Math.sqrt(images.length);
@@ -105242,7 +105228,7 @@ function getCanvasImage(images, direction) {
   var tileWidth = 512;
   var multi = 1;
   var context = canvas.getContext('2d');
-  var texture = new three__WEBPACK_IMPORTED_MODULE_3__["Texture"](canvas);
+  var texture = new three__WEBPACK_IMPORTED_MODULE_1__["Texture"](canvas);
   var promiseArray = [];
 
   for (var i = 0; i < images.length; i++) {
@@ -105268,46 +105254,45 @@ function getCanvasImage(images, direction) {
   return promiseArray.pop();
 }
 
-function setConnectedPanoramas(panorama, scene) {
+function setConnectedPanoramas(panorama) {
   ;
   panorama.panoramaobject.connections.forEach(function (connection) {
     setArrow(connection["pano-id"], connection["relative-location"], scene);
   });
 }
 
-function setNorthArrow(panorama, scene) {
-  console.log(panorama);
+function setNorthArrow(panorama) {
   var url = "./northarrow.png";
-  var loader = new three__WEBPACK_IMPORTED_MODULE_3__["TextureLoader"]();
+  var loader = new three__WEBPACK_IMPORTED_MODULE_1__["TextureLoader"]();
   loader.load(url, function (texture) {
-    var geometry = new three__WEBPACK_IMPORTED_MODULE_3__["CircleGeometry"](64, 64);
-    var material = new three__WEBPACK_IMPORTED_MODULE_3__["MeshBasicMaterial"]({
+    var geometry = new three__WEBPACK_IMPORTED_MODULE_1__["CircleGeometry"](64, 64);
+    var material = new three__WEBPACK_IMPORTED_MODULE_1__["MeshBasicMaterial"]({
       map: texture,
-      side: three__WEBPACK_IMPORTED_MODULE_3__["DoubleSide"]
+      side: three__WEBPACK_IMPORTED_MODULE_1__["DoubleSide"]
     });
     material.color.set(0xffffff);
-    var northarrow = new three__WEBPACK_IMPORTED_MODULE_3__["Mesh"](geometry, material);
-    northarrow.rotateX(three__WEBPACK_IMPORTED_MODULE_3__["MathUtils"].degToRad(90));
-    var panoramayaw = panorama.panoramaobject["pano-orientation"].yaw - 90;
-    northarrow.rotateZ(three__WEBPACK_IMPORTED_MODULE_3__["MathUtils"].degToRad(panoramayaw));
+    var northarrow = new three__WEBPACK_IMPORTED_MODULE_1__["Mesh"](geometry, material);
+    northarrow.rotateX(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(90));
+    var panoramayaw = panorama.panoramaobject["pano-orientation"].yaw - panorama.panoramaobject["camera-orientation"].yaw - 90;
+    northarrow.rotateZ(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(panoramayaw));
     scene.add(northarrow);
   });
 }
 
-function setArrow(panoramaid, direction, scene) {
+function setArrow(panoramaid, direction) {
   var url = "./next.png";
-  var loader = new three__WEBPACK_IMPORTED_MODULE_3__["TextureLoader"]();
+  var loader = new three__WEBPACK_IMPORTED_MODULE_1__["TextureLoader"]();
   loader.load(url, function (texture) {
-    var geometry = new three__WEBPACK_IMPORTED_MODULE_3__["CircleGeometry"](64, 32);
-    var material = new three__WEBPACK_IMPORTED_MODULE_3__["MeshBasicMaterial"]({
+    var geometry = new three__WEBPACK_IMPORTED_MODULE_1__["CircleGeometry"](64, 32);
+    var material = new three__WEBPACK_IMPORTED_MODULE_1__["MeshBasicMaterial"]({
       map: texture,
-      side: three__WEBPACK_IMPORTED_MODULE_3__["DoubleSide"]
+      side: three__WEBPACK_IMPORTED_MODULE_1__["DoubleSide"]
     });
-    var circle = new three__WEBPACK_IMPORTED_MODULE_3__["Mesh"](geometry, material);
+    var circle = new three__WEBPACK_IMPORTED_MODULE_1__["Mesh"](geometry, material);
     var yaw = direction.yaw;
-    circle.position.set(Math.cos(three__WEBPACK_IMPORTED_MODULE_3__["MathUtils"].degToRad(yaw + 135)) * 300, 0, Math.sin(three__WEBPACK_IMPORTED_MODULE_3__["MathUtils"].degToRad(yaw + 135)) * 300);
-    circle.rotateX(three__WEBPACK_IMPORTED_MODULE_3__["MathUtils"].degToRad(90));
-    circle.rotateZ(three__WEBPACK_IMPORTED_MODULE_3__["MathUtils"].degToRad(yaw));
+    circle.position.set(Math.cos(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(yaw - 90)) * 300, 0, Math.sin(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(yaw - 90)) * 300);
+    circle.rotateX(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(90));
+    circle.rotateZ(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(yaw - 180));
     scene.add(circle);
   }, function () {}, // onProgress function
   function (error) {
@@ -105316,59 +105301,59 @@ function setArrow(panoramaid, direction, scene) {
   );
 }
 
-function setPanoramaCube(panorama, scene) {
-  var skyboxGeo = new three__WEBPACK_IMPORTED_MODULE_3__["BoxGeometry"](20000, 20000, 20000);
-  var skybox = new three__WEBPACK_IMPORTED_MODULE_3__["Mesh"](skyboxGeo);
+function setPanoramaCube(panorama) {
+  var skyboxGeo = new three__WEBPACK_IMPORTED_MODULE_1__["BoxGeometry"](20000, 20000, 20000);
+  var skybox = new three__WEBPACK_IMPORTED_MODULE_1__["Mesh"](skyboxGeo);
   var texturepromises = [];
-  Object.keys(_panorama__WEBPACK_IMPORTED_MODULE_2__["directions"]).forEach(function (key) {
-    var urls = panorama.getImages(_panorama__WEBPACK_IMPORTED_MODULE_2__["directions"][key], _panorama__WEBPACK_IMPORTED_MODULE_2__["zoomlevels"][2]);
-    texturepromises.push(getCanvasImage(urls, _panorama__WEBPACK_IMPORTED_MODULE_2__["directions"][key]));
+  Object.keys(_panorama__WEBPACK_IMPORTED_MODULE_0__["directions"]).forEach(function (key) {
+    var urls = panorama.getImages(_panorama__WEBPACK_IMPORTED_MODULE_0__["directions"][key], _panorama__WEBPACK_IMPORTED_MODULE_0__["zoomlevels"][2]);
+    texturepromises.push(getCanvasImage(urls, _panorama__WEBPACK_IMPORTED_MODULE_0__["directions"][key]));
   });
   Promise.all(texturepromises).then(function (values) {
     var materialArray = values.map(function (textureobject) {
       var texture = textureobject.texture;
       var direction = textureobject.direction;
 
-      if (direction == _panorama__WEBPACK_IMPORTED_MODULE_2__["directions"].up || direction == _panorama__WEBPACK_IMPORTED_MODULE_2__["directions"].down) {
+      if (direction == _panorama__WEBPACK_IMPORTED_MODULE_0__["directions"].up || direction == _panorama__WEBPACK_IMPORTED_MODULE_0__["directions"].down) {
         texture.flipY = false;
       } else {
-        texture.wrapS = three__WEBPACK_IMPORTED_MODULE_3__["RepeatWrapping"];
+        texture.wrapS = three__WEBPACK_IMPORTED_MODULE_1__["RepeatWrapping"];
         texture.repeat.x = -1;
       }
 
-      return new three__WEBPACK_IMPORTED_MODULE_3__["MeshBasicMaterial"]({
+      return new three__WEBPACK_IMPORTED_MODULE_1__["MeshBasicMaterial"]({
         map: texture,
-        side: three__WEBPACK_IMPORTED_MODULE_3__["BackSide"]
+        side: three__WEBPACK_IMPORTED_MODULE_1__["BackSide"]
       });
     });
-    skybox = new three__WEBPACK_IMPORTED_MODULE_3__["Mesh"](skyboxGeo, materialArray);
+    skybox = new three__WEBPACK_IMPORTED_MODULE_1__["Mesh"](skyboxGeo, materialArray);
     scene.add(skybox);
   });
 }
 
-function init() {
-  container = document.createElement('div');
-  document.body.appendChild(container);
-  camera = new three__WEBPACK_IMPORTED_MODULE_3__["PerspectiveCamera"](50, window.innerWidth / window.innerHeight, 45, 60000);
+function init(containerid) {
+  container = document.getElementById(containerid);
+  camera = new three__WEBPACK_IMPORTED_MODULE_1__["PerspectiveCamera"](50, window.innerWidth / window.innerHeight, 45, 60000);
   camera.position.set(1200, -250, 2000);
-  scene = new three__WEBPACK_IMPORTED_MODULE_3__["Scene"](); //lights
+  scene = new three__WEBPACK_IMPORTED_MODULE_1__["Scene"](); //lights
 
-  var ambient = new three__WEBPACK_IMPORTED_MODULE_3__["AmbientLight"](0xffffff);
+  var ambient = new three__WEBPACK_IMPORTED_MODULE_1__["AmbientLight"](0xffffff);
   scene.add(ambient);
-  pointLight = new three__WEBPACK_IMPORTED_MODULE_3__["PointLight"](0xffffff, 2);
+  pointLight = new three__WEBPACK_IMPORTED_MODULE_1__["PointLight"](0xffffff, 2);
   scene.add(pointLight); //renderer
 
-  renderer = new three__WEBPACK_IMPORTED_MODULE_3__["WebGLRenderer"]();
+  renderer = new three__WEBPACK_IMPORTED_MODULE_1__["WebGLRenderer"]();
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   container.appendChild(renderer.domElement); //controls
 
-  var controls = new three_examples_jsm_controls_OrbitControls__WEBPACK_IMPORTED_MODULE_4__["OrbitControls"](camera, renderer.domElement);
+  var controls = new three_examples_jsm_controls_OrbitControls__WEBPACK_IMPORTED_MODULE_2__["OrbitControls"](camera, renderer.domElement);
   controls.enableZoom = false;
   controls.enablePan = false;
   controls.minPolarAngle = Math.PI / 3;
   controls.rotateSpeed = -1;
   window.addEventListener('resize', onWindowResize, false);
+  animate();
 }
 
 function onWindowResize() {
@@ -105386,13 +105371,15 @@ function render() {
   renderer.render(scene, camera);
 }
 
-var container, stats;
+var container;
 var camera, scene, renderer;
 var pointLight;
-init();
-animate();
-getpanorama([29.0246371505, 41.0476496167]);
-window.getpanorama = getpanorama;
+/* harmony default export */ __webpack_exports__["default"] = ({
+  init: init,
+  setConnectedPanoramas: setConnectedPanoramas,
+  setPanoramaCube: setPanoramaCube,
+  setNorthArrow: setNorthArrow
+});
 
 /***/ }),
 
@@ -105405,23 +105392,26 @@ window.getpanorama = getpanorama;
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-var EarthMineConfig = {
-  serviceUrl: "http://192.168.1.80/emp/service",
-  baseDataUrl: "http://192.168.1.80/emp/www",
-  showcoverage: 0,
-  CoverageLevel: 0,
-  //0:Normal; 1:Yüksek çözünürlük; -1:Düşük çözünürlük
-  usecoverageurl: true,
-  //UseCoverageURL kullanılmak isteniyorsa true olmalıdır, false yapılırsa global sunucu kullanılacaktır.
-  coverageDataUrl: "http://192.168.1.80/emp/map",
-  spatiallayerdistance: 50,
-  TableNameTabela: "Tabela",
-  TableNameBillboard: "Pano",
-  apiKey: "f4pwfzs99d1dugz8uhe2iuvs",
-  secretKey: "ZzYnWnExFR",
-  globalcoverageDataUrl: "-"
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return EarthMineConfig; });
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var EarthMineConfig = function EarthMineConfig(opts) {
+  _classCallCheck(this, EarthMineConfig);
+
+  this.serviceUrl = opts.serviceUrl;
+  this.baseDataUrl = opts.baseDataUrl;
+  this.showcoverage = opts.showcoverage;
+  this.CoverageLevel = opts.CoverageLevel;
+  this.usecoverageurl = opts.usecoverageurl;
+  this.coverageDataUrl = opts.coverageDataUrl;
+  this.spatiallayerdistance = opts.spatiallayerdistance;
+  this.TableNameTabela = opts.TableNameTabela;
+  this.apiKey = opts.apiKey;
+  this.secretKey = opts.secretKey;
+  this.globalcoverageDataUrl = opts.globalcoverageDataUrl;
 };
-/* harmony default export */ __webpack_exports__["default"] = (EarthMineConfig);
+
+
 
 /***/ }),
 
@@ -105437,13 +105427,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Panorama", function() { return Panorama; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "directions", function() { return directions; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "zoomlevels", function() { return zoomlevels; });
-/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./config */ "./src/js/config.js");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
 
 var directions = {
   right: "r",
@@ -105467,17 +105455,18 @@ var zoomlevelimages = {
 };
 
 var Panorama = /*#__PURE__*/function () {
-  function Panorama(opts) {
+  function Panorama(opts, baseDataUrl) {
     _classCallCheck(this, Panorama);
 
     this.panoramaobject = opts;
+    this.baseDataUrl = baseDataUrl;
   }
 
   _createClass(Panorama, [{
     key: "getImages",
     value: function getImages(direction, zoomlevel) {
       var id = this.panoramaobject["pano-id"];
-      var baseDataUrl = _config__WEBPACK_IMPORTED_MODULE_0__["default"].baseDataUrl;
+      var baseDataUrl = this.baseDataUrl;
       var sceneUrl = "".concat(baseDataUrl, "/").concat(id.substr(0, 3), "/").concat(id.substr(3, 3), "/").concat(id.substr(6, 3), "/").concat(id, "/").concat(direction, "/").concat(zoomlevel);
       return zoomlevelimages[zoomlevel].map(function (element) {
         var y = parseInt(element[0]);
@@ -105498,27 +105487,59 @@ var Panorama = /*#__PURE__*/function () {
 
 /***/ }),
 
-/***/ "./src/js/utils.js":
-/*!*************************!*\
-  !*** ./src/js/utils.js ***!
-  \*************************/
-/*! exports provided: default */
+/***/ "./src/js/service.js":
+/*!***************************!*\
+  !*** ./src/js/service.js ***!
+  \***************************/
+/*! exports provided: getPanoramabyCoordinates, getPanoramabyID */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getPanoramabyCoordinates", function() { return getPanoramabyCoordinates; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getPanoramabyID", function() { return getPanoramabyID; });
 /* harmony import */ var crypto_js_md5__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! crypto-js/md5 */ "./node_modules/crypto-js/md5.js");
 /* harmony import */ var crypto_js_md5__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(crypto_js_md5__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _panorama__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./panorama */ "./src/js/panorama.js");
 
 
 
-function getPanorama(coordinates, opts) {
+function getPanoramabyCoordinates(coordinates, opts) {
+  opts.requestbody = {
+    operation: "get-panoramas",
+    parameters: {
+      request: {
+        "subject-location": {
+          lon: coordinates[0],
+          lat: coordinates[1],
+          alt: 0.0
+        },
+        "search-radius": 750,
+        "max-results": 1
+      }
+    }
+  };
+  return ServiceCall(opts);
+}
+
+function getPanoramabyID(ID, opts) {
+  opts.requestbody = {
+    operation: "get-panoramas",
+    parameters: {
+      request: {
+        "panorama-ids": [ID]
+      }
+    }
+  };
+  return ServiceCall(opts);
+}
+
+function ServiceCall(opts) {
   var config = opts.config;
   var timestamp = Math.floor(new Date().getTime() / 1000);
   var hash = crypto_js_md5__WEBPACK_IMPORTED_MODULE_0___default()(config.apiKey + config.secretKey + timestamp).toString();
   var earthmineurl = "".concat(config.serviceUrl, "?sig=").concat(hash, "&timestamp=").concat(timestamp);
-  var requestbody = "{\"operation\":\"get-panoramas\",\"parameters\":{\"request\":{\"subject-location\":{\"lon\":" + coordinates[0] + ",\"lat\":" + coordinates[1] + ",\"alt\":0.0},\"search-radius\":750,\"max-results\":1}}}";
+  var requestbody = opts.requestbody;
   return new Promise(function (resolve, reject) {
     fetch(earthmineurl, {
       method: 'post',
@@ -105526,12 +105547,12 @@ function getPanorama(coordinates, opts) {
         'Content-Type': 'application/json',
         "x-earthmine-auth-id": config.apiKey
       },
-      body: requestbody
+      body: JSON.stringify(requestbody)
     }).then(function (response) {
       return response.json();
     }).then(function (response) {
       if (response.result.panoramas) {
-        resolve(new _panorama__WEBPACK_IMPORTED_MODULE_1__["Panorama"](response.result.panoramas[0]));
+        resolve(new _panorama__WEBPACK_IMPORTED_MODULE_1__["Panorama"](response.result.panoramas[0], config.baseDataUrl));
       } else {
         reject();
       }
@@ -105539,7 +105560,64 @@ function getPanorama(coordinates, opts) {
   });
 }
 
-/* harmony default export */ __webpack_exports__["default"] = (getPanorama);
+
+
+/***/ }),
+
+/***/ "./src/js/viewerapi.js":
+/*!*****************************!*\
+  !*** ./src/js/viewerapi.js ***!
+  \*****************************/
+/*! exports provided: init, setLocation */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "init", function() { return init; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setLocation", function() { return setLocation; });
+/* harmony import */ var _service__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./service */ "./src/js/service.js");
+/* harmony import */ var _canvas__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./canvas */ "./src/js/canvas.js");
+/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./config */ "./src/js/config.js");
+
+
+
+var options;
+var panorama;
+
+function init(opts) {
+  options = opts;
+
+  if (!opts.control) {
+    throw "Control must be defined";
+  }
+
+  if (!opts.config) {
+    throw "Configuration must be defined";
+  }
+
+  options.config = new _config__WEBPACK_IMPORTED_MODULE_2__["default"](opts.config);
+  _canvas__WEBPACK_IMPORTED_MODULE_1__["default"].init(opts.control);
+
+  if (opts.coordinates) {
+    setLocation(opts.coordinates);
+  }
+}
+
+function setLocation(coordinates) {
+  var locationopts = {
+    config: options.config
+  };
+  _service__WEBPACK_IMPORTED_MODULE_0__["getPanoramabyCoordinates"](coordinates, locationopts).then(function (panorama) {
+    panorama = panorama;
+    _canvas__WEBPACK_IMPORTED_MODULE_1__["default"].setConnectedPanoramas(panorama);
+    _canvas__WEBPACK_IMPORTED_MODULE_1__["default"].setPanoramaCube(panorama);
+    _canvas__WEBPACK_IMPORTED_MODULE_1__["default"].setNorthArrow(panorama);
+  }, function (err) {
+    throw err;
+  });
+}
+
+
 
 /***/ }),
 
@@ -105687,4 +105765,4 @@ function getPanorama(coordinates, opts) {
 /***/ })
 
 /******/ });
-//# sourceMappingURL=canvas.bundle.js.map
+//# sourceMappingURL=viewerapi.js.map

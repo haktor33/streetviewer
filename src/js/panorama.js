@@ -1,4 +1,4 @@
-import EarthmineConfig from './config';
+
 
 const directions = {
    
@@ -29,18 +29,17 @@ const zoomlevelimages = {
 
  class Panorama
 {
-    constructor(opts) {
+    constructor(opts,baseDataUrl) {
     this.panoramaobject = opts;
+    this.baseDataUrl = baseDataUrl;
      
 }
-
-   
 
     getImages(direction,zoomlevel)
     {
       
         let id = this.panoramaobject["pano-id"];
-        let baseDataUrl = EarthmineConfig.baseDataUrl;
+        let baseDataUrl = this.baseDataUrl;
         let sceneUrl = `${baseDataUrl}/${id.substr(0, 3)}/${id.substr(3, 3)}/${id.substr(6,3)}/${id}/${direction}/${zoomlevel}`
         
        return zoomlevelimages[zoomlevel].map(element =>{ 

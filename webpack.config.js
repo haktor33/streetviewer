@@ -3,10 +3,12 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
   mode: 'development',
-  entry: './src/js/canvas.js',
+  entry: './src/js/viewerapi.js',
   output: {
     path: __dirname + '/dist/',
-    filename: './js/canvas.bundle.js'
+    filename: './js/viewerapi.js',
+    library: 'viewerapi',
+    libraryTarget: 'var'
   },
   
   module: {
@@ -30,11 +32,6 @@ module.exports = {
       server: { baseDir: ['dist'] },
       files: ['./dist/*'],
       notify: false
-    }),
-    new HtmlWebpackPlugin({
-      filename: 'index.html',
-      favicon: 'favicon.ico',
-      template: 'src/index.html'
     })
   ],
   watch: true,

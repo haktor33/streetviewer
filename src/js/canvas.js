@@ -1,5 +1,4 @@
-import getPanorama from './utils';
-import EarthmineConfig from './config';
+
 import {
   directions,
   zoomlevels} from './panorama';
@@ -7,22 +6,6 @@ import {
   import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 
-function getpanorama(coordinates) {
-
-  let opts = {config:EarthmineConfig};
-  
-  getPanorama(coordinates,opts).then(panorama=>
-    {
-
-         
-           setConnectedPanoramas(panorama,scene);
-           setPanoramaCube(panorama,scene);
-           setNorthArrow(panorama,scene);
-
-          }
-    );
-
-  }
 
 
   function getCanvasImage(images,direction) {
@@ -68,7 +51,7 @@ function getpanorama(coordinates) {
     
   }
 
-  function setConnectedPanoramas(panorama,scene)
+  function setConnectedPanoramas(panorama)
   {
 ;
     panorama.panoramaobject.connections.forEach(connection => {
@@ -79,9 +62,9 @@ function getpanorama(coordinates) {
 
   }
 
-  function setNorthArrow(panorama,scene)
+  function setNorthArrow(panorama)
 {
-  console.log(panorama);
+
   let url = "./northarrow.png"
   const loader = new THREE.TextureLoader();
 
@@ -93,14 +76,14 @@ function getpanorama(coordinates) {
       material.color.set(0xffffff);
       const northarrow = new THREE.Mesh( geometry, material );
       northarrow.rotateX(THREE.MathUtils.degToRad(90))
-      const panoramayaw = panorama.panoramaobject["pano-orientation"].yaw-90;
+      const panoramayaw =   panorama.panoramaobject["pano-orientation"].yaw  - panorama.panoramaobject["camera-orientation"].yaw - 90 ;
       northarrow.rotateZ(THREE.MathUtils.degToRad(panoramayaw));
       scene.add(northarrow);
      
     });
 }
 
-function setArrow(panoramaid,direction,scene)
+function setArrow(panoramaid,direction)
 {
   let url = "./next.png"
 
@@ -117,10 +100,10 @@ function setArrow(panoramaid,direction,scene)
       const yaw = direction.yaw;
     
       circle.position.set(
-      Math.cos(THREE.MathUtils.degToRad(yaw+135))* 300, 0,Math.sin(THREE.MathUtils.degToRad(yaw+135)) * 300 );
+      Math.cos(THREE.MathUtils.degToRad(yaw-90))* 300, 0,Math.sin(THREE.MathUtils.degToRad(yaw-90)) * 300 );
            
        circle.rotateX(THREE.MathUtils.degToRad(90))
-       circle.rotateZ(THREE.MathUtils.degToRad(yaw))
+       circle.rotateZ(THREE.MathUtils.degToRad(yaw-180))
 
       scene.add(circle);
    
@@ -138,7 +121,7 @@ function setArrow(panoramaid,direction,scene)
 }
 
 
-function setPanoramaCube(panorama,scene)
+function setPanoramaCube(panorama)
 {
   
   let skyboxGeo = new THREE.BoxGeometry(20000, 20000, 20000);
@@ -182,10 +165,9 @@ function setPanoramaCube(panorama,scene)
  
 }
 
-  function init() {
+  function init(containerid) {
 
-    container = document.createElement( 'div' );
-    document.body.appendChild( container );
+    container = document.getElementById(containerid);
 
     camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight,  45,
       60000);
@@ -219,6 +201,8 @@ function setPanoramaCube(panorama,scene)
    
     window.addEventListener( 'resize', onWindowResize, false );
 
+    animate();
+
   }
 
   function onWindowResize() {
@@ -232,7 +216,7 @@ function setPanoramaCube(panorama,scene)
 
   function animate() {
 
-    requestAnimationFrame( animate );
+    requestAnimationFrame(animate);
     render();
 
   }
@@ -244,15 +228,14 @@ function setPanoramaCube(panorama,scene)
 
   }
 
-  let container, stats;
+  let container;
 
   let camera, scene, renderer;
 
   let pointLight;
 
-  init();
-  animate();
-  getpanorama([29.0246371505,  41.0476496167 ]);
-
-
-window.getpanorama = getpanorama;
+ 
+  export default {init,  
+    setConnectedPanoramas,
+    setPanoramaCube,
+    setNorthArrow}
