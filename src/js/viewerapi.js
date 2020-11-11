@@ -25,12 +25,32 @@ let panorama;
 
       canvas.init(opts.control);
 
+      canvas.on("connectionclick",(evt) => setID(evt.panoramaid))
+
       if(opts.coordinates)
       {
        setLocation(opts.coordinates)
       }
     
     }
+
+    function setID(id)
+    {
+     let locationopts = {config:options.config};
+ 
+      service.getPanoramabyID(id,locationopts).then(panorama=>
+    {
+           panorama = panorama;
+
+           canvas.setPanorama(panorama);
+
+
+    },
+    err =>{ throw(err)}
+    );
+    }
+
+
     
   function setLocation(coordinates)
     {
@@ -40,9 +60,8 @@ let panorama;
     {
            panorama = panorama;
 
-           canvas.setConnectedPanoramas(panorama);
-           canvas.setPanoramaCube(panorama);
-           canvas.setNorthArrow(panorama);
+           canvas.setPanorama(panorama);
+
 
     },
     err =>{ throw(err)}

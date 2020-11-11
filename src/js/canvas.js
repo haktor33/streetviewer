@@ -4,9 +4,37 @@ import {
   zoomlevels} from './panorama';
   import * as THREE from 'three';
   import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+  import { Interaction } from 'three.interaction';
+  import { eventHandler } from './events';
+
+  function clearScene()
+  {
+
+    meshes.forEach(mesh=>{
+        scene.remove( mesh );
+    })
+  
 
 
+    geometries.forEach(geometry=>{
+        geometry.dispose();
+    })
 
+    materials.forEach(material=>{
+        material.dispose();
+    })
+
+    textures.forEach(texture=>{
+        texture.dispose();
+    })
+
+    meshes = [];
+    textures = [];
+    materials = [];
+    geometries = [];
+
+
+  }
 
   function getCanvasImage(images,direction) {
 
@@ -75,12 +103,25 @@ import {
       const material =  new THREE.MeshBasicMaterial({ map: texture ,side: THREE.DoubleSide})
       material.color.set(0xffffff);
       const northarrow = new THREE.Mesh( geometry, material );
-      northarrow.rotateX(THREE.MathUtils.degToRad(90))
-      const panoramayaw =   panorama.panoramaobject["pano-orientation"].yaw  - panorama.panoramaobject["camera-orientation"].yaw - 90 ;
+      northarrow.rotateX(THREE.MathUtils.degToRad(90));
+      let panoyaw = panorama.panoramaobject["pano-orientation"].yaw;
+      let camerayaw =  panorama.panoramaobject["camera-orientation"]?panorama.panoramaobject["camera-orientation"].yaw:0;
+      const panoramayaw =   panoyaw  - camerayaw - 90 ;
       northarrow.rotateZ(THREE.MathUtils.degToRad(panoramayaw));
       scene.add(northarrow);
-     
+    
+      materials.push(material);
+      meshes.push(northarrow);
+      geometries.push(geometry);
+      textures.push(texture);
     });
+}
+
+function setPanorama(panorama)
+{  clearScene();
+    setConnectedPanoramas(panorama);
+    setPanoramaCube(panorama);
+    setNorthArrow(panorama); 
 }
 
 function setArrow(panoramaid,direction)
@@ -94,19 +135,33 @@ function setArrow(panoramaid,direction)
     function (texture) {
   
       const geometry = new THREE.CircleGeometry(64, 32 );
+     
+      geometry.name = panoramaid;
       const material =  new THREE.MeshBasicMaterial({ map: texture , side: THREE.DoubleSide})
       const circle = new THREE.Mesh( geometry, material );
 
       const yaw = direction.yaw;
+
+      materials.push(material);
+      meshes.push(circle);
+      geometries.push(geometry);
+      textures.push(texture);
     
       circle.position.set(
       Math.cos(THREE.MathUtils.degToRad(yaw-90))* 300, 0,Math.sin(THREE.MathUtils.degToRad(yaw-90)) * 300 );
            
        circle.rotateX(THREE.MathUtils.degToRad(90))
        circle.rotateZ(THREE.MathUtils.degToRad(yaw-180))
-
-      scene.add(circle);
-   
+       
+     
+     
+       scene.add(circle);
+      circle.on('click', function(ev) {
+          
+        eventhandler.dispatchEvent("connectionclick",
+        { bubbles: true, cancelable: true, panoramaid :ev.target.geometry.name });
+      
+    });
     }
     ,
     function () {},  // onProgress function
@@ -127,21 +182,26 @@ function setPanoramaCube(panorama)
   let skyboxGeo = new THREE.BoxGeometry(20000, 20000, 20000);
   let skybox = new THREE.Mesh(skyboxGeo);
 
+  geometries.push(skyboxGeo);
+  meshes.push(skybox);
+
   let texturepromises =[];
 
  Object.keys(directions).forEach(key=>{
-  let urls = panorama.getImages(directions[key],zoomlevels[2]);
+  let urls = panorama.getImages(directions[key],zoomlevels[0]);
   texturepromises.push(getCanvasImage(urls,directions[key]))
   });
 
 
   Promise.all(texturepromises).then((values) => {
     
+  
+
     let materialArray = values.map(textureobject=> { 
 
       let texture = textureobject.texture;
       let direction = textureobject.direction
-      
+      textures.push(texture);
        if(direction == directions.up ||direction == directions.down )
       {
      texture.flipY =false;
@@ -157,6 +217,8 @@ function setPanoramaCube(panorama)
       return new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide })
   
   });
+ 
+  materials.push(...materialArray);
     skybox = new THREE.Mesh(skyboxGeo, materialArray);
     scene.add(skybox);
 })
@@ -176,7 +238,7 @@ function setPanoramaCube(panorama)
 
     scene = new THREE.Scene();
  
-
+   
     //lights
     const ambient = new THREE.AmbientLight( 0xffffff );
     scene.add( ambient );
@@ -197,8 +259,10 @@ function setPanoramaCube(panorama)
     controls.enablePan = false;
     controls.minPolarAngle =  Math.PI / 3;
     controls.rotateSpeed = -1
-
+  
+    const interaction = new Interaction(renderer, scene, camera);
    
+    eventhandler = new eventHandler(["connectionclick"]);
     window.addEventListener( 'resize', onWindowResize, false );
 
     animate();
@@ -228,14 +292,28 @@ function setPanoramaCube(panorama)
 
   }
 
+  function on(name,callback)
+  {
+  return eventhandler.on(name,callback)
+  }
+
+  function off(name,handle)
+  {
+  return eventhandler.off(name,handle);
+  }
+
   let container;
 
   let camera, scene, renderer;
 
   let pointLight;
 
+  let eventhandler;
+
+  let geometries = [];
+  let  textures = [];
+  let  materials = [];
+  let meshes= [];
  
   export default {init,  
-    setConnectedPanoramas,
-    setPanoramaCube,
-    setNorthArrow}
+    setPanorama,on,off}

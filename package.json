@@ -13,7 +13,8 @@
   "license": "ISC",
   "dependencies": {
     "crypto-js": "^4.0.0",
-    "three": "^0.122.0"
+    "three": "^0.122.0",
+    "three.interaction": "^0.2.3"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
