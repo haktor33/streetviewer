@@ -109832,9 +109832,16 @@ function setNorthArrow(panorama) {
 
 function setPanorama(panorama) {
   clearScene();
+  currentpanorama = panorama;
   setConnectedPanoramas(panorama);
-  setPanoramaCube(panorama);
+  setPanoramaCube(panorama, 0).then(function (mesh) {
+    return changeCubeTexture(panorama, 2, mesh);
+  });
   setNorthArrow(panorama);
+  eventhandler.dispatchEvent("camerachanged", {
+    location: panorama.panoramaobject["location"],
+    orientation: panorama.panoramaobject["pano-orientation"]
+  });
 }
 
 function setArrow(panoramaid, direction) {
@@ -109871,47 +109878,88 @@ function setArrow(panoramaid, direction) {
   );
 }
 
-function setPanoramaCube(panorama) {
-  var skyboxGeo = new three__WEBPACK_IMPORTED_MODULE_1__["BoxGeometry"](20000, 20000, 20000);
-  var skybox = new three__WEBPACK_IMPORTED_MODULE_1__["Mesh"](skyboxGeo);
-  geometries.push(skyboxGeo);
-  meshes.push(skybox);
-  var texturepromises = [];
-  Object.keys(_panorama__WEBPACK_IMPORTED_MODULE_0__["directions"]).forEach(function (key) {
-    var urls = panorama.getImages(_panorama__WEBPACK_IMPORTED_MODULE_0__["directions"][key], _panorama__WEBPACK_IMPORTED_MODULE_0__["zoomlevels"][0]);
-    texturepromises.push(getCanvasImage(urls, _panorama__WEBPACK_IMPORTED_MODULE_0__["directions"][key]));
-  });
-  Promise.all(texturepromises).then(function (values) {
-    var _materials;
-
-    var materialArray = values.map(function (textureobject) {
-      var texture = textureobject.texture;
-      var direction = textureobject.direction;
-      textures.push(texture);
-
-      if (direction == _panorama__WEBPACK_IMPORTED_MODULE_0__["directions"].up || direction == _panorama__WEBPACK_IMPORTED_MODULE_0__["directions"].down) {
-        texture.flipY = false;
-      } else {
-        texture.wrapS = three__WEBPACK_IMPORTED_MODULE_1__["RepeatWrapping"];
-        texture.repeat.x = -1;
-      }
-
-      return new three__WEBPACK_IMPORTED_MODULE_1__["MeshBasicMaterial"]({
-        map: texture,
-        side: three__WEBPACK_IMPORTED_MODULE_1__["BackSide"]
-      });
+function changeCubeTexture(panorama, level, mesh) {
+  return new Promise(function (resolve, reject) {
+    var texturepromises = [];
+    Object.keys(_panorama__WEBPACK_IMPORTED_MODULE_0__["directions"]).forEach(function (key) {
+      var urls = panorama.getImages(_panorama__WEBPACK_IMPORTED_MODULE_0__["directions"][key], _panorama__WEBPACK_IMPORTED_MODULE_0__["zoomlevels"][level]);
+      texturepromises.push(getCanvasImage(urls, _panorama__WEBPACK_IMPORTED_MODULE_0__["directions"][key]));
     });
+    Promise.all(texturepromises).then(function (values) {
+      var _materials;
 
-    (_materials = materials).push.apply(_materials, _toConsumableArray(materialArray));
+      var materialArray = values.map(function (textureobject) {
+        var texture = textureobject.texture;
+        var direction = textureobject.direction;
+        textures.push(texture);
 
-    skybox = new three__WEBPACK_IMPORTED_MODULE_1__["Mesh"](skyboxGeo, materialArray);
-    scene.add(skybox);
+        if (direction == _panorama__WEBPACK_IMPORTED_MODULE_0__["directions"].up || direction == _panorama__WEBPACK_IMPORTED_MODULE_0__["directions"].down) {
+          texture.flipY = false;
+        } else {
+          texture.wrapS = three__WEBPACK_IMPORTED_MODULE_1__["RepeatWrapping"];
+          texture.repeat.x = -1;
+        }
+
+        return new three__WEBPACK_IMPORTED_MODULE_1__["MeshBasicMaterial"]({
+          map: texture,
+          side: three__WEBPACK_IMPORTED_MODULE_1__["BackSide"]
+        });
+      });
+
+      (_materials = materials).push.apply(_materials, _toConsumableArray(materialArray));
+
+      mesh.material = materialArray;
+      resolve(mesh);
+    });
+  });
+}
+
+function setPanoramaCube(panorama, level) {
+  return new Promise(function (resolve, reject) {
+    var skyboxGeo = new three__WEBPACK_IMPORTED_MODULE_1__["BoxGeometry"](20000, 20000, 20000);
+    var skybox;
+    geometries.push(skyboxGeo);
+    var texturepromises = [];
+    Object.keys(_panorama__WEBPACK_IMPORTED_MODULE_0__["directions"]).forEach(function (key) {
+      var urls = panorama.getImages(_panorama__WEBPACK_IMPORTED_MODULE_0__["directions"][key], _panorama__WEBPACK_IMPORTED_MODULE_0__["zoomlevels"][level]);
+      texturepromises.push(getCanvasImage(urls, _panorama__WEBPACK_IMPORTED_MODULE_0__["directions"][key]));
+    });
+    Promise.all(texturepromises).then(function (values) {
+      var _materials2;
+
+      var materialArray = values.map(function (textureobject) {
+        var texture = textureobject.texture;
+        var direction = textureobject.direction;
+        textures.push(texture);
+
+        if (direction == _panorama__WEBPACK_IMPORTED_MODULE_0__["directions"].up || direction == _panorama__WEBPACK_IMPORTED_MODULE_0__["directions"].down) {
+          texture.flipY = false;
+        } else {
+          texture.wrapS = three__WEBPACK_IMPORTED_MODULE_1__["RepeatWrapping"];
+          texture.repeat.x = -1;
+        }
+
+        return new three__WEBPACK_IMPORTED_MODULE_1__["MeshBasicMaterial"]({
+          map: texture,
+          side: three__WEBPACK_IMPORTED_MODULE_1__["BackSide"]
+        });
+      });
+
+      (_materials2 = materials).push.apply(_materials2, _toConsumableArray(materialArray));
+
+      skybox = new three__WEBPACK_IMPORTED_MODULE_1__["Mesh"](skyboxGeo, materialArray);
+      meshes.push(skybox);
+      scene.add(skybox);
+      resolve(skybox);
+    });
   });
 }
 
 function init(containerid) {
   container = document.getElementById(containerid);
-  camera = new three__WEBPACK_IMPORTED_MODULE_1__["PerspectiveCamera"](50, window.innerWidth / window.innerHeight, 45, 60000);
+  var w = container.offsetWidth;
+  var h = container.offsetHeight;
+  camera = new three__WEBPACK_IMPORTED_MODULE_1__["PerspectiveCamera"](50, w / h, 45, 60000);
   camera.position.set(1200, -250, 2000);
   scene = new three__WEBPACK_IMPORTED_MODULE_1__["Scene"](); //lights
 
@@ -109922,7 +109970,9 @@ function init(containerid) {
 
   renderer = new three__WEBPACK_IMPORTED_MODULE_1__["WebGLRenderer"]();
   renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  var w = container.offsetWidth;
+  var h = container.offsetHeight;
+  renderer.setSize(w, h);
   container.appendChild(renderer.domElement); //controls
 
   var controls = new three_examples_jsm_controls_OrbitControls__WEBPACK_IMPORTED_MODULE_2__["OrbitControls"](camera, renderer.domElement);
@@ -109930,16 +109980,31 @@ function init(containerid) {
   controls.enablePan = false;
   controls.minPolarAngle = Math.PI / 3;
   controls.rotateSpeed = -1;
+  controls.addEventListener('change', function (evt) {
+    var orientation = {
+      yaw: evt.target.getAzimuthalAngle() * (180 / Math.PI),
+      pitch: evt.target.getPolarAngle() * (180 / Math.PI)
+    };
+    orientation.yaw = orientation.yaw < 0 ? 360 + orientation.yaw : orientation.yaw;
+    orientation.pitch = orientation.pitch < 0 ? 360 + orientation.pitch : orientation.pitch;
+    eventhandler.dispatchEvent("camerachanged", {
+      location: currentpanorama.panoramaobject["location"],
+      orientation: orientation
+    });
+  });
   var interaction = new three_interaction__WEBPACK_IMPORTED_MODULE_3__["Interaction"](renderer, scene, camera);
-  eventhandler = new _events__WEBPACK_IMPORTED_MODULE_4__["eventHandler"](["connectionclick"]);
+  loadingmanager = new three__WEBPACK_IMPORTED_MODULE_1__["LoadingManager"]();
+  eventhandler = new _events__WEBPACK_IMPORTED_MODULE_4__["eventHandler"](["connectionclick", "camerachanged"]);
   window.addEventListener('resize', onWindowResize, false);
   animate();
 }
 
 function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
+  var w = container.offsetWidth;
+  var h = container.offsetHeight;
+  camera.aspect = w / h;
   camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(w, h);
 }
 
 function animate() {
@@ -109961,8 +110026,10 @@ function off(name, handle) {
 
 var container;
 var camera, scene, renderer;
+var currentpanorama;
 var pointLight;
 var eventhandler;
+var loadingmanager;
 var geometries = [];
 var textures = [];
 var materials = [];
@@ -110239,24 +110306,30 @@ function ServiceCall(opts) {
 /*!*****************************!*\
   !*** ./src/js/viewerapi.js ***!
   \*****************************/
-/*! exports provided: init, setLocation */
+/*! exports provided: init, setLocation, on, off */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "init", function() { return init; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setLocation", function() { return setLocation; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "on", function() { return on; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "off", function() { return off; });
 /* harmony import */ var _service__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./service */ "./src/js/service.js");
 /* harmony import */ var _canvas__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./canvas */ "./src/js/canvas.js");
 /* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./config */ "./src/js/config.js");
+/* harmony import */ var _events__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./events */ "./src/js/events.js");
+
 
 
 
 var options;
 var panorama;
+var eventhandler;
 
 function init(opts) {
   options = opts;
+  eventhandler = new _events__WEBPACK_IMPORTED_MODULE_3__["eventHandler"](["camerachanged"]);
 
   if (!opts.control) {
     throw "Control must be defined";
@@ -110270,6 +110343,11 @@ function init(opts) {
   _canvas__WEBPACK_IMPORTED_MODULE_1__["default"].init(opts.control);
   _canvas__WEBPACK_IMPORTED_MODULE_1__["default"].on("connectionclick", function (evt) {
     return setID(evt.panoramaid);
+  });
+  _canvas__WEBPACK_IMPORTED_MODULE_1__["default"].on("camerachanged", function (evt) {
+    eventhandler.dispatchEvent("camerachanged", {
+      data: evt
+    });
   });
 
   if (opts.coordinates) {
@@ -110299,6 +110377,14 @@ function setLocation(coordinates) {
   }, function (err) {
     throw err;
   });
+}
+
+function on(name, callback) {
+  return eventhandler.on(name, callback);
+}
+
+function off(name, handle) {
+  return eventhandler.off(name, handle);
 }
 
 

@@ -36,7 +36,7 @@ import {
 
   }
 
-  function getCanvasImage(images,direction) {
+function getCanvasImage(images,direction) {
 
   
     
@@ -79,7 +79,7 @@ import {
     
   }
 
-  function setConnectedPanoramas(panorama)
+function setConnectedPanoramas(panorama)
   {
 ;
     panorama.panoramaobject.connections.forEach(connection => {
@@ -90,7 +90,7 @@ import {
 
   }
 
-  function setNorthArrow(panorama)
+function setNorthArrow(panorama)
 {
 
   let url = "./northarrow.png"
@@ -118,10 +118,17 @@ import {
 }
 
 function setPanorama(panorama)
-{  clearScene();
+{   clearScene();
+   
+    currentpanorama = panorama;
     setConnectedPanoramas(panorama);
-    setPanoramaCube(panorama);
+    setPanoramaCube(panorama,0).then(mesh => changeCubeTexture(panorama,2,mesh));
     setNorthArrow(panorama); 
+
+     
+    eventhandler.dispatchEvent("camerachanged",
+    { location : panorama.panoramaobject["location"], orientation :  panorama.panoramaobject["pano-orientation"] });
+  
 }
 
 function setArrow(panoramaid,direction)
@@ -175,27 +182,86 @@ function setArrow(panoramaid,direction)
 
 }
 
+function changeCubeTexture(panorama,level,mesh)
+{
 
-function setPanoramaCube(panorama)
+    return  new Promise((resolve, reject) => {
+
+      
+        let texturepromises =[];
+      
+      
+      
+       Object.keys(directions).forEach(key=>{
+        let urls = panorama.getImages(directions[key],zoomlevels[level]);
+        texturepromises.push(getCanvasImage(urls,directions[key]))
+        });
+      
+      
+        Promise.all(texturepromises).then((values) => {
+          
+      
+          let materialArray = values.map(textureobject=> { 
+      
+            let texture = textureobject.texture;
+            let direction = textureobject.direction
+            textures.push(texture);
+             if(direction == directions.up ||direction == directions.down )
+            {
+           texture.flipY =false;
+          
+      
+           }
+           else{
+            texture.wrapS = THREE.RepeatWrapping;
+             texture.repeat.x = - 1;
+      
+           }
+            
+            return new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide })
+        
+        });
+       
+          materials.push(...materialArray);
+        
+          mesh.material = materialArray;
+        
+      
+          resolve(mesh)
+      
+      
+      });
+      
+      
+      
+        });
+      
+}
+
+
+function setPanoramaCube(panorama,level)
 {
   
+  return  new Promise((resolve, reject) => {
+
   let skyboxGeo = new THREE.BoxGeometry(20000, 20000, 20000);
-  let skybox = new THREE.Mesh(skyboxGeo);
+  let skybox ;
 
   geometries.push(skyboxGeo);
-  meshes.push(skybox);
+
 
   let texturepromises =[];
 
+
+
  Object.keys(directions).forEach(key=>{
-  let urls = panorama.getImages(directions[key],zoomlevels[0]);
+  let urls = panorama.getImages(directions[key],zoomlevels[level]);
   texturepromises.push(getCanvasImage(urls,directions[key]))
   });
 
 
   Promise.all(texturepromises).then((values) => {
     
-  
 
     let materialArray = values.map(textureobject=> { 
 
@@ -218,20 +284,32 @@ function setPanoramaCube(panorama)
   
   });
  
-  materials.push(...materialArray);
+    materials.push(...materialArray);
     skybox = new THREE.Mesh(skyboxGeo, materialArray);
+    meshes.push(skybox);
     scene.add(skybox);
-})
 
+    resolve(skybox)
+
+
+});
+
+
+
+  });
 
  
 }
 
-  function init(containerid) {
+function init(containerid) {
 
     container = document.getElementById(containerid);
 
-    camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight,  45,
+    var w = container.offsetWidth;
+    var h = container.offsetHeight;
+
+
+    camera = new THREE.PerspectiveCamera( 50, w / h,  45,
       60000);
 
     camera.position.set(1200, -250, 2000);
@@ -250,7 +328,13 @@ function setPanoramaCube(panorama)
     //renderer
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio( window.devicePixelRatio );
-    renderer.setSize( window.innerWidth, window.innerHeight );
+
+  
+
+    var w = container.offsetWidth;
+    var h = container.offsetHeight;
+    renderer.setSize(w, h);
+
     container.appendChild( renderer.domElement );
 
     //controls
@@ -259,45 +343,64 @@ function setPanoramaCube(panorama)
     controls.enablePan = false;
     controls.minPolarAngle =  Math.PI / 3;
     controls.rotateSpeed = -1
-  
+    controls.addEventListener('change', evt =>
+    {
+    let  orientation = { 
+        yaw : evt.target.getAzimuthalAngle()  * (180/ Math.PI),
+        pitch :  evt.target.getPolarAngle() * (180/ Math.PI),
+       
+     }
+
+     orientation.yaw = orientation.yaw <0? 360+orientation.yaw : orientation.yaw ;
+     orientation.pitch = orientation.pitch <0? 360+orientation.pitch : orientation.pitch ;
+
+     eventhandler.dispatchEvent("camerachanged",
+     { location : currentpanorama.panoramaobject["location"], orientation :  orientation });
+
+    });
+ 
+
     const interaction = new Interaction(renderer, scene, camera);
-   
-    eventhandler = new eventHandler(["connectionclick"]);
+ 
+    loadingmanager = new THREE.LoadingManager();
+    eventhandler = new eventHandler(["connectionclick","camerachanged"]);
     window.addEventListener( 'resize', onWindowResize, false );
 
     animate();
 
   }
 
-  function onWindowResize() {
+function onWindowResize() {
+    var w = container.offsetWidth;
+    var h = container.offsetHeight;
 
-    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.aspect = w / h;
     camera.updateProjectionMatrix();
 
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setSize( w, h );
 
   }
 
-  function animate() {
+function animate() {
 
     requestAnimationFrame(animate);
     render();
 
   }
 
-  function render() {
+function render() {
 
     renderer.render( scene, camera );
    
 
   }
 
-  function on(name,callback)
+function on(name,callback)
   {
   return eventhandler.on(name,callback)
   }
 
-  function off(name,handle)
+function off(name,handle)
   {
   return eventhandler.off(name,handle);
   }
@@ -306,9 +409,13 @@ function setPanoramaCube(panorama)
 
   let camera, scene, renderer;
 
+  let currentpanorama;
+
   let pointLight;
 
   let eventhandler;
+
+  let loadingmanager;
 
   let geometries = [];
   let  textures = [];

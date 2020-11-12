@@ -2,16 +2,17 @@
 import * as service from './service';
 import canvas from './canvas';
 import EarthMineConfig from './config';
-
+import { eventHandler } from './events';
 
 let options;
 let panorama;
-
+let eventhandler;
 
 
   function init(opts)
    {
     options = opts;
+    eventhandler = new eventHandler(["camerachanged"]);
        
        if(!opts.control)
        {
@@ -26,6 +27,10 @@ let panorama;
       canvas.init(opts.control);
 
       canvas.on("connectionclick",(evt) => setID(evt.panoramaid))
+      canvas.on("camerachanged",(evt) => {
+        eventhandler.dispatchEvent("camerachanged",
+        { data : evt });
+      })
 
       if(opts.coordinates)
       {
@@ -36,7 +41,8 @@ let panorama;
 
     function setID(id)
     {
-     let locationopts = {config:options.config};
+   
+        let locationopts = {config:options.config};
  
       service.getPanoramabyID(id,locationopts).then(panorama=>
     {
@@ -48,13 +54,13 @@ let panorama;
     },
     err =>{ throw(err)}
     );
-    }
-
-
-    
+   
+}
+ 
   function setLocation(coordinates)
     {
-     let locationopts = {config:options.config};
+   
+        let locationopts = {config:options.config};
  
       service.getPanoramabyCoordinates(coordinates,locationopts).then(panorama=>
     {
@@ -66,7 +72,18 @@ let panorama;
     },
     err =>{ throw(err)}
     );
-    }
+  
+}
+
+function on(name,callback)
+  {
+  return eventhandler.on(name,callback)
+  }
+
+  function off(name,handle)
+  {
+  return eventhandler.off(name,handle);
+  }
 
 
-export  {init, setLocation}
+export  {init, setLocation,on,off}
