@@ -109807,7 +109807,7 @@ function setConnectedPanoramas(panorama) {
 }
 
 function setNorthArrow(panorama) {
-  var url = "./northarrow.png";
+  var url = "./images/arrowCenter.png";
   var loader = new three__WEBPACK_IMPORTED_MODULE_1__["TextureLoader"]();
   loader.load(url, function (texture) {
     var geometry = new three__WEBPACK_IMPORTED_MODULE_1__["CircleGeometry"](64, 64);
@@ -109820,7 +109820,7 @@ function setNorthArrow(panorama) {
     northarrow.rotateX(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(90));
     var panoyaw = panorama.panoramaobject["pano-orientation"].yaw;
     var camerayaw = panorama.panoramaobject["camera-orientation"] ? panorama.panoramaobject["camera-orientation"].yaw : 0;
-    var panoramayaw = panoyaw - camerayaw - 90;
+    var panoramayaw = panoyaw - 90;
     northarrow.rotateZ(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(panoramayaw));
     scene.add(northarrow);
     materials.push(material);
@@ -109831,11 +109831,17 @@ function setNorthArrow(panorama) {
 }
 
 function setPanorama(panorama) {
+  if (currentpromise) {
+    return;
+  }
+
   clearScene();
   currentpanorama = panorama;
   setConnectedPanoramas(panorama);
-  setPanoramaCube(panorama, 0).then(function (mesh) {
-    return changeCubeTexture(panorama, 2, mesh);
+  currentpromise = setPanoramaCube(panorama, 0);
+  currentpromise.then(function (mesh) {
+    currentpromise = null;
+    changeCubeTexture(panorama, 2, mesh);
   });
   setNorthArrow(panorama);
   eventhandler.dispatchEvent("camerachanged", {
@@ -109845,7 +109851,7 @@ function setPanorama(panorama) {
 }
 
 function setArrow(panoramaid, direction) {
-  var url = "./next.png";
+  var url = "./images/arrowDarkBlue.png";
   var loader = new three__WEBPACK_IMPORTED_MODULE_1__["TextureLoader"]();
   loader.load(url, function (texture) {
     var geometry = new three__WEBPACK_IMPORTED_MODULE_1__["CircleGeometry"](64, 32);
@@ -109993,7 +109999,6 @@ function init(containerid) {
     });
   });
   var interaction = new three_interaction__WEBPACK_IMPORTED_MODULE_3__["Interaction"](renderer, scene, camera);
-  loadingmanager = new three__WEBPACK_IMPORTED_MODULE_1__["LoadingManager"]();
   eventhandler = new _events__WEBPACK_IMPORTED_MODULE_4__["eventHandler"](["connectionclick", "camerachanged"]);
   window.addEventListener('resize', onWindowResize, false);
   animate();
@@ -110029,7 +110034,7 @@ var camera, scene, renderer;
 var currentpanorama;
 var pointLight;
 var eventhandler;
-var loadingmanager;
+var currentpromise;
 var geometries = [];
 var textures = [];
 var materials = [];

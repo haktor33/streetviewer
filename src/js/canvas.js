@@ -93,7 +93,7 @@ function setConnectedPanoramas(panorama)
 function setNorthArrow(panorama)
 {
 
-  let url = "./northarrow.png"
+  let url = "./images/arrowCenter.png"
   const loader = new THREE.TextureLoader();
 
   loader.load(url,
@@ -106,7 +106,7 @@ function setNorthArrow(panorama)
       northarrow.rotateX(THREE.MathUtils.degToRad(90));
       let panoyaw = panorama.panoramaobject["pano-orientation"].yaw;
       let camerayaw =  panorama.panoramaobject["camera-orientation"]?panorama.panoramaobject["camera-orientation"].yaw:0;
-      const panoramayaw =   panoyaw  - camerayaw - 90 ;
+      const panoramayaw =   panoyaw   - 90 ;
       northarrow.rotateZ(THREE.MathUtils.degToRad(panoramayaw));
       scene.add(northarrow);
     
@@ -118,11 +118,18 @@ function setNorthArrow(panorama)
 }
 
 function setPanorama(panorama)
-{   clearScene();
+{ 
+    if(currentpromise)
+    {
+        return;
+    }
+
+  clearScene();
    
     currentpanorama = panorama;
     setConnectedPanoramas(panorama);
-    setPanoramaCube(panorama,0).then(mesh => changeCubeTexture(panorama,2,mesh));
+     currentpromise = setPanoramaCube(panorama,0)
+    currentpromise.then(mesh =>{ currentpromise = null; changeCubeTexture(panorama,2,mesh)});
     setNorthArrow(panorama); 
 
      
@@ -133,7 +140,7 @@ function setPanorama(panorama)
 
 function setArrow(panoramaid,direction)
 {
-  let url = "./next.png"
+  let url = "./images/arrowDarkBlue.png"
 
   const loader = new THREE.TextureLoader();
 
@@ -362,7 +369,7 @@ function init(containerid) {
 
     const interaction = new Interaction(renderer, scene, camera);
  
-    loadingmanager = new THREE.LoadingManager();
+
     eventhandler = new eventHandler(["connectionclick","camerachanged"]);
     window.addEventListener( 'resize', onWindowResize, false );
 
@@ -415,7 +422,7 @@ function off(name,handle)
 
   let eventhandler;
 
-  let loadingmanager;
+  let currentpromise;
 
   let geometries = [];
   let  textures = [];
