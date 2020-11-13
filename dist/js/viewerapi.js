@@ -109802,7 +109802,7 @@ function getCanvasImage(images, direction) {
 function setConnectedPanoramas(panorama) {
   ;
   panorama.panoramaobject.connections.forEach(function (connection) {
-    setArrow(connection["pano-id"], connection["relative-location"], scene);
+    setArrow(connection["pano-id"], connection["relative-location"], panorama);
   });
 }
 
@@ -109820,7 +109820,8 @@ function setNorthArrow(panorama) {
     northarrow.rotateX(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(90));
     var panoyaw = panorama.panoramaobject["pano-orientation"].yaw;
     var camerayaw = panorama.panoramaobject["camera-orientation"] ? panorama.panoramaobject["camera-orientation"].yaw : 0;
-    var panoramayaw = panoyaw - 90;
+    var panoramayaw = 180 + -1 * panoyaw;
+    console.log(panoyaw, panoramayaw);
     northarrow.rotateZ(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(panoramayaw));
     scene.add(northarrow);
     materials.push(material);
@@ -109850,7 +109851,7 @@ function setPanorama(panorama) {
   });
 }
 
-function setArrow(panoramaid, direction) {
+function setArrow(panoramaid, direction, panorama) {
   var url = "./images/arrowDarkBlue.png";
   var loader = new three__WEBPACK_IMPORTED_MODULE_1__["TextureLoader"]();
   loader.load(url, function (texture) {
@@ -109861,14 +109862,16 @@ function setArrow(panoramaid, direction) {
       side: three__WEBPACK_IMPORTED_MODULE_1__["DoubleSide"]
     });
     var circle = new three__WEBPACK_IMPORTED_MODULE_1__["Mesh"](geometry, material);
-    var yaw = direction.yaw;
+    var panoyaw = direction.yaw; //  let panoyaw =  panorama.panoramaobject["pano-orientation"].yaw ;
+
+    var yaw = 180 + -1 * panoyaw;
     materials.push(material);
     meshes.push(circle);
     geometries.push(geometry);
     textures.push(texture);
-    circle.position.set(Math.cos(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(yaw - 90)) * 300, 0, Math.sin(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(yaw - 90)) * 300);
+    circle.position.set(Math.cos(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(yaw)) * 300, 0, Math.sin(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(yaw)) * 300);
     circle.rotateX(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(90));
-    circle.rotateZ(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(yaw - 180));
+    circle.rotateZ(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(yaw));
     scene.add(circle);
     circle.on('click', function (ev) {
       eventhandler.dispatchEvent("connectionclick", {

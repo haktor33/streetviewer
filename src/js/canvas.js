@@ -84,7 +84,7 @@ function setConnectedPanoramas(panorama)
 ;
     panorama.panoramaobject.connections.forEach(connection => {
      
-      setArrow(connection["pano-id"],connection["relative-location"],scene)
+      setArrow(connection["pano-id"],connection["relative-location"],panorama)
       
     })
 
@@ -106,7 +106,9 @@ function setNorthArrow(panorama)
       northarrow.rotateX(THREE.MathUtils.degToRad(90));
       let panoyaw = panorama.panoramaobject["pano-orientation"].yaw;
       let camerayaw =  panorama.panoramaobject["camera-orientation"]?panorama.panoramaobject["camera-orientation"].yaw:0;
-      const panoramayaw =   panoyaw   - 90 ;
+      const panoramayaw = 180 + (-1 * panoyaw)
+
+      console.log(panoyaw,panoramayaw);
       northarrow.rotateZ(THREE.MathUtils.degToRad(panoramayaw));
       scene.add(northarrow);
     
@@ -138,7 +140,7 @@ function setPanorama(panorama)
   
 }
 
-function setArrow(panoramaid,direction)
+function setArrow(panoramaid,direction,panorama)
 {
   let url = "./images/arrowDarkBlue.png"
 
@@ -154,7 +156,10 @@ function setArrow(panoramaid,direction)
       const material =  new THREE.MeshBasicMaterial({ map: texture , side: THREE.DoubleSide})
       const circle = new THREE.Mesh( geometry, material );
 
-      const yaw = direction.yaw;
+ 
+       let panoyaw = direction.yaw ;
+     //  let panoyaw =  panorama.panoramaobject["pano-orientation"].yaw ;
+       const yaw = 180 + (-1 * panoyaw)
 
       materials.push(material);
       meshes.push(circle);
@@ -162,10 +167,10 @@ function setArrow(panoramaid,direction)
       textures.push(texture);
     
       circle.position.set(
-      Math.cos(THREE.MathUtils.degToRad(yaw-90))* 300, 0,Math.sin(THREE.MathUtils.degToRad(yaw-90)) * 300 );
+      Math.cos(THREE.MathUtils.degToRad(yaw))* 300, 0,Math.sin(THREE.MathUtils.degToRad(yaw)) * 300 );
            
        circle.rotateX(THREE.MathUtils.degToRad(90))
-       circle.rotateZ(THREE.MathUtils.degToRad(yaw-180))
+       circle.rotateZ(THREE.MathUtils.degToRad(yaw))
        
      
      
