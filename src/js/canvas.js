@@ -108,7 +108,7 @@ function setNorthArrow(panorama)
       let camerayaw =  panorama.panoramaobject["camera-orientation"]?panorama.panoramaobject["camera-orientation"].yaw:0;
       const panoramayaw = 180 + (-1 * panoyaw)
 
-      console.log(panoyaw,panoramayaw);
+    
       northarrow.rotateZ(THREE.MathUtils.degToRad(panoramayaw));
       scene.add(northarrow);
     
@@ -134,9 +134,15 @@ function setPanorama(panorama)
     currentpromise.then(mesh =>{ currentpromise = null; changeCubeTexture(panorama,2,mesh)});
     setNorthArrow(panorama); 
 
-     
+    let orientation =  getCameraOrientation() ;
+
+      if(panorama.panoramaobject["camera-orientation"])
+      {
+        orientation = panorama.panoramaobject["camera-orientation"];
+      }
+
     eventhandler.dispatchEvent("camerachanged",
-    { location : panorama.panoramaobject["location"], orientation :  panorama.panoramaobject["pano-orientation"] });
+    { location : panorama.panoramaobject["location"], orientation : orientation });
   
 }
 
@@ -153,24 +159,27 @@ function setArrow(panoramaid,direction,panorama)
       const geometry = new THREE.CircleGeometry(64, 32 );
      
       geometry.name = panoramaid;
-      const material =  new THREE.MeshBasicMaterial({ map: texture , side: THREE.DoubleSide})
+      const material =  new THREE.MeshBasicMaterial({ map: texture, transparent: true , side: THREE.DoubleSide})
       const circle = new THREE.Mesh( geometry, material );
 
  
-       let panoyaw = direction.yaw ;
-     //  let panoyaw =  panorama.panoramaobject["pano-orientation"].yaw ;
-       const yaw = 180 + (-1 * panoyaw)
+       let directionyaw = direction.yaw ;
+       let panoyaw =  panorama.panoramaobject["pano-orientation"].yaw ;
+       const yaw = 270 + (-1 * (panoyaw-directionyaw ) )
+      // const yaw = panoyaw
 
       materials.push(material);
       meshes.push(circle);
       geometries.push(geometry);
       textures.push(texture);
+
+      
     
       circle.position.set(
       Math.cos(THREE.MathUtils.degToRad(yaw))* 300, 0,Math.sin(THREE.MathUtils.degToRad(yaw)) * 300 );
            
        circle.rotateX(THREE.MathUtils.degToRad(90))
-       circle.rotateZ(THREE.MathUtils.degToRad(yaw))
+       circle.rotateZ(THREE.MathUtils.degToRad(yaw-90))
        
      
      
@@ -181,6 +190,10 @@ function setArrow(panoramaid,direction,panorama)
         { bubbles: true, cancelable: true, panoramaid :ev.target.geometry.name });
       
     });
+
+    circle.on('mouseout', function(ev) { circle.material.transparent = true;});
+    circle.on('mouseover', function(ev) { circle.material.transparent = false;});
+
     }
     ,
     function () {},  // onProgress function
@@ -317,6 +330,9 @@ function init(containerid) {
 
     container = document.getElementById(containerid);
 
+   
+
+
     var w = container.offsetWidth;
     var h = container.offsetHeight;
 
@@ -350,24 +366,17 @@ function init(containerid) {
     container.appendChild( renderer.domElement );
 
     //controls
-    const controls = new OrbitControls( camera, renderer.domElement );
+    controls = new OrbitControls( camera, renderer.domElement );
     controls.enableZoom = false;
     controls.enablePan = false;
     controls.minPolarAngle =  Math.PI / 3;
     controls.rotateSpeed = -1
     controls.addEventListener('change', evt =>
     {
-    let  orientation = { 
-        yaw : evt.target.getAzimuthalAngle()  * (180/ Math.PI),
-        pitch :  evt.target.getPolarAngle() * (180/ Math.PI),
-       
-     }
-
-     orientation.yaw = orientation.yaw <0? 360+orientation.yaw : orientation.yaw ;
-     orientation.pitch = orientation.pitch <0? 360+orientation.pitch : orientation.pitch ;
+    
 
      eventhandler.dispatchEvent("camerachanged",
-     { location : currentpanorama.panoramaobject["location"], orientation :  orientation });
+     { location : currentpanorama.panoramaobject["location"], orientation :    getCameraOrientation() });
 
     });
  
@@ -417,10 +426,26 @@ function off(name,handle)
   return eventhandler.off(name,handle);
   }
 
+  function getCameraOrientation()
+  {
+    let  orientation = { 
+      yaw : controls.getAzimuthalAngle()  * (180/ Math.PI),
+      pitch : controls.getPolarAngle() * (180/ Math.PI),
+     
+   }
+   let panoyaw = currentpanorama.panoramaobject["pano-orientation"].yaw;
+   let oryaw =  panoyaw - orientation.yaw;
+   orientation.yaw =oryaw <0? 360+oryaw : oryaw ;
+   orientation.yaw = orientation.yaw >360?orientation.yaw- 360 : orientation.yaw ;
+   orientation.pitch = orientation.pitch <0? 360+orientation.pitch : orientation.pitch ;
+
+   return orientation;
+  }
+
   let container;
 
   let camera, scene, renderer;
-
+  let controls;
   let currentpanorama;
 
   let pointLight;
