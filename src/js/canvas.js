@@ -129,6 +129,7 @@ function setPanorama(panorama)
   clearScene();
    
     currentpanorama = panorama;
+    setHeaderandFooter(panorama);
     setConnectedPanoramas(panorama);
      currentpromise = setPanoramaCube(panorama,0)
     currentpromise.then(mesh =>{ currentpromise = null; changeCubeTexture(panorama,2,mesh)});
@@ -326,11 +327,57 @@ function setPanoramaCube(panorama,level)
  
 }
 
+function setHeaderandFooter(panorama)
+{
+  let location = panorama.panoramaobject.location;
+  header.innerHTML = `Enlem: ${location.lat} Boylam: ${location.lon} Kot: ${location.alt}`; 
+}
+
+function setHtmlControls(containerid)
+{
+  container = document.getElementById(containerid);
+
+  let viewerdiv =  document.createElement("div");
+
+  viewerdiv.style.display = "flex";
+  viewerdiv.style["flex-direction"] = "column";
+
+  let header =  document.createElement("div");
+  header.style.flex = "0 0 auto"
+  header.style["background-color"] = "rgba(0,0,0,0.6)";
+  header.style["position"] = "absolute";
+  header.style["width"] = "100%";
+  header.style["height"] = "5vh";
+  header.style["z-index"] = "1";
+  header.style["color"] = "white";
+  header.style["font-family"] = "'Helvetica', 'Arial', sans-serif";
+
+
+  let vbody =  document.createElement("div");
+  vbody.style.flex = "1 1 auto"
+  vbody.style["position"] = "relative";
+  vbody.style["overflow-y"] = "auto";
+
+
+  viewerdiv.appendChild(header);
+  viewerdiv.appendChild(vbody);
+  container.appendChild(viewerdiv);
+
+  return {body : vbody , header : header};
+
+
+}
+
 function init(containerid) {
+
+    
 
     container = document.getElementById(containerid);
 
-   
+    let viewerdivs = setHtmlControls(containerid);
+    let viewerdiv = viewerdivs.body;
+    header  = viewerdivs.header;
+    
 
 
     var w = container.offsetWidth;
@@ -363,7 +410,7 @@ function init(containerid) {
     var h = container.offsetHeight;
     renderer.setSize(w, h);
 
-    container.appendChild( renderer.domElement );
+    viewerdiv.appendChild( renderer.domElement );
 
     //controls
     controls = new OrbitControls( camera, renderer.domElement );
@@ -443,6 +490,7 @@ function off(name,handle)
   }
 
   let container;
+  let header;
 
   let camera, scene, renderer;
   let controls;

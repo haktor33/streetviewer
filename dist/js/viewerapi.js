@@ -109837,6 +109837,7 @@ function setPanorama(panorama) {
 
   clearScene();
   currentpanorama = panorama;
+  setHeaderandFooter(panorama);
   setConnectedPanoramas(panorama);
   currentpromise = setPanoramaCube(panorama, 0);
   currentpromise.then(function (mesh) {
@@ -109977,8 +109978,43 @@ function setPanoramaCube(panorama, level) {
   });
 }
 
+function setHeaderandFooter(panorama) {
+  var location = panorama.panoramaobject.location;
+  header.innerHTML = "Enlem: ".concat(location.lat, " Boylam: ").concat(location.lon, " Kot: ").concat(location.alt);
+}
+
+function setHtmlControls(containerid) {
+  container = document.getElementById(containerid);
+  var viewerdiv = document.createElement("div");
+  viewerdiv.style.display = "flex";
+  viewerdiv.style["flex-direction"] = "column";
+  var header = document.createElement("div");
+  header.style.flex = "0 0 auto";
+  header.style["background-color"] = "rgba(0,0,0,0.6)";
+  header.style["position"] = "absolute";
+  header.style["width"] = "100%";
+  header.style["height"] = "5vh";
+  header.style["z-index"] = "1";
+  header.style["color"] = "white";
+  header.style["font-family"] = "'Helvetica', 'Arial', sans-serif";
+  var vbody = document.createElement("div");
+  vbody.style.flex = "1 1 auto";
+  vbody.style["position"] = "relative";
+  vbody.style["overflow-y"] = "auto";
+  viewerdiv.appendChild(header);
+  viewerdiv.appendChild(vbody);
+  container.appendChild(viewerdiv);
+  return {
+    body: vbody,
+    header: header
+  };
+}
+
 function init(containerid) {
   container = document.getElementById(containerid);
+  var viewerdivs = setHtmlControls(containerid);
+  var viewerdiv = viewerdivs.body;
+  header = viewerdivs.header;
   var w = container.offsetWidth;
   var h = container.offsetHeight;
   camera = new three__WEBPACK_IMPORTED_MODULE_1__["PerspectiveCamera"](50, w / h, 45, 60000);
@@ -109995,7 +110031,7 @@ function init(containerid) {
   var w = container.offsetWidth;
   var h = container.offsetHeight;
   renderer.setSize(w, h);
-  container.appendChild(renderer.domElement); //controls
+  viewerdiv.appendChild(renderer.domElement); //controls
 
   controls = new three_examples_jsm_controls_OrbitControls__WEBPACK_IMPORTED_MODULE_2__["OrbitControls"](camera, renderer.domElement);
   controls.enableZoom = false;
@@ -110053,6 +110089,7 @@ function getCameraOrientation() {
 }
 
 var container;
+var header;
 var camera, scene, renderer;
 var controls;
 var currentpanorama;
