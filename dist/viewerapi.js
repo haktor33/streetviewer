@@ -26073,113 +26073,6 @@ module.exports = JSON.parse("{\"modp1\":{\"gen\":\"02\",\"prime\":\"ffffffffffff
 
 /***/ }),
 
-/***/ "./node_modules/element-resize-event/index.js":
-/*!****************************************************!*\
-  !*** ./node_modules/element-resize-event/index.js ***!
-  \****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-function resizeListener(e) {
-  var win = e.target || e.srcElement
-  if (win.__resizeRAF__) {
-    cancelAnimationFrame(win.__resizeRAF__)
-  }
-  win.__resizeRAF__ = requestAnimationFrame(function () {
-    var trigger = win.__resizeTrigger__
-    var listeners = trigger &&  trigger.__resizeListeners__
-    if (listeners) {
-      listeners.forEach(function (fn) {
-        fn.call(trigger, e)
-      })
-    }
-  })
-}
-
-var exports = function exports(element, fn) {
-  var window = this
-  var document = window.document
-  var isIE
-
-  var attachEvent = document.attachEvent
-  if (typeof navigator !== 'undefined') {
-    isIE = navigator.userAgent.match(/Trident/) ||
-      navigator.userAgent.match(/Edge/)
-  }
-
-  function objectLoad() {
-    this.contentDocument.defaultView.__resizeTrigger__ = this.__resizeElement__
-    this.contentDocument.defaultView.addEventListener('resize', resizeListener)
-  }
-
-  if (!element.__resizeListeners__) {
-    element.__resizeListeners__ = []
-    if (attachEvent) {
-      element.__resizeTrigger__ = element
-      element.attachEvent('onresize', resizeListener)
-    } else {
-      if (getComputedStyle(element).position === 'static') {
-        element.style.position = 'relative'
-      }
-      var obj = (element.__resizeTrigger__ = document.createElement('object'))
-      obj.setAttribute(
-        'style',
-        'position: absolute; top: 0; left: 0; height: 100%; width: 100%; pointer-events: none; z-index: -1; opacity: 0;'
-      )
-      obj.setAttribute('class', 'resize-sensor')
-
-      // prevent <object> from stealing keyboard focus
-      obj.setAttribute('tabindex', '-1');
-
-      obj.__resizeElement__ = element
-      obj.onload = objectLoad
-      obj.type = 'text/html'
-      if (isIE) {
-        element.appendChild(obj)
-      }
-      obj.data = 'about:blank'
-      if (!isIE) {
-        element.appendChild(obj)
-      }
-    }
-  }
-  element.__resizeListeners__.push(fn)
-}
-
-module.exports = typeof window === 'undefined' ? exports : exports.bind(window)
-
-module.exports.unbind = function (element, fn) {
-  var attachEvent = document.attachEvent
-  var listeners = element.__resizeListeners__ || []
-  if (fn) {
-    var index = listeners.indexOf(fn)
-    if (index !== -1) {
-      listeners.splice(index, 1)
-    }
-  } else {
-    listeners = element.__resizeListeners__ = []
-  }
-  if (!listeners.length) {
-    if (attachEvent) {
-      element.detachEvent('onresize', resizeListener)
-    } else if (element.__resizeTrigger__) {
-      var contentDocument = element.__resizeTrigger__.contentDocument;
-      var defaultView = contentDocument && contentDocument.defaultView;
-      if (defaultView) {
-        defaultView.removeEventListener('resize', resizeListener);
-        delete defaultView.__resizeTrigger__;
-      }
-      element.__resizeTrigger__ = !element.removeChild(
-        element.__resizeTrigger__
-      )
-    }
-    delete element.__resizeListeners__
-  }
-}
-
-
-/***/ }),
-
 /***/ "./node_modules/elliptic/lib/elliptic.js":
 /*!***********************************************!*\
   !*** ./node_modules/elliptic/lib/elliptic.js ***!
@@ -109835,8 +109728,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var three_examples_jsm_controls_OrbitControls__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
 /* harmony import */ var three_interaction__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! three.interaction */ "./node_modules/three.interaction/build/three.interaction.module.js");
 /* harmony import */ var _events__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./events */ "./src/js/events.js");
-/* harmony import */ var element_resize_event__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! element-resize-event */ "./node_modules/element-resize-event/index.js");
-/* harmony import */ var element_resize_event__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(element_resize_event__WEBPACK_IMPORTED_MODULE_5__);
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -109848,7 +109739,6 @@ function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.it
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
 
 
 
@@ -109919,10 +109809,8 @@ function setConnectedPanoramas(panorama) {
 function setNorthArrow(panorama) {
   var url = imgnortharrow;
   var loader = new three__WEBPACK_IMPORTED_MODULE_1__["TextureLoader"]();
-  var w = container.offsetWidth;
-  var wfactor = w / 1000;
   loader.load(url, function (texture) {
-    var geometry = new three__WEBPACK_IMPORTED_MODULE_1__["CircleGeometry"](64 * wfactor, 64);
+    var geometry = new three__WEBPACK_IMPORTED_MODULE_1__["CircleGeometry"](64, 64);
     var material = new three__WEBPACK_IMPORTED_MODULE_1__["MeshBasicMaterial"]({
       map: texture,
       side: three__WEBPACK_IMPORTED_MODULE_1__["DoubleSide"]
@@ -109971,10 +109859,8 @@ function setPanorama(panorama) {
 function setArrow(panoramaid, direction, panorama) {
   var url = imgarrow;
   var loader = new three__WEBPACK_IMPORTED_MODULE_1__["TextureLoader"]();
-  var w = container.offsetWidth;
-  var wfactor = w / 1000;
   loader.load(url, function (texture) {
-    var geometry = new three__WEBPACK_IMPORTED_MODULE_1__["CircleGeometry"](64 * wfactor, 32);
+    var geometry = new three__WEBPACK_IMPORTED_MODULE_1__["CircleGeometry"](64, 32);
     geometry.name = panoramaid;
     var material = new three__WEBPACK_IMPORTED_MODULE_1__["MeshBasicMaterial"]({
       map: texture,
@@ -110186,9 +110072,6 @@ function init(containerid) {
   var interaction = new three_interaction__WEBPACK_IMPORTED_MODULE_3__["Interaction"](renderer, scene, camera);
   eventhandler = new _events__WEBPACK_IMPORTED_MODULE_4__["eventHandler"](["connectionclick", "camerachanged"]);
   window.addEventListener('resize', onWindowResize, false);
-  element_resize_event__WEBPACK_IMPORTED_MODULE_5___default()(container, function () {
-    onWindowResize();
-  });
   animate();
 }
 
@@ -110249,8 +110132,7 @@ var imgnortharrow = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAA
   init: init,
   setPanorama: setPanorama,
   on: on,
-  off: off,
-  onWindowResize: onWindowResize
+  off: off
 });
 
 /***/ }),
@@ -110518,7 +110400,7 @@ function ServiceCall(opts) {
 /*!*****************************!*\
   !*** ./src/js/viewerapi.js ***!
   \*****************************/
-/*! exports provided: init, setLocation, on, off, onResize */
+/*! exports provided: init, setLocation, on, off */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -110527,7 +110409,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setLocation", function() { return setLocation; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "on", function() { return on; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "off", function() { return off; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onResize", function() { return onResize; });
 /* harmony import */ var _service__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./service */ "./src/js/service.js");
 /* harmony import */ var _canvas__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./canvas */ "./src/js/canvas.js");
 /* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./config */ "./src/js/config.js");
@@ -110598,10 +110479,6 @@ function on(name, callback) {
 
 function off(name, handle) {
   return eventhandler.off(name, handle);
-}
-
-function onResize() {
-  _canvas__WEBPACK_IMPORTED_MODULE_1__["default"].onWindowResize();
 }
 
 

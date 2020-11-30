@@ -85,5 +85,10 @@ function on(name,callback)
   return eventhandler.off(name,handle);
   }
 
+  function onResize()
+  {
+    canvas.onWindowResize();
+  }
 
-export  {init, setLocation,on,off}
+
+export  {init, setLocation,on,off,onResize}
