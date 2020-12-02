@@ -98,12 +98,13 @@ function setNorthArrow(panorama)
   const loader = new THREE.TextureLoader();
 
   let w = container.offsetWidth;
-  let wfactor = w/1000;
-
+  let wfactor = GetWidthFactor();
+  let scaleval = GetScaleFactor();
   loader.load(url,
   
     function (texture) {
       const geometry = new THREE.CircleGeometry(64*wfactor, 64 );
+      geometry.name = "northarrow"
       const material =  new THREE.MeshBasicMaterial({ map: texture ,side: THREE.DoubleSide})
       material.color.set(0xffffff);
       const northarrow = new THREE.Mesh( geometry, material );
@@ -111,6 +112,7 @@ function setNorthArrow(panorama)
       const panoyaw = panorama.panoramaobject["pano-orientation"].yaw;
       const panoramayaw = 180 + (-1 * panoyaw)
 
+      northarrow.scale.set(scaleval,scaleval,scaleval); 
     
       northarrow.rotateZ(THREE.MathUtils.degToRad(panoramayaw));
       scene.add(northarrow);
@@ -157,19 +159,19 @@ function setArrow(panoramaid,direction,panorama)
   const loader = new THREE.TextureLoader();
 
   let w = container.offsetWidth;
-  let wfactor = w/1000;
-
-
+  let wfactor = GetWidthFactor()
+  let scaleval = GetScaleFactor();
+  let positionfactor = GetPositionFactor();
   loader.load(url,
   
     function (texture) {
   
-      const geometry = new THREE.CircleGeometry(64 * wfactor, 32 );
+      const geometry = new THREE.CircleGeometry(64 * wfactor, 64 );
      
       geometry.name = panoramaid;
       const material =  new THREE.MeshBasicMaterial({ map: texture, transparent: true , side: THREE.DoubleSide})
       const circle = new THREE.Mesh( geometry, material );
-
+      circle.scale.set(scaleval,scaleval,scaleval); 
  
        let directionyaw = direction.yaw ;
        let panoyaw =  panorama.panoramaobject["pano-orientation"].yaw ;
@@ -180,11 +182,11 @@ function setArrow(panoramaid,direction,panorama)
       meshes.push(circle);
       geometries.push(geometry);
       textures.push(texture);
-
+      circle.yaw = yaw;
       
     
-      circle.position.set(
-      Math.cos(THREE.MathUtils.degToRad(yaw))* 300, 0,Math.sin(THREE.MathUtils.degToRad(yaw)) * 300 );
+       circle.position.set(
+       Math.cos(THREE.MathUtils.degToRad(yaw))* positionfactor, 0,Math.sin(THREE.MathUtils.degToRad(yaw)) * positionfactor);
            
        circle.rotateX(THREE.MathUtils.degToRad(90))
        circle.rotateZ(THREE.MathUtils.degToRad(yaw-90))
@@ -277,7 +279,7 @@ function setPanoramaCube(panorama,level)
   
   return  new Promise((resolve, reject) => {
 
-  let skyboxGeo = new THREE.BoxGeometry(20000, 20000, 20000);
+  let skyboxGeo = new THREE.BoxGeometry(100, 100, 100);
   let skybox ;
 
   geometries.push(skyboxGeo);
@@ -388,6 +390,25 @@ function setHtmlControls(containerid)
 
 }
 
+function GetWidthFactor()
+{
+  let w = container.offsetWidth;
+  let wfactor = w/1024;
+  return wfactor;
+}
+
+function GetScaleFactor()
+{
+  let scaleval = 1/1024*(getCameraDistance())
+  return scaleval;
+}
+
+function GetPositionFactor()
+{
+  return  4* GetWidthFactor() * getCameraDistance()/15;
+
+}
+
 function init(containerid) {
 
     
@@ -404,10 +425,10 @@ function init(containerid) {
     var h = container.offsetHeight;
 
 
-    camera = new THREE.PerspectiveCamera( 50, w / h,  45,
-      60000);
+    camera = new THREE.PerspectiveCamera( 50, w / h,  0.1,
+      300);
 
-    camera.position.set(1200, -250, 2000);
+    camera.position.set(10, 0, 0);
 
     scene = new THREE.Scene();
  
@@ -436,13 +457,31 @@ function init(containerid) {
     controls = new OrbitControls( camera, renderer.domElement );
     controls.enableZoom = true;
     controls.enablePan = false;
-    controls.maxDistance = 10000;
-    controls.minDistance = 1000;
+    controls.maxDistance = 50;
+    controls.minDistance = 15;
     controls.minPolarAngle =  Math.PI / 3;
     controls.rotateSpeed = -1
     controls.addEventListener('change', evt =>
     {
-    
+      let scaleval = GetScaleFactor();
+      let wfactor = GetWidthFactor();
+
+      meshes.forEach(mesh => {
+        if(mesh.geometry.name.length >0)
+        {
+          if(mesh.geometry.name != "northarrow")
+        {
+          let positionfactor = GetPositionFactor();
+          mesh.position.set(Math.cos(THREE.MathUtils.degToRad(mesh.yaw)) * positionfactor, 0,Math.sin(THREE.MathUtils.degToRad(mesh.yaw)) * positionfactor);
+         
+        }
+         
+          mesh.scale.set(scaleval,scaleval,scaleval); 
+        }
+      })
+     
+
+   
 
      eventhandler.dispatchEvent("camerachanged",
      { location : currentpanorama.panoramaobject["location"], orientation :    getCameraOrientation() });
@@ -514,6 +553,12 @@ function off(name,handle)
    orientation.pitch = orientation.pitch <0? 360+orientation.pitch : orientation.pitch ;
 
    return orientation;
+  }
+
+  function getCameraDistance()
+  {
+    const distance = controls.object.position.distanceTo( controls.target );
+    return distance;
   }
 
   let container;

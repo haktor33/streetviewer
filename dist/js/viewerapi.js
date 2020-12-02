@@ -109920,9 +109920,11 @@ function setNorthArrow(panorama) {
   var url = imgnortharrow;
   var loader = new three__WEBPACK_IMPORTED_MODULE_1__["TextureLoader"]();
   var w = container.offsetWidth;
-  var wfactor = w / 1000;
+  var wfactor = GetWidthFactor();
+  var scaleval = GetScaleFactor();
   loader.load(url, function (texture) {
     var geometry = new three__WEBPACK_IMPORTED_MODULE_1__["CircleGeometry"](64 * wfactor, 64);
+    geometry.name = "northarrow";
     var material = new three__WEBPACK_IMPORTED_MODULE_1__["MeshBasicMaterial"]({
       map: texture,
       side: three__WEBPACK_IMPORTED_MODULE_1__["DoubleSide"]
@@ -109932,6 +109934,7 @@ function setNorthArrow(panorama) {
     northarrow.rotateX(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(90));
     var panoyaw = panorama.panoramaobject["pano-orientation"].yaw;
     var panoramayaw = 180 + -1 * panoyaw;
+    northarrow.scale.set(scaleval, scaleval, scaleval);
     northarrow.rotateZ(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(panoramayaw));
     scene.add(northarrow);
     materials.push(material);
@@ -109972,9 +109975,11 @@ function setArrow(panoramaid, direction, panorama) {
   var url = imgarrow;
   var loader = new three__WEBPACK_IMPORTED_MODULE_1__["TextureLoader"]();
   var w = container.offsetWidth;
-  var wfactor = w / 1000;
+  var wfactor = GetWidthFactor();
+  var scaleval = GetScaleFactor();
+  var positionfactor = GetPositionFactor();
   loader.load(url, function (texture) {
-    var geometry = new three__WEBPACK_IMPORTED_MODULE_1__["CircleGeometry"](64 * wfactor, 32);
+    var geometry = new three__WEBPACK_IMPORTED_MODULE_1__["CircleGeometry"](64 * wfactor, 64);
     geometry.name = panoramaid;
     var material = new three__WEBPACK_IMPORTED_MODULE_1__["MeshBasicMaterial"]({
       map: texture,
@@ -109982,6 +109987,7 @@ function setArrow(panoramaid, direction, panorama) {
       side: three__WEBPACK_IMPORTED_MODULE_1__["DoubleSide"]
     });
     var circle = new three__WEBPACK_IMPORTED_MODULE_1__["Mesh"](geometry, material);
+    circle.scale.set(scaleval, scaleval, scaleval);
     var directionyaw = direction.yaw;
     var panoyaw = panorama.panoramaobject["pano-orientation"].yaw;
     var yaw = 270 + -1 * (panoyaw - directionyaw); // const yaw = panoyaw
@@ -109990,7 +109996,8 @@ function setArrow(panoramaid, direction, panorama) {
     meshes.push(circle);
     geometries.push(geometry);
     textures.push(texture);
-    circle.position.set(Math.cos(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(yaw)) * 300, 0, Math.sin(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(yaw)) * 300);
+    circle.yaw = yaw;
+    circle.position.set(Math.cos(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(yaw)) * positionfactor, 0, Math.sin(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(yaw)) * positionfactor);
     circle.rotateX(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(90));
     circle.rotateZ(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(yaw - 90));
     scene.add(circle);
@@ -110052,7 +110059,7 @@ function changeCubeTexture(panorama, level, mesh) {
 
 function setPanoramaCube(panorama, level) {
   return new Promise(function (resolve, reject) {
-    var skyboxGeo = new three__WEBPACK_IMPORTED_MODULE_1__["BoxGeometry"](20000, 20000, 20000);
+    var skyboxGeo = new three__WEBPACK_IMPORTED_MODULE_1__["BoxGeometry"](100, 100, 100);
     var skybox;
     geometries.push(skyboxGeo);
     var texturepromises = [];
@@ -110146,6 +110153,21 @@ function setHtmlControls(containerid) {
   };
 }
 
+function GetWidthFactor() {
+  var w = container.offsetWidth;
+  var wfactor = w / 1024;
+  return wfactor;
+}
+
+function GetScaleFactor() {
+  var scaleval = 1 / 1024 * getCameraDistance();
+  return scaleval;
+}
+
+function GetPositionFactor() {
+  return 4 * GetWidthFactor() * getCameraDistance() / 15;
+}
+
 function init(containerid) {
   container = document.getElementById(containerid);
   var viewerdivs = setHtmlControls(containerid);
@@ -110154,8 +110176,8 @@ function init(containerid) {
   footer = viewerdivs.footer;
   var w = container.offsetWidth;
   var h = container.offsetHeight;
-  camera = new three__WEBPACK_IMPORTED_MODULE_1__["PerspectiveCamera"](50, w / h, 45, 60000);
-  camera.position.set(1200, -250, 2000);
+  camera = new three__WEBPACK_IMPORTED_MODULE_1__["PerspectiveCamera"](50, w / h, 0.1, 300);
+  camera.position.set(10, 0, 0);
   scene = new three__WEBPACK_IMPORTED_MODULE_1__["Scene"](); //lights
 
   var ambient = new three__WEBPACK_IMPORTED_MODULE_1__["AmbientLight"](0xffffff);
@@ -110173,11 +110195,23 @@ function init(containerid) {
   controls = new three_examples_jsm_controls_OrbitControls__WEBPACK_IMPORTED_MODULE_2__["OrbitControls"](camera, renderer.domElement);
   controls.enableZoom = true;
   controls.enablePan = false;
-  controls.maxDistance = 10000;
-  controls.minDistance = 1000;
+  controls.maxDistance = 50;
+  controls.minDistance = 15;
   controls.minPolarAngle = Math.PI / 3;
   controls.rotateSpeed = -1;
   controls.addEventListener('change', function (evt) {
+    var scaleval = GetScaleFactor();
+    var wfactor = GetWidthFactor();
+    meshes.forEach(function (mesh) {
+      if (mesh.geometry.name.length > 0) {
+        if (mesh.geometry.name != "northarrow") {
+          var positionfactor = GetPositionFactor();
+          mesh.position.set(Math.cos(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(mesh.yaw)) * positionfactor, 0, Math.sin(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(mesh.yaw)) * positionfactor);
+        }
+
+        mesh.scale.set(scaleval, scaleval, scaleval);
+      }
+    });
     eventhandler.dispatchEvent("camerachanged", {
       location: currentpanorama.panoramaobject["location"],
       orientation: getCameraOrientation()
@@ -110228,6 +110262,11 @@ function getCameraOrientation() {
   orientation.yaw = orientation.yaw > 360 ? orientation.yaw - 360 : orientation.yaw;
   orientation.pitch = orientation.pitch < 0 ? 360 + orientation.pitch : orientation.pitch;
   return orientation;
+}
+
+function getCameraDistance() {
+  var distance = controls.object.position.distanceTo(controls.target);
+  return distance;
 }
 
 var container;
