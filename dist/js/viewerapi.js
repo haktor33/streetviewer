@@ -110625,6 +110625,11 @@ function setLocation(coordinates) {
   };
   _service__WEBPACK_IMPORTED_MODULE_0__["getPanoramabyCoordinates"](coordinates, locationopts).then(function (panorama) {
     panorama = panorama;
+
+    if (!panorama.panoramaobject) {
+      throw "panorama not found";
+    }
+
     _canvas__WEBPACK_IMPORTED_MODULE_1__["default"].setPanorama(panorama);
   }, function (err) {
     throw err;

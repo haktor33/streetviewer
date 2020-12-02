@@ -66,6 +66,10 @@ let eventhandler;
     {
            panorama = panorama;
 
+           if(!panorama.panoramaobject)
+           {
+             throw("panorama not found");
+           }
            canvas.setPanorama(panorama);
 
 
