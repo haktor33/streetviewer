@@ -13,8 +13,11 @@ let eventhandler;
    {
     options = opts;
     eventhandler = new eventHandler(["camerachanged"]);
-       
-       if(!opts.control)
+    if(!opts)
+    {
+     throw("Options must be defined");
+    }
+    if(!opts.control)
        {
         throw("Control must be defined");
        }
@@ -95,4 +98,4 @@ function on(name,callback)
   }
 
 
-export  {init, setLocation,on,off,onResize}
+export {init, setLocation,on,off,onResize}

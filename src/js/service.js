@@ -3,6 +3,20 @@ import {Panorama} from './panorama'
 
 function getPanoramabyCoordinates(coordinates,opts) {
 
+  if(!coordinates)
+  {
+    throw("Coordinates must be defined");
+  }
+  if(!opts)
+  {
+    throw("Options must be defined");
+  }
+  if(!opts.config)
+  {
+    throw("Configuration must be defined");
+  }
+ 
+
   opts.requestbody =  
   {
     operation : "get-panoramas",
