@@ -33,6 +33,7 @@ import {
     textures = [];
     materials = [];
     geometries = [];
+ 
 
 
   }
@@ -112,8 +113,10 @@ function setNorthArrow(panorama)
       const panoyaw = panorama.panoramaobject["pano-orientation"].yaw;
       const panoramayaw = 180 + (-1 * panoyaw)
 
+      northarrow.position.set(0, getZlevel(),0);
+       
+
       northarrow.scale.set(scaleval,scaleval,scaleval); 
-    
       northarrow.rotateZ(THREE.MathUtils.degToRad(panoramayaw));
       scene.add(northarrow);
     
@@ -132,13 +135,24 @@ function setPanorama(panorama)
     }
 
   clearScene();
-   
+ 
     currentpanorama = panorama;
+
+    camera.fov = 40;
+    controls.object.updateProjectionMatrix();
+    controls.emit("change")
+  
+
+
     setHeaderandFooter(panorama);
     setConnectedPanoramas(panorama);
-     currentpromise = setPanoramaCube(panorama,0)
+    currentpromise = setPanoramaCube(panorama,0)
     currentpromise.then(mesh =>{ currentpromise = null; changeCubeTexture(panorama,2,mesh)});
     setNorthArrow(panorama); 
+
+
+
+
 
     let orientation =  getCameraOrientation() ;
 
@@ -186,7 +200,7 @@ function setArrow(panoramaid,direction,panorama)
       
     
        circle.position.set(
-       Math.cos(THREE.MathUtils.degToRad(yaw))* positionfactor, 0,Math.sin(THREE.MathUtils.degToRad(yaw)) * positionfactor);
+       Math.cos(THREE.MathUtils.degToRad(yaw))* positionfactor, getZlevel(),Math.sin(THREE.MathUtils.degToRad(yaw)) * positionfactor);
            
        circle.rotateX(THREE.MathUtils.degToRad(90))
        circle.rotateZ(THREE.MathUtils.degToRad(yaw-90))
@@ -272,15 +286,15 @@ function changeCubeTexture(panorama,level,mesh)
         });
       
 }
-
+let skybox ;
 
 function setPanoramaCube(panorama,level)
 {
   
   return  new Promise((resolve, reject) => {
 
-  let skyboxGeo = new THREE.BoxGeometry(100, 100, 100);
-  let skybox ;
+  let skyboxGeo = new THREE.BoxGeometry(10000, 10000, 10000);
+
 
   geometries.push(skyboxGeo);
 
@@ -321,6 +335,7 @@ function setPanoramaCube(panorama,level)
  
     materials.push(...materialArray);
     skybox = new THREE.Mesh(skyboxGeo, materialArray);
+  
     meshes.push(skybox);
     scene.add(skybox);
 
@@ -365,6 +380,11 @@ function setHtmlControls(containerid)
   let footer =  document.createElement("div");
   let footerlabel =  document.createElement("div");
   let footerlogo =  document.createElement("div");
+  let zoomcontrol =  document.createElement("div");
+  let zoomcontrollist =  document.createElement("ul");
+  let zoomin =  document.createElement("li");
+  let zoomout =  document.createElement("li");
+
 
   viewerdiv.classList.add('emviewer');
   header.classList.add('emheader');
@@ -374,6 +394,18 @@ function setHtmlControls(containerid)
   footerlogo.classList.add('emfooterlogo');
   headerlabel.classList.add('emheaderlabel');
 
+  zoomcontrol.classList.add('emzoomlist');
+  zoomout.classList.add('zoomout');
+  zoomin.innerText = "+";
+  zoomout.innerText = "-";
+
+  zoomcontrollist.appendChild(zoomin);
+  zoomcontrollist.appendChild(zoomout);
+  zoomcontrol.appendChild(zoomcontrollist);
+
+  zoomcontrollist.addEventListener('click', SetZoom)
+
+
   header.appendChild(headerlabel);
   footer.appendChild(footerlabel);
   footer.appendChild(footerlogo);
@@ -381,6 +413,7 @@ function setHtmlControls(containerid)
   viewerdiv.appendChild(header);
   viewerdiv.appendChild(vbody);
   viewerdiv.appendChild(footer);
+  viewerdiv.appendChild(zoomcontrol);
 
   container.appendChild(viewerdiv);
 
@@ -390,22 +423,79 @@ function setHtmlControls(containerid)
 
 }
 
+function SetZoom(evt)
+{
+ 
+
+
+ let zoomin;
+
+if(evt.deltaY)
+{
+  
+  zoomin = event.deltaY < 0;
+ 
+
+}
+else
+{
+  zoomin = !evt.target.classList.contains("zoomout")
+}
+
+
+
+  if(zoomin)
+  {
+
+    if(camera.fov < 20)
+    return;
+    
+
+     camera.fov -= 10;
+     controls.object.updateProjectionMatrix();
+     controls.emit("change")
+
+
+  }
+  else
+  {
+   
+    if(camera.fov > 80)
+    return;
+
+    camera.fov += 10;
+    controls.object.updateProjectionMatrix();
+    controls.emit("change")
+   
+  }
+}
+
+
+
 function GetWidthFactor()
 {
   let w = container.offsetWidth;
-  let wfactor = w/1024;
+  let wfactor = w/3000;
   return wfactor;
 }
 
+function GetFovFactor()
+{
+
+  return ((camera.fov-40)/40 + 1);
+}
+
+
+
 function GetScaleFactor()
 {
-  let scaleval = 1/1024*(getCameraDistance())
+  let scaleval = 1/1024*(getCameraDistance())* GetFovFactor();
   return scaleval;
 }
 
 function GetPositionFactor()
 {
-  return  4* GetWidthFactor() * getCameraDistance()/15;
+  return  4* GetWidthFactor() * GetFovFactor() * getCameraDistance()/15;
 
 }
 
@@ -425,10 +515,13 @@ function init(containerid) {
     var h = container.offsetHeight;
 
 
-    camera = new THREE.PerspectiveCamera( 50, w / h,  0.1,
-      300);
+    camera = new THREE.PerspectiveCamera( 40, w / h,  0.1,
+      20000);
 
-    camera.position.set(10, 0, 0);
+      
+
+   
+    camera.position.set(0, 0, 0);
 
     scene = new THREE.Scene();
  
@@ -455,10 +548,20 @@ function init(containerid) {
 
     //controls
     controls = new OrbitControls( camera, renderer.domElement );
+    controls.domElement.addEventListener( 'wheel', SetZoom, false );
+    
+    controls.update();
+   
     controls.enableZoom = true;
     controls.enablePan = false;
+     
     controls.maxDistance = 50;
-    controls.minDistance = 15;
+    controls.minDistance = 50;
+   
+
+
+
+
     controls.minPolarAngle =  Math.PI / 3;
     controls.rotateSpeed = -1
     controls.addEventListener('change', evt =>
@@ -466,16 +569,26 @@ function init(containerid) {
       let scaleval = GetScaleFactor();
       let wfactor = GetWidthFactor();
 
+  
       meshes.forEach(mesh => {
         if(mesh.geometry.name.length >0)
         {
+          let positionfactor = GetPositionFactor();
           if(mesh.geometry.name != "northarrow")
         {
-          let positionfactor = GetPositionFactor();
-          mesh.position.set(Math.cos(THREE.MathUtils.degToRad(mesh.yaw)) * positionfactor, 0,Math.sin(THREE.MathUtils.degToRad(mesh.yaw)) * positionfactor);
-         
+          
+        
+          mesh.position.set(Math.cos(THREE.MathUtils.degToRad(mesh.yaw)) * positionfactor,getZlevel(),Math.sin(THREE.MathUtils.degToRad(mesh.yaw)) * positionfactor);
+
         }
-         
+        else 
+        {
+          
+          mesh.position.setY( getZlevel()); 
+       
+        }
+     
+        
           mesh.scale.set(scaleval,scaleval,scaleval); 
         }
       })
@@ -527,6 +640,12 @@ function render() {
     renderer.render( scene, camera );
    
 
+  }
+
+
+  function getZlevel()
+  {
+    return -0.5 * GetPositionFactor();
   }
 
 function on(name,callback)
