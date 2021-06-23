@@ -1,8 +1,6 @@
 
- export default class EarthMineConfig
- {
+export default class EarthMineConfig {
     constructor(opts) {
-     
         this.serviceUrl = opts.serviceUrl;
         this.baseDataUrl = opts.baseDataUrl;
         this.showcoverage = opts.showcoverage;
@@ -14,10 +12,6 @@
         this.apiKey = opts.apiKey;
         this.secretKey = opts.secretKey;
         this.globalcoverageDataUrl = opts.globalcoverageDataUrl;
-      
-     
-         
     }
-
- }
+}
 

@@ -1,37 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <title>Panorama Viewer</title>
     <style>
-      body {
-        margin: 0;
-      }
-      #earthmineviewer {  position: absolute; top: 0; bottom: 0; width: 100%; }
+        body {
+            margin: 0;
+        }
+
+        #earthmineviewer {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+        .text-label {
+            color: #fff;
+            font-family: "Fira Mono", Monaco, "Andale Mono", "Lucida Console", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace;
+            margin: -5px 0 0 15px;
+            pointer-events: none;
+        }
+        .map {
+            position: absolute;
+            bottom: 0;
+            height: 50% !important;
+            width: 20% !important;
+        }
+        .ui {
+            position: absolute;
+            z-index: 9999;
+        }
     </style>
-  <link rel="icon" href="favicon.ico"></head>
-  <body>
-   <div id="earthmineviewer"></div>
-  <script src="./js/viewerapi.js"></script>
-  <script>
-    viewerapi.init({control:"earthmineviewer",
-    config:
-  {
-    serviceUrl : "http://192.168.1.80/emp/service",
-    baseDataUrl : "http://192.168.1.80/emp/www",
-    showcoverage : 0,
-    CoverageLevel : 0, //0:Normal; 1:Yüksek çözünürlük; -1:Düşük çözünürlük
-    usecoverageurl : true,//UseCoverageURL kullanılmak isteniyorsa true olmalıdır, false yapılırsa global sunucu kullanılacaktır.
-    coverageDataUrl : "http://192.168.1.80/emp/map",
-    spatiallayerdistance : 50,
-    TableNameTabela : "Tabela",
-    TableNameBillboard : "Pano",
-    apiKey : "f4pwfzs99d1dugz8uhe2iuvs",
-    secretKey : "ZzYnWnExFR",
-    globalcoverageDataUrl : "-"
-  }
-  })
-  viewerapi.setLocation([29.0069406,   41.0425626 ]);
-  </script>
+    <link rel="icon" href="favicon.ico">
+</head>
+<body>
+    <button style="top:10px" id="draw" class="ui">Çizimi Başlat</button>
+    <div id="earthmineviewer"> </div>
+    <div class="map" id="map"></div>
+    <script src="./js/viewerapi.js"></script>
+    <script src="./js/googleInitMap.js"></script>
+    <script>
+        viewerapi.init({
+            control: "earthmineviewer",
+            config:
+            {
+                serviceUrl: "http://192.168.1.80/emp/service",
+                baseDataUrl: "http://192.168.1.80/emp/www",
+                showcoverage: 0,
+                CoverageLevel: 0, //0:Normal; 1:Yüksek çözünürlük; -1:Düşük çözünürlük
+                usecoverageurl: true,//UseCoverageURL kullanılmak isteniyorsa true olmalıdır, false yapılırsa global sunucu kullanılacaktır.
+                coverageDataUrl: "http://192.168.1.80/emp/map",
+                spatiallayerdistance: 50,
+                TableNameTabela: "Tabela",
+                TableNameBillboard: "Pano",
+                apiKey: "f4pwfzs99d1dugz8uhe2iuvs",
+                secretKey: "ZzYnWnExFR",
+                globalcoverageDataUrl: "-"
+            }
+        })
+        viewerapi.setLocation([29.0069406, 41.0425626]);
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCyG5l5n-vC_yFdr1CrqWa3oQ7Jc0q7eSQ&callback=initMap&libraries=&v=weekly" async></script>
 </body>
 </html>

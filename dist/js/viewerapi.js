@@ -33660,10 +33660,10 @@ utils.intFromLE = intFromLE;
 /*!********************************************!*\
   !*** ./node_modules/elliptic/package.json ***!
   \********************************************/
-/*! exports provided: _args, _development, _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _spec, _where, author, bugs, dependencies, description, devDependencies, files, homepage, keywords, license, main, name, repository, scripts, version, default */
+/*! exports provided: name, version, description, main, files, scripts, repository, keywords, author, license, bugs, homepage, devDependencies, dependencies, default */
 /***/ (function(module) {
 
-module.exports = JSON.parse("{\"_args\":[[\"elliptic@6.5.3\",\"D:\\\\Projects\\\\emstreetviewer\\\\streetviewer\"]],\"_development\":true,\"_from\":\"elliptic@6.5.3\",\"_id\":\"elliptic@6.5.3\",\"_inBundle\":false,\"_integrity\":\"sha512-IMqzv5wNQf+E6aHeIqATs0tOLeOTwj1QKbRcS3jBbYkl5oLAserA8yJTT7/VyHUYG91PRmPyeQDObKLPpeS4dw==\",\"_location\":\"/elliptic\",\"_phantomChildren\":{},\"_requested\":{\"type\":\"version\",\"registry\":true,\"raw\":\"elliptic@6.5.3\",\"name\":\"elliptic\",\"escapedName\":\"elliptic\",\"rawSpec\":\"6.5.3\",\"saveSpec\":null,\"fetchSpec\":\"6.5.3\"},\"_requiredBy\":[\"/browserify-sign\",\"/create-ecdh\"],\"_resolved\":\"https://registry.npmjs.org/elliptic/-/elliptic-6.5.3.tgz\",\"_spec\":\"6.5.3\",\"_where\":\"D:\\\\Projects\\\\emstreetviewer\\\\streetviewer\",\"author\":{\"name\":\"Fedor Indutny\",\"email\":\"fedor@indutny.com\"},\"bugs\":{\"url\":\"https://github.com/indutny/elliptic/issues\"},\"dependencies\":{\"bn.js\":\"^4.4.0\",\"brorand\":\"^1.0.1\",\"hash.js\":\"^1.0.0\",\"hmac-drbg\":\"^1.0.0\",\"inherits\":\"^2.0.1\",\"minimalistic-assert\":\"^1.0.0\",\"minimalistic-crypto-utils\":\"^1.0.0\"},\"description\":\"EC cryptography\",\"devDependencies\":{\"brfs\":\"^1.4.3\",\"coveralls\":\"^3.0.8\",\"grunt\":\"^1.0.4\",\"grunt-browserify\":\"^5.0.0\",\"grunt-cli\":\"^1.2.0\",\"grunt-contrib-connect\":\"^1.0.0\",\"grunt-contrib-copy\":\"^1.0.0\",\"grunt-contrib-uglify\":\"^1.0.1\",\"grunt-mocha-istanbul\":\"^3.0.1\",\"grunt-saucelabs\":\"^9.0.1\",\"istanbul\":\"^0.4.2\",\"jscs\":\"^3.0.7\",\"jshint\":\"^2.10.3\",\"mocha\":\"^6.2.2\"},\"files\":[\"lib\"],\"homepage\":\"https://github.com/indutny/elliptic\",\"keywords\":[\"EC\",\"Elliptic\",\"curve\",\"Cryptography\"],\"license\":\"MIT\",\"main\":\"lib/elliptic.js\",\"name\":\"elliptic\",\"repository\":{\"type\":\"git\",\"url\":\"git+ssh://git@github.com/indutny/elliptic.git\"},\"scripts\":{\"jscs\":\"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js\",\"jshint\":\"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js\",\"lint\":\"npm run jscs && npm run jshint\",\"test\":\"npm run lint && npm run unit\",\"unit\":\"istanbul test _mocha --reporter=spec test/index.js\",\"version\":\"grunt dist && git add dist/\"},\"version\":\"6.5.3\"}");
+module.exports = JSON.parse("{\"name\":\"elliptic\",\"version\":\"6.5.3\",\"description\":\"EC cryptography\",\"main\":\"lib/elliptic.js\",\"files\":[\"lib\"],\"scripts\":{\"jscs\":\"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js\",\"jshint\":\"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js\",\"lint\":\"npm run jscs && npm run jshint\",\"unit\":\"istanbul test _mocha --reporter=spec test/index.js\",\"test\":\"npm run lint && npm run unit\",\"version\":\"grunt dist && git add dist/\"},\"repository\":{\"type\":\"git\",\"url\":\"git@github.com:indutny/elliptic\"},\"keywords\":[\"EC\",\"Elliptic\",\"curve\",\"Cryptography\"],\"author\":\"Fedor Indutny <fedor@indutny.com>\",\"license\":\"MIT\",\"bugs\":{\"url\":\"https://github.com/indutny/elliptic/issues\"},\"homepage\":\"https://github.com/indutny/elliptic\",\"devDependencies\":{\"brfs\":\"^1.4.3\",\"coveralls\":\"^3.0.8\",\"grunt\":\"^1.0.4\",\"grunt-browserify\":\"^5.0.0\",\"grunt-cli\":\"^1.2.0\",\"grunt-contrib-connect\":\"^1.0.0\",\"grunt-contrib-copy\":\"^1.0.0\",\"grunt-contrib-uglify\":\"^1.0.1\",\"grunt-mocha-istanbul\":\"^3.0.1\",\"grunt-saucelabs\":\"^9.0.1\",\"istanbul\":\"^0.4.2\",\"jscs\":\"^3.0.7\",\"jshint\":\"^2.10.3\",\"mocha\":\"^6.2.2\"},\"dependencies\":{\"bn.js\":\"^4.4.0\",\"brorand\":\"^1.0.1\",\"hash.js\":\"^1.0.0\",\"hmac-drbg\":\"^1.0.0\",\"inherits\":\"^2.0.1\",\"minimalistic-assert\":\"^1.0.0\",\"minimalistic-crypto-utils\":\"^1.0.0\"}}");
 
 /***/ }),
 
@@ -108812,31 +108812,6 @@ var OrbitControls = function ( object, domElement ) {
 
 	}();
 
-
-	this.dollyIn = function(dollyScale) {
-	
-		if(!dollyScale)
-		{
-			dollyScale = getZoomScale()
-		}
-
-		dollyIn( dollyScale);
-		scope.update();
-	};
-
-	this.dollyOut = function(dollyScale) {
-
-		if(!dollyScale)
-		{
-			dollyScale = getZoomScale()
-		}
-
-		dollyOut( dollyScale );
-		scope.update();
-	};
-
-
-
 	function dollyOut( dollyScale ) {
 
 		if ( scope.object.isPerspectiveCamera ) {
@@ -108857,9 +108832,6 @@ var OrbitControls = function ( object, domElement ) {
 		}
 
 	}
-
-
-
 
 	function dollyIn( dollyScale ) {
 
@@ -109631,6 +109603,218 @@ MapControls.prototype.constructor = MapControls;
 
 /***/ }),
 
+/***/ "./node_modules/three/examples/jsm/renderers/CSS2DRenderer.js":
+/*!********************************************************************!*\
+  !*** ./node_modules/three/examples/jsm/renderers/CSS2DRenderer.js ***!
+  \********************************************************************/
+/*! exports provided: CSS2DObject, CSS2DRenderer */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CSS2DObject", function() { return CSS2DObject; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CSS2DRenderer", function() { return CSS2DRenderer; });
+/* harmony import */ var _build_three_module_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../build/three.module.js */ "./node_modules/three/build/three.module.js");
+
+
+var CSS2DObject = function ( element ) {
+
+	_build_three_module_js__WEBPACK_IMPORTED_MODULE_0__["Object3D"].call( this );
+
+	this.element = element || document.createElement( 'div' );
+
+	this.element.style.position = 'absolute';
+
+	this.addEventListener( 'removed', function () {
+
+		this.traverse( function ( object ) {
+
+			if ( object.element instanceof Element && object.element.parentNode !== null ) {
+
+				object.element.parentNode.removeChild( object.element );
+
+			}
+
+		} );
+
+	} );
+
+};
+
+CSS2DObject.prototype = Object.assign( Object.create( _build_three_module_js__WEBPACK_IMPORTED_MODULE_0__["Object3D"].prototype ), {
+
+	constructor: CSS2DObject,
+
+	copy: function ( source, recursive ) {
+
+		_build_three_module_js__WEBPACK_IMPORTED_MODULE_0__["Object3D"].prototype.copy.call( this, source, recursive );
+
+		this.element = source.element.cloneNode( true );
+
+		return this;
+
+	}
+
+} );
+
+//
+
+var CSS2DRenderer = function () {
+
+	var _this = this;
+
+	var _width, _height;
+	var _widthHalf, _heightHalf;
+
+	var vector = new _build_three_module_js__WEBPACK_IMPORTED_MODULE_0__["Vector3"]();
+	var viewMatrix = new _build_three_module_js__WEBPACK_IMPORTED_MODULE_0__["Matrix4"]();
+	var viewProjectionMatrix = new _build_three_module_js__WEBPACK_IMPORTED_MODULE_0__["Matrix4"]();
+
+	var cache = {
+		objects: new WeakMap()
+	};
+
+	var domElement = document.createElement( 'div' );
+	domElement.style.overflow = 'hidden';
+
+	this.domElement = domElement;
+
+	this.getSize = function () {
+
+		return {
+			width: _width,
+			height: _height
+		};
+
+	};
+
+	this.setSize = function ( width, height ) {
+
+		_width = width;
+		_height = height;
+
+		_widthHalf = _width / 2;
+		_heightHalf = _height / 2;
+
+		domElement.style.width = width + 'px';
+		domElement.style.height = height + 'px';
+
+	};
+
+	var renderObject = function ( object, scene, camera ) {
+
+		if ( object instanceof CSS2DObject ) {
+
+			object.onBeforeRender( _this, scene, camera );
+
+			vector.setFromMatrixPosition( object.matrixWorld );
+			vector.applyMatrix4( viewProjectionMatrix );
+
+			var element = object.element;
+			var style = 'translate(-50%,-50%) translate(' + ( vector.x * _widthHalf + _widthHalf ) + 'px,' + ( - vector.y * _heightHalf + _heightHalf ) + 'px)';
+
+			element.style.WebkitTransform = style;
+			element.style.MozTransform = style;
+			element.style.oTransform = style;
+			element.style.transform = style;
+
+			element.style.display = ( object.visible && vector.z >= - 1 && vector.z <= 1 ) ? '' : 'none';
+
+			var objectData = {
+				distanceToCameraSquared: getDistanceToSquared( camera, object )
+			};
+
+			cache.objects.set( object, objectData );
+
+			if ( element.parentNode !== domElement ) {
+
+				domElement.appendChild( element );
+
+			}
+
+			object.onAfterRender( _this, scene, camera );
+
+		}
+
+		for ( var i = 0, l = object.children.length; i < l; i ++ ) {
+
+			renderObject( object.children[ i ], scene, camera );
+
+		}
+
+	};
+
+	var getDistanceToSquared = function () {
+
+		var a = new _build_three_module_js__WEBPACK_IMPORTED_MODULE_0__["Vector3"]();
+		var b = new _build_three_module_js__WEBPACK_IMPORTED_MODULE_0__["Vector3"]();
+
+		return function ( object1, object2 ) {
+
+			a.setFromMatrixPosition( object1.matrixWorld );
+			b.setFromMatrixPosition( object2.matrixWorld );
+
+			return a.distanceToSquared( b );
+
+		};
+
+	}();
+
+	var filterAndFlatten = function ( scene ) {
+
+		var result = [];
+
+		scene.traverse( function ( object ) {
+
+			if ( object instanceof CSS2DObject ) result.push( object );
+
+		} );
+
+		return result;
+
+	};
+
+	var zOrder = function ( scene ) {
+
+		var sorted = filterAndFlatten( scene ).sort( function ( a, b ) {
+
+			var distanceA = cache.objects.get( a ).distanceToCameraSquared;
+			var distanceB = cache.objects.get( b ).distanceToCameraSquared;
+
+			return distanceA - distanceB;
+
+		} );
+
+		var zMax = sorted.length;
+
+		for ( var i = 0, l = sorted.length; i < l; i ++ ) {
+
+			sorted[ i ].element.style.zIndex = zMax - i;
+
+		}
+
+	};
+
+	this.render = function ( scene, camera ) {
+
+		if ( scene.autoUpdate === true ) scene.updateMatrixWorld();
+		if ( camera.parent === null ) camera.updateMatrixWorld();
+
+		viewMatrix.copy( camera.matrixWorldInverse );
+		viewProjectionMatrix.multiplyMatrices( camera.projectionMatrix, viewMatrix );
+
+		renderObject( scene, scene, camera );
+		zOrder( scene );
+
+	};
+
+};
+
+
+
+
+/***/ }),
+
 /***/ "./node_modules/timers-browserify/main.js":
 /*!************************************************!*\
   !*** ./node_modules/timers-browserify/main.js ***!
@@ -109861,10 +110045,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _panorama__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./panorama */ "./src/js/panorama.js");
 /* harmony import */ var three__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 /* harmony import */ var three_examples_jsm_controls_OrbitControls__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
-/* harmony import */ var three_interaction__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! three.interaction */ "./node_modules/three.interaction/build/three.interaction.module.js");
-/* harmony import */ var _events__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./events */ "./src/js/events.js");
-/* harmony import */ var element_resize_event__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! element-resize-event */ "./node_modules/element-resize-event/index.js");
-/* harmony import */ var element_resize_event__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(element_resize_event__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var three_examples_jsm_renderers_CSS2DRenderer__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! three/examples/jsm/renderers/CSS2DRenderer */ "./node_modules/three/examples/jsm/renderers/CSS2DRenderer.js");
+/* harmony import */ var three_interaction__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! three.interaction */ "./node_modules/three.interaction/build/three.interaction.module.js");
+/* harmony import */ var _events__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./events */ "./src/js/events.js");
+/* harmony import */ var element_resize_event__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! element-resize-event */ "./node_modules/element-resize-event/index.js");
+/* harmony import */ var element_resize_event__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(element_resize_event__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var _label__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./label */ "./src/js/label.js");
+/* harmony import */ var _image_datas__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./image.datas */ "./src/js/image.datas.js");
+/* harmony import */ var _drawHelper__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./drawHelper */ "./src/js/drawHelper.js");
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -109884,8 +110072,15 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 
 
 
+
+
+
+
 function clearScene() {
   meshes.forEach(function (mesh) {
+    mesh.children.forEach(function (child) {
+      return mesh.remove(child);
+    });
     scene.remove(mesh);
   });
   geometries.forEach(function (geometry) {
@@ -109938,73 +110133,13 @@ function getCanvasImage(images, direction) {
 }
 
 function setConnectedPanoramas(panorama) {
-  ;
   panorama.panoramaobject.connections.forEach(function (connection) {
     setArrow(connection["pano-id"], connection["relative-location"], panorama);
   });
 }
 
-function setNorthArrow(panorama) {
-  var url = imgnortharrow;
-  var loader = new three__WEBPACK_IMPORTED_MODULE_1__["TextureLoader"]();
-  var w = container.offsetWidth;
-  var wfactor = GetWidthFactor();
-  var scaleval = GetScaleFactor();
-  loader.load(url, function (texture) {
-    var geometry = new three__WEBPACK_IMPORTED_MODULE_1__["CircleGeometry"](64 * wfactor, 64);
-    geometry.name = "northarrow";
-    var material = new three__WEBPACK_IMPORTED_MODULE_1__["MeshBasicMaterial"]({
-      map: texture,
-      side: three__WEBPACK_IMPORTED_MODULE_1__["DoubleSide"]
-    });
-    material.color.set(0xffffff);
-    var northarrow = new three__WEBPACK_IMPORTED_MODULE_1__["Mesh"](geometry, material);
-    northarrow.rotateX(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(90));
-    var panoyaw = panorama.panoramaobject["pano-orientation"].yaw;
-    var panoramayaw = 180 + -1 * panoyaw;
-    northarrow.position.set(0, getZlevel(), 0);
-    northarrow.scale.set(scaleval, scaleval, scaleval);
-    northarrow.rotateZ(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(panoramayaw));
-    scene.add(northarrow);
-    materials.push(material);
-    meshes.push(northarrow);
-    geometries.push(geometry);
-    textures.push(texture);
-  });
-}
-
-function setPanorama(panorama) {
-  if (currentpromise) {
-    return;
-  }
-
-  clearScene();
-  currentpanorama = panorama;
-  camera.fov = 40;
-  controls.object.updateProjectionMatrix();
-  controls.emit("change");
-  setHeaderandFooter(panorama);
-  setConnectedPanoramas(panorama);
-  currentpromise = setPanoramaCube(panorama, 0);
-  currentpromise.then(function (mesh) {
-    currentpromise = null;
-    changeCubeTexture(panorama, 2, mesh);
-  });
-  setNorthArrow(panorama);
-  var orientation = getCameraOrientation();
-
-  if (panorama.panoramaobject["camera-orientation"]) {
-    orientation = panorama.panoramaobject["camera-orientation"];
-  }
-
-  eventhandler.dispatchEvent("camerachanged", {
-    location: panorama.panoramaobject["location"],
-    orientation: orientation
-  });
-}
-
 function setArrow(panoramaid, direction, panorama) {
-  var url = imgarrow;
+  var url = _image_datas__WEBPACK_IMPORTED_MODULE_8__["imgarrow"];
   var loader = new three__WEBPACK_IMPORTED_MODULE_1__["TextureLoader"]();
   var w = container.offsetWidth;
   var wfactor = GetWidthFactor();
@@ -110031,7 +110166,8 @@ function setArrow(panoramaid, direction, panorama) {
     circle.yaw = yaw;
     circle.position.set(Math.cos(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(yaw)) * positionfactor, getZlevel(), Math.sin(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(yaw)) * positionfactor);
     circle.rotateX(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(90));
-    circle.rotateZ(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(yaw - 90));
+    circle.rotateZ(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(yaw - 90)); //addLabel(circle, ((directionyaw + 720.0) % 360).toFixed(2));
+
     scene.add(circle);
     circle.on('click', function (ev) {
       eventhandler.dispatchEvent("connectionclick", {
@@ -110051,6 +110187,67 @@ function setArrow(panoramaid, direction, panorama) {
     console.log(error);
   } // onError function
   );
+}
+
+function setNorthArrow(panorama) {
+  var url = _image_datas__WEBPACK_IMPORTED_MODULE_8__["imgnortharrow"];
+  var loader = new three__WEBPACK_IMPORTED_MODULE_1__["TextureLoader"]();
+  var w = container.offsetWidth;
+  var wfactor = GetWidthFactor();
+  var scaleval = GetScaleFactor();
+  loader.load(url, function (texture) {
+    var geometry = new three__WEBPACK_IMPORTED_MODULE_1__["CircleGeometry"](64 * wfactor, 64);
+    geometry.name = "northarrow";
+    var material = new three__WEBPACK_IMPORTED_MODULE_1__["MeshBasicMaterial"]({
+      map: texture,
+      side: three__WEBPACK_IMPORTED_MODULE_1__["DoubleSide"]
+    });
+    material.color.set(0xffffff);
+    var northarrow = new three__WEBPACK_IMPORTED_MODULE_1__["Mesh"](geometry, material);
+    northarrow.rotateX(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(90));
+    var panoyaw = panorama.panoramaobject["pano-orientation"].yaw;
+    var panoramayaw = 180 + -1 * panoyaw;
+    northarrow.position.set(0, getZlevel(), 0);
+    Object(_label__WEBPACK_IMPORTED_MODULE_7__["addLabel"])(northarrow, panoyaw.toFixed(2));
+    northarrow.scale.set(scaleval, scaleval, scaleval);
+    northarrow.rotateZ(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(panoramayaw));
+    scene.add(northarrow);
+    materials.push(material);
+    meshes.push(northarrow);
+    geometries.push(geometry);
+    textures.push(texture);
+  });
+}
+
+function setPanorama(panorama) {
+  if (currentpromise) {
+    return;
+  }
+
+  clearScene();
+  currentpanorama = panorama;
+  drawHelper.setPanorama(panorama.panoramaobject);
+  camera.fov = 40;
+  controls.object.updateProjectionMatrix();
+  controls.emit("change");
+  setHeaderandFooter(panorama);
+  setConnectedPanoramas(panorama);
+  currentpromise = setPanoramaCube(panorama, 0);
+  currentpromise.then(function (mesh) {
+    currentpromise = null;
+    changeCubeTexture(panorama, 2, mesh);
+  });
+  setNorthArrow(panorama);
+  var orientation = getCameraOrientation();
+
+  if (panorama.panoramaobject["camera-orientation"]) {
+    orientation = panorama.panoramaobject["camera-orientation"];
+  }
+
+  eventhandler.dispatchEvent("camerachanged", {
+    location: panorama.panoramaobject["location"],
+    orientation: orientation
+  });
 }
 
 function changeCubeTexture(panorama, level, mesh) {
@@ -110089,8 +110286,6 @@ function changeCubeTexture(panorama, level, mesh) {
   });
 }
 
-var skybox;
-
 function setPanoramaCube(panorama, level) {
   return new Promise(function (resolve, reject) {
     var skyboxGeo = new three__WEBPACK_IMPORTED_MODULE_1__["BoxGeometry"](10000, 10000, 10000);
@@ -110124,6 +110319,7 @@ function setPanoramaCube(panorama, level) {
       (_materials2 = materials).push.apply(_materials2, _toConsumableArray(materialArray));
 
       skybox = new three__WEBPACK_IMPORTED_MODULE_1__["Mesh"](skyboxGeo, materialArray);
+      skybox.name = "skybox";
       meshes.push(skybox);
       scene.add(skybox);
       resolve(skybox);
@@ -110240,75 +110436,13 @@ function GetPositionFactor() {
   return 4 * GetWidthFactor() * GetFovFactor() * getCameraDistance() / 15;
 }
 
-function init(containerid) {
-  container = document.getElementById(containerid);
-  var viewerdivs = setHtmlControls(containerid);
-  var viewerdiv = viewerdivs.body;
-  header = viewerdivs.header;
-  footer = viewerdivs.footer;
-  var w = container.offsetWidth;
-  var h = container.offsetHeight;
-  camera = new three__WEBPACK_IMPORTED_MODULE_1__["PerspectiveCamera"](40, w / h, 0.1, 20000);
-  camera.position.set(0, 0, 0);
-  scene = new three__WEBPACK_IMPORTED_MODULE_1__["Scene"](); //lights
-
-  var ambient = new three__WEBPACK_IMPORTED_MODULE_1__["AmbientLight"](0xffffff);
-  scene.add(ambient);
-  pointLight = new three__WEBPACK_IMPORTED_MODULE_1__["PointLight"](0xffffff, 2);
-  scene.add(pointLight); //renderer
-
-  renderer = new three__WEBPACK_IMPORTED_MODULE_1__["WebGLRenderer"]();
-  renderer.setPixelRatio(window.devicePixelRatio);
-  var w = container.offsetWidth;
-  var h = container.offsetHeight;
-  renderer.setSize(w, h);
-  viewerdiv.appendChild(renderer.domElement); //controls
-
-  controls = new three_examples_jsm_controls_OrbitControls__WEBPACK_IMPORTED_MODULE_2__["OrbitControls"](camera, renderer.domElement);
-  controls.domElement.addEventListener('wheel', SetZoom, false);
-  controls.update();
-  controls.enableZoom = true;
-  controls.enablePan = false;
-  controls.maxDistance = 50;
-  controls.minDistance = 50;
-  controls.minPolarAngle = Math.PI / 3;
-  controls.rotateSpeed = -1;
-  controls.addEventListener('change', function (evt) {
-    var scaleval = GetScaleFactor();
-    var wfactor = GetWidthFactor();
-    meshes.forEach(function (mesh) {
-      if (mesh.geometry.name.length > 0) {
-        var positionfactor = GetPositionFactor();
-
-        if (mesh.geometry.name != "northarrow") {
-          mesh.position.set(Math.cos(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(mesh.yaw)) * positionfactor, getZlevel(), Math.sin(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(mesh.yaw)) * positionfactor);
-        } else {
-          mesh.position.setY(getZlevel());
-        }
-
-        mesh.scale.set(scaleval, scaleval, scaleval);
-      }
-    });
-    eventhandler.dispatchEvent("camerachanged", {
-      location: currentpanorama.panoramaobject["location"],
-      orientation: getCameraOrientation()
-    });
-  });
-  var interaction = new three_interaction__WEBPACK_IMPORTED_MODULE_3__["Interaction"](renderer, scene, camera);
-  eventhandler = new _events__WEBPACK_IMPORTED_MODULE_4__["eventHandler"](["connectionclick", "camerachanged"]);
-  window.addEventListener('resize', onWindowResize, false);
-  element_resize_event__WEBPACK_IMPORTED_MODULE_5___default()(container, function () {
-    onWindowResize();
-  });
-  animate();
-}
-
 function onWindowResize() {
   var w = container.offsetWidth;
   var h = container.offsetHeight;
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
   renderer.setSize(w, h);
+  labelRenderer.setSize(w, h);
 }
 
 function animate() {
@@ -110318,6 +110452,7 @@ function animate() {
 
 function render() {
   renderer.render(scene, camera);
+  labelRenderer.render(scene, camera);
 }
 
 function getZlevel() {
@@ -110350,21 +110485,89 @@ function getCameraDistance() {
   return distance;
 }
 
-var container;
-var header;
-var footer;
-var camera, scene, renderer;
-var controls;
+function init(containerid) {
+  container = document.getElementById(containerid);
+  var viewerdivs = setHtmlControls(containerid);
+  var viewerdiv = viewerdivs.body;
+  header = viewerdivs.header;
+  footer = viewerdivs.footer;
+  var w = container.offsetWidth;
+  var h = container.offsetHeight;
+  camera = new three__WEBPACK_IMPORTED_MODULE_1__["PerspectiveCamera"](40, w / h, 0.1, 20000);
+  camera.position.set(0, 0, 0);
+  scene = new three__WEBPACK_IMPORTED_MODULE_1__["Scene"](); //lights
+
+  var ambient = new three__WEBPACK_IMPORTED_MODULE_1__["AmbientLight"](0xffffff);
+  scene.add(ambient);
+  pointLight = new three__WEBPACK_IMPORTED_MODULE_1__["PointLight"](0xffffff, 2);
+  scene.add(pointLight); //renderer
+
+  renderer = new three__WEBPACK_IMPORTED_MODULE_1__["WebGLRenderer"]();
+  renderer.setPixelRatio(window.devicePixelRatio);
+  labelRenderer = new three_examples_jsm_renderers_CSS2DRenderer__WEBPACK_IMPORTED_MODULE_3__["CSS2DRenderer"]();
+  document.body.appendChild(labelRenderer.domElement);
+  var w = container.offsetWidth;
+  var h = container.offsetHeight;
+  renderer.setSize(w, h);
+  labelRenderer.setSize(w, h);
+  viewerdiv.appendChild(renderer.domElement); //controls
+
+  controls = new three_examples_jsm_controls_OrbitControls__WEBPACK_IMPORTED_MODULE_2__["OrbitControls"](camera, renderer.domElement);
+  controls.domElement.addEventListener('wheel', SetZoom, false);
+  controls.update();
+  controls.enableZoom = true;
+  controls.enablePan = false;
+  controls.maxDistance = 50;
+  controls.minDistance = 50;
+  controls.minPolarAngle = Math.PI / 3;
+  controls.rotateSpeed = -1;
+  controls.addEventListener('change', function (evt) {
+    var scaleval = GetScaleFactor();
+    var wfactor = GetWidthFactor();
+    meshes.forEach(function (mesh) {
+      if (mesh.geometry.name.length > 0) {
+        var positionfactor = GetPositionFactor();
+
+        if (mesh.geometry.name != "northarrow") {
+          mesh.position.set(Math.cos(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(mesh.yaw)) * positionfactor, getZlevel(), Math.sin(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(mesh.yaw)) * positionfactor);
+        } else {
+          mesh.position.setY(getZlevel());
+        }
+
+        mesh.scale.set(scaleval, scaleval, scaleval);
+      }
+    });
+    eventhandler.dispatchEvent("camerachanged", {
+      location: currentpanorama.panoramaobject["location"],
+      orientation: getCameraOrientation()
+    });
+  });
+  drawButton = document.getElementById("draw");
+  raycaster = new three__WEBPACK_IMPORTED_MODULE_1__["Raycaster"]();
+  drawHelper = new _drawHelper__WEBPACK_IMPORTED_MODULE_9__["default"](scene, camera, controls, raycaster, drawButton, container);
+  var interaction = new three_interaction__WEBPACK_IMPORTED_MODULE_4__["Interaction"](renderer, scene, camera);
+  eventhandler = new _events__WEBPACK_IMPORTED_MODULE_5__["eventHandler"](["connectionclick", "camerachanged"]);
+  window.addEventListener('resize', onWindowResize, false);
+  drawButton.addEventListener("click", function (evt) {
+    drawHelper.btnClick();
+  }, false);
+  element_resize_event__WEBPACK_IMPORTED_MODULE_6___default()(container, function () {
+    onWindowResize();
+  });
+  animate();
+}
+
+var container, header, footer, skybox;
+var pointLight, camera, scene, controls, renderer, labelRenderer;
 var currentpanorama;
-var pointLight;
+var raycaster, drawButton;
+var drawHelper;
 var eventhandler;
 var currentpromise;
-var geometries = [];
-var textures = [];
-var materials = [];
-var meshes = [];
-var imgarrow = "data:image/png;base64,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";
-var imgnortharrow = "data:image/png;base64,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";
+var geometries = [],
+    textures = [],
+    materials = [],
+    meshes = [];
 /* harmony default export */ __webpack_exports__["default"] = ({
   init: init,
   setPanorama: setPanorama,
@@ -110404,6 +110607,559 @@ var EarthMineConfig = function EarthMineConfig(opts) {
 };
 
 
+
+/***/ }),
+
+/***/ "./src/js/drawHelper.js":
+/*!******************************!*\
+  !*** ./src/js/drawHelper.js ***!
+  \******************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+/* harmony import */ var _service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./service */ "./src/js/service.js");
+/* harmony import */ var _label__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./label */ "./src/js/label.js");
+/* harmony import */ var _googleMap__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./googleMap */ "./src/js/googleMap.js");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+
+
+
+
+var count = 0;
+
+var DrawHelper = /*#__PURE__*/function () {
+  function DrawHelper(scene, camera, controls, raycaster, btn, canvas) {
+    _classCallCheck(this, DrawHelper);
+
+    this.scene = scene;
+    this.btn = btn;
+    this.camera = camera;
+    this.controls = controls;
+    this.raycaster = raycaster;
+    this.canvas = canvas;
+    this.reset();
+  }
+
+  _createClass(DrawHelper, [{
+    key: "reset",
+    value: function reset() {
+      this.skyboxMesh = null;
+      this.geo = null;
+      this.material = null;
+      this.mesh = null;
+      this.started = false;
+      this.positions = null;
+      this.vertices = [];
+      this.mouse = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"]();
+      this.points = [];
+      this.meshes = [];
+      this.geometries = [];
+      this.materials = [];
+      this.textures = [];
+    }
+  }, {
+    key: "setPanorama",
+    value: function setPanorama(panorama) {
+      this.panorama = panorama;
+
+      if (this.panorama.location) {
+        var _this$panorama$locati = this.panorama.location,
+            lat = _this$panorama$locati.lat,
+            lot = _this$panorama$locati.lot;
+        Object(_googleMap__WEBPACK_IMPORTED_MODULE_3__["setLocation"])(lat, lot);
+      }
+    }
+  }, {
+    key: "clear",
+    value: function clear() {
+      count = 0;
+      var scene = this.scene;
+      this.meshes.forEach(function (mesh) {
+        mesh.children.forEach(function (child) {
+          return mesh.remove(child);
+        });
+        scene.remove(mesh);
+      });
+      this.geometries.forEach(function (geometry) {
+        geometry.dispose();
+      });
+      this.materials.forEach(function (material) {
+        material.dispose();
+      });
+      this.textures.forEach(function (texture) {
+        texture.dispose();
+      });
+    }
+  }, {
+    key: "btnClick",
+    value: function btnClick() {
+      if (this.btn.innerHTML === "Çizimi Başlat") {
+        this.btn.innerHTML = "Çizimi Durdur";
+        this.start();
+      } else {
+        this.btn.innerHTML = "Çizimi Başlat";
+        this.stop();
+      }
+    }
+  }, {
+    key: "start",
+    value: function start() {
+      var _this = this;
+
+      this.clear();
+      this.reset();
+      this.started = true;
+      this.controls.enabled = false;
+      this.skyboxMesh = this.scene.getObjectByName("skybox");
+
+      this.mouseDownEvent = function (evt) {
+        return _this.onMouseDown(evt, _this);
+      };
+
+      this.mouseMoveEvent = function (evt) {
+        return _this.onMouseMove(evt, _this);
+      };
+
+      window.addEventListener('pointerdown', this.mouseDownEvent, false);
+      window.addEventListener("mousemove", this.mouseMoveEvent, false);
+    }
+  }, {
+    key: "stop",
+    value: function stop() {
+      window.removeEventListener('pointerdown', this.mouseDownEvent);
+      window.removeEventListener("mousemove", this.mouseMoveEvent);
+      this.controls.enabled = true;
+
+      if (count > 2) {//this.drawPolygon();
+      } else if (count > 1) {
+        this.drawLine();
+      }
+    }
+  }, {
+    key: "onMouseMove",
+    value: function onMouseMove(evt, that) {
+      that.mouse.x = evt.clientX / window.innerWidth * 2 - 1;
+      that.mouse.y = -(evt.clientY / window.innerHeight) * 2 + 1;
+      that.mouse.z = 0; //this.mouse.unproject(this.camera);
+    }
+  }, {
+    key: "onMouseDown",
+    value: function onMouseDown(evt, that) {
+      if (evt.which == 3) {
+        that.test();
+        that.btnClick();
+      } else {
+        that.addPoint();
+      }
+    }
+  }, {
+    key: "getAreaFromPolygon",
+    value: function getAreaFromPolygon() {
+      // create a simple square shape. We duplicate the top left and bottom right
+      // vertices because each vertex needs to appear once per triangle.
+      var Triangle = new three__WEBPACK_IMPORTED_MODULE_0__["Triangle"]();
+      Triangle.a = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](20, 0, 0);
+      Triangle.b = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, 0, 10);
+      Triangle.c = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, 30, 0);
+      var S = Triangle.getArea();
+      console.log('Triangle area', S);
+    }
+  }, {
+    key: "drawPolygon",
+    value: function drawPolygon() {
+      var geometry = new three__WEBPACK_IMPORTED_MODULE_0__["BufferGeometry"]();
+      var vertices = new Float32Array(this.points.length * 3);
+
+      for (var i = 0; i < this.points.length; i++) {
+        vertices[i * 3 + 0] = this.points[i].x;
+        vertices[i * 3 + 1] = this.points[i].y;
+        vertices[i * 3 + 2] = this.points[i].z;
+      }
+
+      var position = new three__WEBPACK_IMPORTED_MODULE_0__["BufferAttribute"](vertices, 3);
+      geometry.setAttribute('position', position);
+      var colors = [];
+      var c = new three__WEBPACK_IMPORTED_MODULE_0__["Color"](0xffffff);
+
+      for (var _i = 0; _i < geometry.attributes.position.count / 2; _i++) {
+        c.setHex(Math.random() * 0xffffff);
+        colors.push(c.b, c.g, c.r, c.b, c.g, c.r); // the same colour for two points
+      }
+
+      geometry.setAttribute("color", new three__WEBPACK_IMPORTED_MODULE_0__["BufferAttribute"](new Float32Array(colors), 3));
+      var indexes = new Uint16Array([0, 1, 2, 0, 2, 3 //0, 3, 4,
+      ]); //var indexes = [];//new Uint16Array([]);
+      //var counter = 0;
+      //for (let i = 0; i < this.points.length; i++) {
+      //    counter++;
+      //    indexes.push(i);
+      //    if (counter === 3) {
+      //        counter = 0;
+      //        indexes.push(0);
+      //        i--;
+      //    }
+      //}
+      // The index data is assigned to the index attribute of the geometry
+
+      geometry.index = new three__WEBPACK_IMPORTED_MODULE_0__["BufferAttribute"](indexes, 1); //1 as a group
+
+      var material = new three__WEBPACK_IMPORTED_MODULE_0__["MeshPhongMaterial"]({
+        color: 0xff0000,
+        opacity: 0.5,
+        transparent: true
+      }); //var material = new THREE.LineBasicMaterial({ vertexColors: THREE.VertexColors });
+
+      var mesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](geometry, material);
+      this.scene.add(mesh); // material
+      //var material = new THREE.LineBasicMaterial({ vertexColors: THREE.VertexColors, linewidth: 20 });
+      //// line
+      //var lines = new THREE.Object3D();
+      //var line = new THREE.LineSegments(geometry, material);
+      //lines.add(line);
+      //this.scene.add(lines);
+      //line.geometry.attributes.position.needsUpdate = true; // required after the first render
+      //line.geometry.attributes.color.needsUpdate = true;
+    }
+  }, {
+    key: "drawLine",
+    value: function drawLine() {
+      var _this2 = this;
+
+      var geometry = new three__WEBPACK_IMPORTED_MODULE_0__["BufferGeometry"](); //this.geometries.push(geometry);
+
+      var vertices = new Float32Array(this.points.length * 3);
+      var locations = [];
+
+      for (var i = 0; i < this.points.length; i++) {
+        var point = this.points[i];
+        vertices[i * 3 + 0] = point.x;
+        vertices[i * 3 + 1] = point.y;
+        vertices[i * 3 + 2] = point.z;
+        locations.push(_objectSpread({}, point.location));
+      }
+
+      var position = new three__WEBPACK_IMPORTED_MODULE_0__["BufferAttribute"](vertices, 3);
+      geometry.setAttribute('position', position); //material
+
+      var material = new three__WEBPACK_IMPORTED_MODULE_0__["LineBasicMaterial"]({
+        color: 0xffffff,
+        linewidth: 200000000
+      }); //this.materials.push(material);
+
+      var mesh = new three__WEBPACK_IMPORTED_MODULE_0__["LineSegments"](geometry, material, three__WEBPACK_IMPORTED_MODULE_0__["LinePieces"]); //this.meshes.push(mesh);
+
+      this.scene.add(mesh);
+      return;
+      Object(_service__WEBPACK_IMPORTED_MODULE_1__["getLocationFromPanorama"])({
+        panorama: this.panorama,
+        locations: locations
+      }).then(function (result) {
+        console.log(result);
+
+        if (result.length === 2) {
+          var point1 = result[0],
+              point2 = result[1];
+          var p1 = _this2.points[0],
+              p2 = _this2.points[1];
+          var RAD = 0.000008998719243599958;
+          var vec1 = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](point1.lat / RAD, point1.lon / RAD, 0); //point1.alt
+
+          var vec2 = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](point2.lat / RAD, point2.lon / RAD, 0); //point2.alt
+
+          var distance = vec1.distanceTo(vec2);
+          var text = "api:" + distance;
+          vec1 = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](p1.x, p1.y, p1.z);
+          vec2 = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](p2.x, p2.y, p2.z);
+          distance = vec1.distanceTo(vec2);
+          text += " js:" + distance;
+          Object(_label__WEBPACK_IMPORTED_MODULE_2__["addLabel"])(mesh, text, _this2.points[0]);
+        } else {
+          alert("Beklenmedik Hata!");
+        }
+      });
+    }
+  }, {
+    key: "test",
+    value: function test() {
+      var _this3 = this;
+
+      var angels = [];
+
+      for (var i = 0.0; i <= 360.0; i += 90) {
+        angels.push(i);
+      }
+
+      var sapma = 0; //this.panorama['pano-orientation'].yaw;
+
+      var locations = angels.map(function (m) {
+        return {
+          pitch: -15,
+          yaw: parseFloat(m - sapma),
+          distance: 15
+        };
+      });
+
+      var panoLoc = _objectSpread({}, this.panorama.location);
+
+      Object(_service__WEBPACK_IMPORTED_MODULE_1__["getLocationFromPanorama"])({
+        panorama: this.panorama,
+        locations: locations
+      }).then(function (result) {
+        var mapLocations = [];
+        var distance;
+        var center = ['Merkez', panoLoc.lat, panoLoc.lon, 'info'];
+        mapLocations.push(center);
+        result.forEach(function (f, i) {
+          if (f) {
+            distance = _this3.calculateDistance(panoLoc.lat, panoLoc.lon, f.lat, f.lon).toFixed(10);
+            distance = parseFloat(distance).toFixed(2);
+            mapLocations.push(["".concat(angels[i], "\xB0 = ").concat(distance, "m"), f.lat, f.lon]);
+          } else {
+            distance = null;
+          }
+
+          console.log("".concat(angels[i], ":").concat(distance));
+        });
+        Object(_googleMap__WEBPACK_IMPORTED_MODULE_3__["addMarkers"])(mapLocations);
+      });
+    } //This function takes in latitude and longitude of two location and returns the distance between them as the crow flies (in km)
+
+  }, {
+    key: "calculateDistance",
+    value: function calculateDistance(lat1, lon1, lat2, lon2) {
+      var R = 6371000; // m
+
+      var dLat = this.toRad(lat2 - lat1);
+      var dLon = this.toRad(lon2 - lon1);
+      var lat1 = this.toRad(lat1);
+      var lat2 = this.toRad(lat2);
+      var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      var d = R * c;
+      return d;
+    } // Converts numeric degrees to radians
+
+  }, {
+    key: "toRad",
+    value: function toRad(value) {
+      return value * Math.PI / 180;
+    }
+  }, {
+    key: "addPoint",
+    value: function addPoint() {
+      var _this4 = this;
+
+      count++;
+      this.raycaster.setFromCamera(this.mouse, this.camera);
+      var intersects = this.raycaster.intersectObjects([this.skyboxMesh], true);
+      var point;
+
+      if (intersects.length > 0) {
+        point = intersects[0].point;
+        point.distance = intersects[0].distance;
+      } else {
+        point = this.mouse;
+      } //random color
+      //var color = new THREE.Color(0xffffff);
+      //color.setHex(Math.random() * 0xffffff);
+
+
+      var geometry = new three__WEBPACK_IMPORTED_MODULE_0__["CylinderGeometry"](0, 100, 50, 4, 100);
+      this.geometries.push(geometry);
+      var material = new three__WEBPACK_IMPORTED_MODULE_0__["MeshBasicMaterial"]({
+        color: 0xffffff
+      });
+      this.materials.push(material);
+      var mesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](geometry, material);
+      mesh.position.x = point.x;
+      mesh.position.y = point.y;
+      mesh.position.z = point.z;
+      mesh.updateMatrix();
+      mesh.matrixAutoUpdate = false;
+      this.meshes.push(mesh);
+      this.scene.add(mesh);
+      point.location = this.calculateLocation(point);
+      ;
+      var text = "".concat(count, " : ").concat(point.location.yaw.toFixed(2));
+      Object(_label__WEBPACK_IMPORTED_MODULE_2__["addLabel"])(mesh, text);
+      this.points.push(point);
+
+      var panoLoc = _objectSpread({}, this.panorama.location);
+
+      var panoYaw = this.panorama['pano-orientation'].yaw;
+      var sapma = panoYaw;
+      var locations = [{
+        pitch: -15,
+        yaw: point.location.yaw - sapma,
+        distance: point.location.distance
+      }];
+      Object(_service__WEBPACK_IMPORTED_MODULE_1__["getLocationFromPanorama"])({
+        panorama: this.panorama,
+        locations: locations
+      }).then(function (result) {
+        var mapLocation = [];
+        var distance;
+        result.forEach(function (f, i) {
+          if (f) {
+            distance = _this4.calculateDistance(panoLoc.lat, panoLoc.lon, f.lat, f.lon).toFixed(10);
+            distance = parseFloat(distance).toFixed(2);
+            mapLocation = ["".concat(point.location.yaw.toFixed(2), "\xB0 = ").concat(distance, "m"), f.lat, f.lon];
+          } else {
+            distance = null;
+          }
+        });
+        Object(_googleMap__WEBPACK_IMPORTED_MODULE_3__["addMarker"])(mapLocation);
+      }); //console.log(`Konum ${count}: distance:${angels.hypotenuse},pitch:${point.pitch} yaw:${angels.yaw}`);
+      //console.log(`Konum ${count}: yaw:${angels.yaw}, pitch:${angels.pitch}, distance:${point.distance}, x:${point.x}`);
+    }
+  }, {
+    key: "calculateLocation",
+    value: function calculateLocation(point) {
+      var yaw, pitch;
+      var opposite, adjacent, face, distance; //yaw
+
+      if (Math.abs(point.x) > Math.abs(point.z)) {
+        opposite = point.z;
+        adjacent = point.x;
+        face = 'z';
+      } else {
+        opposite = point.x;
+        adjacent = point.z;
+        face = 'x';
+      }
+
+      distance = Math.pow(opposite, 2) + Math.pow(adjacent, 2);
+      distance = Math.pow(distance, 0.5);
+      yaw = Math.abs(opposite / adjacent);
+      yaw = Math.atan(yaw);
+      yaw = three__WEBPACK_IMPORTED_MODULE_0__["MathUtils"].radToDeg(yaw);
+
+      if (face === "z") {
+        if (point.z < 0 && point.x > 0) {
+          yaw = 180 - parseFloat(yaw);
+        } else if (point.z < 0 && point.x < 0) {
+          yaw = yaw;
+        } else if (point.z > 0 && point.x < 0) {
+          yaw = 360 - parseFloat(yaw);
+        } else {
+          yaw = 180 + parseFloat(yaw);
+        }
+      } else {
+        if (point.x > 0 && point.z < 0) {
+          yaw = 90 + parseFloat(yaw);
+        } else if (point.x < 0 && point.z < 0) {
+          yaw = 90 - parseFloat(yaw);
+        } else if (point.x < 0 && point.z > 0) {
+          yaw = 270 + parseFloat(yaw);
+        } else {
+          yaw = 270 - parseFloat(yaw);
+        }
+      } //pitch
+
+
+      if (Math.abs(point.z) > Math.abs(point.x)) {
+        //z-y koordinat duzlemi icin
+        if (Math.abs(point.y) > Math.abs(point.z)) {
+          opposite = point.z;
+          adjacent = point.y;
+          face = 'z';
+        } else {
+          opposite = point.y;
+          adjacent = point.z;
+          face = 'y';
+        }
+
+        pitch = Math.abs(opposite / adjacent);
+        pitch = Math.atan(pitch);
+        pitch = three__WEBPACK_IMPORTED_MODULE_0__["MathUtils"].radToDeg(pitch);
+
+        if (face === "z") {
+          if (point.z < 0 && point.y < 0) {
+            pitch = (90 - parseFloat(pitch)) * -1;
+          } else if (point.z > 0 && point.y < 0) {
+            pitch = (90 - parseFloat(pitch)) * -1;
+          } else if (point.z > 0 && point.y > 0) {
+            pitch = 90 - parseFloat(pitch);
+          } else {
+            pitch = 90 - parseFloat(pitch);
+          }
+        } else {
+          if (point.y < 0 && point.z < 0) {
+            pitch = parseFloat(pitch) * -1;
+          } else if (point.y < 0 && point.z > 0) {
+            pitch = parseFloat(pitch) * -1;
+          } else if (point.y > 0 && point.z > 0) {
+            pitch = pitch;
+          } else {
+            pitch = pitch;
+          }
+        }
+      } else {
+        //x-y koordinat duzlemi icin
+        if (Math.abs(point.y) > Math.abs(point.x)) {
+          opposite = point.x;
+          adjacent = point.y;
+          face = 'x';
+        } else {
+          opposite = point.y;
+          adjacent = point.x;
+          face = 'y';
+        }
+
+        pitch = Math.abs(opposite / adjacent);
+        pitch = Math.atan(pitch);
+        pitch = three__WEBPACK_IMPORTED_MODULE_0__["MathUtils"].radToDeg(pitch).toFixed(2);
+
+        if (face === "x") {
+          if (point.x > 0 && point.y > 0) {
+            pitch = 90 - parseFloat(pitch);
+          } else if (point.x < 0 && point.y > 0) {
+            pitch = 90 - parseFloat(pitch);
+          } else if (point.x < 0 && point.y < 0) {
+            pitch = (90 - parseFloat(pitch)) * -1;
+          } else {
+            pitch = (90 - parseFloat(pitch)) * -1;
+          }
+        } else {
+          if (point.y > 0 && point.x > 0) {
+            pitch = pitch;
+          } else if (point.y > 0 && point.x < 0) {
+            pitch = pitch;
+          } else if (point.y < 0 && point.x < 0) {
+            pitch = parseFloat(pitch) * -1;
+          } else {
+            pitch = parseFloat(pitch) * -1;
+          }
+        }
+      }
+
+      return {
+        pitch: pitch,
+        yaw: yaw,
+        distance: distance
+      };
+    }
+  }]);
+
+  return DrawHelper;
+}();
+
+;
+/* harmony default export */ __webpack_exports__["default"] = (DrawHelper);
 
 /***/ }),
 
@@ -110485,6 +111241,154 @@ var eventHandler = function eventHandler(eventNames) {
 
 /***/ }),
 
+/***/ "./src/js/googleMap.js":
+/*!*****************************!*\
+  !*** ./src/js/googleMap.js ***!
+  \*****************************/
+/*! exports provided: setLocation, addMarkers, addMarker */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setLocation", function() { return setLocation; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addMarkers", function() { return addMarkers; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addMarker", function() { return addMarker; });
+var map, infowindow;
+var markers = [];
+var iconBase = "https://developers.google.com/maps/documentation/javascript/examples/full/images/";
+var icons = {
+  parking: {
+    icon: iconBase + "parking_lot_maps.png"
+  },
+  library: {
+    icon: iconBase + "library_maps.png"
+  },
+  info: {
+    icon: iconBase + "info-i_maps.png"
+  }
+};
+var index;
+var setLocation = function setLocation(newLat, newLng) {
+  if (map) {
+    map.setCenter({
+      lat: newLat,
+      lng: newLng
+    });
+  }
+};
+
+var deleteMarkers = function deleteMarkers() {
+  for (var i = 0; i < markers.length; i++) {
+    markers[i].setMap(null);
+  }
+
+  markers = [];
+};
+
+var addMarkers = function addMarkers(locations) {
+  if (!map) {
+    map = window['maps'].map;
+    infowindow = window['maps'].map;
+  }
+
+  deleteMarkers();
+
+  if (!locations) {
+    locations = [];
+  }
+
+  ;
+  var center = locations.find(function (f) {
+    return f[0] === 'Merkez';
+  });
+
+  if (center) {
+    setLocation(center[1], center[2]);
+  }
+
+  var center = ['Merkez', 41.0432437468, 29.00626049, 'info'];
+  locations.push(center);
+
+  for (index = 0; index < locations.length; index++) {
+    var loc = locations[index];
+    addMarker(loc, index);
+  }
+};
+var addMarker = function addMarker(loc, i) {
+  if (!i) {
+    i = ++index;
+  }
+
+  ;
+
+  if (!map) {
+    map = window['maps'].map;
+    infowindow = window['maps'].map;
+  }
+
+  var marker = new google.maps.Marker({
+    title: loc[0],
+    position: new google.maps.LatLng(loc[1], loc[2]),
+    map: map,
+    icon: icons[loc[3] || 'library'].icon
+  });
+  markers.push(marker);
+  google.maps.event.addListener(marker, 'click', function (marker, i) {
+    return function () {
+      infowindow.setContent(locations[i][0]);
+      infowindow.open(map, marker);
+    };
+  }(marker, i));
+};
+
+/***/ }),
+
+/***/ "./src/js/image.datas.js":
+/*!*******************************!*\
+  !*** ./src/js/image.datas.js ***!
+  \*******************************/
+/*! exports provided: imgarrow, imgnortharrow */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "imgarrow", function() { return imgarrow; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "imgnortharrow", function() { return imgnortharrow; });
+var imgarrow = "data:image/png;base64,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";
+var imgnortharrow = "data:image/png;base64,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";
+
+/***/ }),
+
+/***/ "./src/js/label.js":
+/*!*************************!*\
+  !*** ./src/js/label.js ***!
+  \*************************/
+/*! exports provided: addLabel */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addLabel", function() { return addLabel; });
+/* harmony import */ var three_examples_jsm_renderers_CSS2DRenderer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three/examples/jsm/renderers/CSS2DRenderer */ "./node_modules/three/examples/jsm/renderers/CSS2DRenderer.js");
+
+var addLabel = function addLabel(mesh, text, position) {
+  var div = document.createElement('div');
+  div.className = 'text-label';
+  div.textContent = text;
+  div.style.marginTop = '-1em';
+  var label = new three_examples_jsm_renderers_CSS2DRenderer__WEBPACK_IMPORTED_MODULE_0__["CSS2DObject"](div);
+
+  if (position) {
+    label.position.set(position.x, position.y, position.z);
+  } else {
+    label.position.set(0, 1, 0);
+  }
+
+  mesh.add(label);
+};
+
+/***/ }),
+
 /***/ "./src/js/panorama.js":
 /*!****************************!*\
   !*** ./src/js/panorama.js ***!
@@ -110561,13 +111465,14 @@ var Panorama = /*#__PURE__*/function () {
 /*!***************************!*\
   !*** ./src/js/service.js ***!
   \***************************/
-/*! exports provided: getPanoramabyCoordinates, getPanoramabyID */
+/*! exports provided: getPanoramabyCoordinates, getPanoramabyID, getLocationFromPanorama */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getPanoramabyCoordinates", function() { return getPanoramabyCoordinates; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getPanoramabyID", function() { return getPanoramabyID; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getLocationFromPanorama", function() { return getLocationFromPanorama; });
 /* harmony import */ var crypto_js_md5__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! crypto-js/md5 */ "./node_modules/crypto-js/md5.js");
 /* harmony import */ var crypto_js_md5__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(crypto_js_md5__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _panorama__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./panorama */ "./src/js/panorama.js");
@@ -110616,8 +111521,32 @@ function getPanoramabyID(ID, opts) {
   return ServiceCall(opts);
 }
 
+function getLocationFromPanorama(_ref) {
+  var panorama = _ref.panorama,
+      locations = _ref.locations;
+  var opts = {
+    requestbody: {
+      operation: "get-locations-from-panorama",
+      parameters: {
+        request: {
+          "pano-id": panorama["pano-id"],
+          "pano-location": {
+            "latitude": panorama.location.lat,
+            "longitude": panorama.location.lon,
+            "altitude": panorama.location.alt
+          },
+          "fetch-quality-information": "true",
+          "pano-orientation": panorama["pano-orientation"],
+          "relative-locations": locations
+        }
+      }
+    }
+  };
+  return ServiceCall(opts);
+}
+
 function ServiceCall(opts) {
-  var config = opts.config;
+  var config = opts.config || window['eartMineConfig'];
   var timestamp = Math.floor(new Date().getTime() / 1000);
   var hash = crypto_js_md5__WEBPACK_IMPORTED_MODULE_0___default()(config.apiKey + config.secretKey + timestamp).toString();
   var earthmineurl = "".concat(config.serviceUrl, "?sig=").concat(hash, "&timestamp=").concat(timestamp);
@@ -110635,6 +111564,8 @@ function ServiceCall(opts) {
     }).then(function (response) {
       if (response.result.panoramas) {
         resolve(new _panorama__WEBPACK_IMPORTED_MODULE_1__["Panorama"](response.result.panoramas[0], config.baseDataUrl));
+      } else if (response.result.locations) {
+        resolve(response.result.locations);
       } else {
         reject();
       }
@@ -110689,6 +111620,7 @@ function init(opts) {
   }
 
   options.config = new _config__WEBPACK_IMPORTED_MODULE_2__["default"](opts.config);
+  window['eartMineConfig'] = options.config;
   _canvas__WEBPACK_IMPORTED_MODULE_1__["default"].init(opts.control);
   _canvas__WEBPACK_IMPORTED_MODULE_1__["default"].on("connectionclick", function (evt) {
     return setID(evt.panoramaid);
@@ -110697,11 +111629,9 @@ function init(opts) {
     eventhandler.dispatchEvent("camerachanged", {
       data: evt
     });
-  });
-
-  if (opts.coordinates) {
-    setLocation(opts.coordinates);
-  }
+  }); //if (opts.coordinates) {
+  //    setLocation(opts.coordinates)
+  //}     
 }
 
 function setID(id) {
@@ -110717,6 +111647,10 @@ function setID(id) {
 }
 
 function setLocation(coordinates) {
+  //1000033153181     --dar sokak
+  //1000032604047     --camii
+  setID("1000033153181");
+  return;
   var locationopts = {
     config: options.config
   };
