@@ -12,7 +12,6 @@ import { imgarrow, imgnortharrow } from './image.datas';
 import DrawHelper from './drawHelper';
 
 function clearScene() {
-
     meshes.forEach(mesh => {
         mesh.children.forEach(child => mesh.remove(child));
         scene.remove(mesh);
@@ -34,6 +33,8 @@ function clearScene() {
     textures = [];
     materials = [];
     geometries = [];
+
+    drawHelper.clear();
 }
 
 function getCanvasImage(images, direction) {
@@ -159,7 +160,7 @@ function setNorthArrow(panorama) {
             const panoramayaw = 180 + (-1 * panoyaw)
 
             northarrow.position.set(0, getZlevel(), 0);
-            addLabel(northarrow, (panoyaw).toFixed(2));
+            //addLabel(northarrow, (panoyaw).toFixed(2));
 
             northarrow.scale.set(scaleval, scaleval, scaleval);
             northarrow.rotateZ(THREE.MathUtils.degToRad(panoramayaw));
@@ -509,15 +510,17 @@ function init(containerid) {
     });
 
 
-    drawButton = document.getElementById("draw");
+    drawButton = document.getElementById("btnDraw");
+    directionButton = document.getElementById("btnDirection");
     raycaster = new THREE.Raycaster();
-    drawHelper = new DrawHelper(scene, camera, controls, raycaster, drawButton, container);
+    drawHelper = new DrawHelper(scene, camera, controls, raycaster, drawButton, directionButton, container);
 
     const interaction = new Interaction(renderer, scene, camera);
 
     eventhandler = new eventHandler(["connectionclick", "camerachanged"]);
     window.addEventListener('resize', onWindowResize, false);
-    drawButton.addEventListener("click", (evt) => { drawHelper.btnClick(); }, false);
+    drawButton.addEventListener("click", (evt) => { drawHelper.btnDrawClick(); }, false);
+    directionButton.addEventListener("click", (evt) => { drawHelper.btnDirectionClick(); }, false);
 
     elementResizeEvent(container, function () {
         onWindowResize();
@@ -531,7 +534,7 @@ function init(containerid) {
 let container, header, footer, skybox;
 let pointLight, camera, scene, controls, renderer, labelRenderer;
 let currentpanorama;
-let raycaster, drawButton;
+let raycaster, drawButton, directionButton;
 let drawHelper;
 let eventhandler;
 let currentpromise;

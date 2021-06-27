@@ -14,27 +14,61 @@
             bottom: 0;
             width: 100%;
         }
+
         .text-label {
             color: #fff;
             font-family: "Fira Mono", Monaco, "Andale Mono", "Lucida Console", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace;
             margin: -5px 0 0 15px;
             pointer-events: none;
         }
+
         .map {
             position: absolute;
             bottom: 0;
             height: 50% !important;
             width: 20% !important;
         }
+
         .ui {
-            position: absolute;
+            position: relative;           
+            box-shadow: 0px 10px 14px -7px #276873;
+            background: linear-gradient(to bottom, #599bb3 5%, #408c99 100%);
+            background-color: #599bb3;
+            border-radius: 8px;
+            display: inline-block;
+            cursor: pointer;
+            color: #ffffff;
+            font-family: Arial;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 6px 24px;
+            text-decoration: none;
+            text-shadow: 0px 1px 0px #3d768a;
+        }
+
+            .ui:hover {
+                background: linear-gradient(to bottom, #408c99 5%, #599bb3 100%);
+                background-color: #408c99;
+            }
+
+            .ui:active {
+                position: relative;
+                top: 1px;
+            }
+
+        .uiDiv {
             z-index: 9999;
+            position: fixed;
+            top:20px;
         }
     </style>
     <link rel="icon" href="favicon.ico">
 </head>
 <body>
-    <button style="top:10px" id="draw" class="ui">Çizimi Başlat</button>
+    <div class="uiDiv">
+        <button id="btnDirection" class="ui">Yatay</button>
+        <button id="btnDraw" class="ui">Çizimi Başlat</button>
+    </div>
     <div id="earthmineviewer"> </div>
     <div class="map" id="map"></div>
     <script src="./js/viewerapi.js"></script>
@@ -44,17 +78,17 @@
             control: "earthmineviewer",
             config:
             {
-                serviceUrl: "http://192.168.1.80/emp/service",
-                baseDataUrl: "http://192.168.1.80/emp/www",
+                serviceUrl: "https://keos.besiktas.bel.tr/emp/service",
+                baseDataUrl: "https://keos.besiktas.bel.tr/emp/www",
                 showcoverage: 0,
-                CoverageLevel: 0, //0:Normal; 1:Yüksek çözünürlük; -1:Düşük çözünürlük
-                usecoverageurl: true,//UseCoverageURL kullanılmak isteniyorsa true olmalıdır, false yapılırsa global sunucu kullanılacaktır.
-                coverageDataUrl: "http://192.168.1.80/emp/map",
+                CoverageLevel: 0, //0:Normal; 1:Yüksek çözünürlük; -1:Düþük çözünürlük
+                usecoverageurl: true,//UseCoverageURL kullanýlmak isteniyorsa true olmalýdýr, false yapýlýrsa global sunucu kullanýlacaktýr.
+                coverageDataUrl: "http://176.235.88.122:11114/map",
                 spatiallayerdistance: 50,
                 TableNameTabela: "Tabela",
                 TableNameBillboard: "Pano",
-                apiKey: "f4pwfzs99d1dugz8uhe2iuvs",
-                secretKey: "ZzYnWnExFR",
+                apiKey: "u1hgu1ll762p5dwyk4b7891t",
+                secretKey: "8JZn6LyIYU",
                 globalcoverageDataUrl: "-"
             }
         })

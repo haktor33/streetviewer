@@ -3,11 +3,13 @@ import { getLocationFromPanorama } from './service';
 import { addLabel } from './label';
 import { addMarker, addMarkers, setLocation } from './googleMap';
 var count = 0;
+const precisione = 1;
 
 class DrawHelper {
-    constructor(scene, camera, controls, raycaster, btn, canvas) {
+    constructor(scene, camera, controls, raycaster, drawButton, directionButton, canvas) {
         this.scene = scene;
-        this.btn = btn;
+        this.drawButton = drawButton;
+        this.drawDirection = directionButton;
         this.camera = camera;
         this.controls = controls;
         this.raycaster = raycaster;
@@ -30,22 +32,26 @@ class DrawHelper {
         this.geometries = [];
         this.materials = [];
         this.textures = [];
+
+        this.pointMeshes = [];
+        this.pointGeometries = [];
+        this.pointMaterials = [];
+        this.pointTextures = [];
     }
 
     setPanorama(panorama) {
         this.panorama = panorama;
         if (this.panorama.location) {
-            const { lat, lot } = this.panorama.location;
-            setLocation(lat, lot);
+            const { lat, lon } = this.panorama.location;
+            setLocation(lat, lon);
         }
     }
 
     clear() {
         count = 0;
-        const scene = this.scene;
         this.meshes.forEach(mesh => {
             mesh.children.forEach(child => mesh.remove(child));
-            scene.remove(mesh);
+            this.scene.remove(mesh);
         });
         this.geometries.forEach(geometry => {
             geometry.dispose();
@@ -56,15 +62,47 @@ class DrawHelper {
         this.textures.forEach(texture => {
             texture.dispose();
         });
+
+        this.clearPoint();
     }
 
-    btnClick() {
-        if (this.btn.innerHTML === "Çizimi Başlat") {
-            this.btn.innerHTML = "Çizimi Durdur";
+    clearPoint() {
+        this.pointMeshes.forEach(mesh => {
+            mesh.children.forEach(child => mesh.remove(child));
+            this.scene.remove(mesh);
+        });
+        this.pointGeometries.forEach(geometry => {
+            geometry.dispose();
+        });
+        this.pointMaterials.forEach(material => {
+            material.dispose();
+        });
+        this.pointTextures.forEach(texture => {
+            texture.dispose();
+        });
+
+        this.points = [];
+        this.pointMeshes = [];
+        this.pointGeometries = [];
+        this.pointMaterials = [];
+        this.pointTextures = [];
+    }
+
+    btnDrawClick() {
+        if (this.drawButton.innerHTML === "Çizimi Başlat") {
+            this.drawButton.innerHTML = "Çizimi Durdur";
             this.start();
         } else {
-            this.btn.innerHTML = "Çizimi Başlat";
+            this.drawButton.innerHTML = "Çizimi Başlat";
             this.stop();
+        }
+    }
+
+    btnDirectionClick() {
+        if (this.drawDirection.innerHTML === "Yatay") {
+            this.drawDirection.innerHTML = "Dikey";
+        } else {
+            this.drawDirection.innerHTML = "Yatay";
         }
     }
 
@@ -100,8 +138,7 @@ class DrawHelper {
 
     onMouseDown(evt, that) {
         if (evt.which == 3) {
-            that.test();
-            that.btnClick();
+            that.btnDrawClick();
         } else {
             that.addPoint();
         }
@@ -182,15 +219,25 @@ class DrawHelper {
 
     drawLine() {
         const geometry = new THREE.BufferGeometry();
-        //this.geometries.push(geometry);
+        this.geometries.push(geometry);
         var vertices = new Float32Array(this.points.length * 3);
         const locations = [];
+        var tempLoc;
         for (var i = 0; i < this.points.length; i++) {
             const point = this.points[i];
             vertices[i * 3 + 0] = point.x;
             vertices[i * 3 + 1] = point.y;
             vertices[i * 3 + 2] = point.z;
-            locations.push({ ...point.location })
+            for (var j = -1 * precisione; j <= precisione; j++) {
+                if (j === 0) {
+                    locations.push({ ...point.location })
+                } else {
+                    tempLoc = { ...point.location };
+                    tempLoc.yaw += j * 2;
+                    tempLoc.pitch = 0;
+                    locations.push({ ...tempLoc });
+                }
+            }
         }
 
         const position = new THREE.BufferAttribute(vertices, 3);
@@ -198,36 +245,70 @@ class DrawHelper {
 
         //material
         const material = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 200000000 });
-        //this.materials.push(material);
+        this.materials.push(material);
         var mesh = new THREE.LineSegments(geometry, material, THREE.LinePieces);
-        //this.meshes.push(mesh);
+        this.meshes.push(mesh);
         this.scene.add(mesh);
 
-        return;
+        const panoLoc = { ...this.panorama.location };
+        const sameLocationCount = precisione * 2 + 1;
+        let pointLocations = [];
+        let mapLocations = [];
         getLocationFromPanorama({ panorama: this.panorama, locations }).then(result => {
             console.log(result);
-            if (result.length === 2) {
-                const point1 = result[0], point2 = result[1];
-                const p1 = this.points[0], p2 = this.points[1];
-                const RAD = 0.000008998719243599958;
-                let vec1 = new THREE.Vector3(point1.lat / RAD, point1.lon / RAD, 0);//point1.alt
-                let vec2 = new THREE.Vector3(point2.lat / RAD, point2.lon / RAD, 0);//point2.alt
-                var distance = vec1.distanceTo(vec2);
-
-                var text = "api:" + distance;
-
-                vec1 = new THREE.Vector3(p1.x, p1.y, p1.z);
-                vec2 = new THREE.Vector3(p2.x, p2.y, p2.z);
-                distance = vec1.distanceTo(vec2);
-
-                text += " js:" + distance;
-
-                addLabel(mesh, text, this.points[0]);
+            if (result.length > 0) {
+                var mapLocation;
+                let originDistance;
+                result.forEach((f, i) => {
+                    originDistance = null;
+                    if (f) {
+                        originDistance = this.calculateDistance(panoLoc.lat, panoLoc.lon, f.lat, f.lon).toFixed(10);
+                        originDistance = parseFloat(originDistance).toFixed(2);
+                        mapLocation = [`konum ${i} = ${originDistance}m`, f.lat, f.lon, 'parking'];
+                        if (i < sameLocationCount) {
+                            pointLocations.push({ ...f, type: 'first', originDistance });
+                        } else {
+                            pointLocations.push({ ...f, type: 'second', originDistance });
+                        }
+                        mapLocations.push(mapLocation);
+                    }
+                });
+                const drawLocs = this.addLineLabel(mesh, pointLocations);
+                mapLocations = mapLocations.concat(drawLocs);
+                addMarkers(mapLocations);
             } else {
                 alert("Beklenmedik Hata!");
             }
 
         });
+    }
+
+    addLineLabel(mesh, pointLocations) {
+        const firstLoc = this.findBestLocation(pointLocations.filter(f => f.type === 'first'));
+        const secondLoc = this.findBestLocation(pointLocations.filter(f => f.type === 'second'));
+        const distance = this.calculateDistance(firstLoc.lat, firstLoc.lon, secondLoc.lat, secondLoc.lon).toFixed(10);
+
+        const firstPoint = this.points[0];
+        const lastPoint = this.points[this.points.length - 1];
+        const position = { x: (firstPoint.x + lastPoint.x) / 2.0, y: (firstPoint.y + lastPoint.y) / 2.0, z: (firstPoint.z + lastPoint.z) / 2.0 };
+        addLabel(mesh, distance, position);
+
+        const mapLocations = [];
+        mapLocations.push([`cizim bas = ${firstLoc.originDistance}m`, firstLoc.lat, firstLoc.lon, 'library']);
+        mapLocations.push([`cizim bit = ${secondLoc.originDistance}m`, secondLoc.lat, secondLoc.lon, 'library']);
+        return mapLocations;
+    }
+
+    findBestLocation(locations) {
+        var total = 0.0;
+        locations.forEach(f => total += parseFloat(f.originDistance));
+        const avrDistance = total / locations.length;
+        locations.forEach(f => {
+            f.nearly = Math.abs(f.originDistance - avrDistance);
+        });
+        locations.sort((a, b) => a.nearly - b.nearly);
+        const bestLoc = locations[0];
+        return bestLoc;
     }
 
     test() {
@@ -282,6 +363,10 @@ class DrawHelper {
     }
 
     addPoint() {
+        if (count >= 2) {
+            this.clearPoint();
+            count = 0;
+        }
         count++;
         this.raycaster.setFromCamera(this.mouse, this.camera);
         const intersects = this.raycaster.intersectObjects([this.skyboxMesh], true);
@@ -293,53 +378,46 @@ class DrawHelper {
             point = this.mouse;
         }
 
-
         //random color
         //var color = new THREE.Color(0xffffff);
         //color.setHex(Math.random() * 0xffffff);
 
         var geometry = new THREE.CylinderGeometry(0, 100, 50, 4, 100);
-        this.geometries.push(geometry);
+        this.pointGeometries.push(geometry);
         var material = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        this.materials.push(material);
+        this.pointMaterials.push(material);
         var mesh = new THREE.Mesh(geometry, material);
         mesh.position.x = point.x;
         mesh.position.y = point.y;
         mesh.position.z = point.z;
         mesh.updateMatrix();
         mesh.matrixAutoUpdate = false;
-        this.meshes.push(mesh);
+        this.pointMeshes.push(mesh);
         this.scene.add(mesh);
 
-
         point.location = this.calculateLocation(point);;
-        let text = `${count} : ${point.location.yaw.toFixed(2)}`;
-        addLabel(mesh, text);
-
         this.points.push(point);
 
-        const panoLoc = { ...this.panorama.location };
-        const panoYaw = this.panorama['pano-orientation'].yaw;
-        const sapma = panoYaw;
-        const locations = [{ pitch: -15, yaw:  (point.location.yaw - sapma), distance: point.location.distance }];
 
-        getLocationFromPanorama({ panorama: this.panorama, locations }).then(result => {
-            var mapLocation = [];
-            let distance;
-            result.forEach((f, i) => {
-                if (f) {
-                    distance = this.calculateDistance(panoLoc.lat, panoLoc.lon, f.lat, f.lon).toFixed(10);
-                    distance = parseFloat(distance).toFixed(2);
-                    mapLocation = [`${point.location.yaw.toFixed(2)}° = ${distance}m`, f.lat, f.lon];
-                } else {
-                    distance = null;
-                }
-            });
-            addMarker(mapLocation);
-        });
-
-        //console.log(`Konum ${count}: distance:${angels.hypotenuse},pitch:${point.pitch} yaw:${angels.yaw}`);
-        //console.log(`Konum ${count}: yaw:${angels.yaw}, pitch:${angels.pitch}, distance:${point.distance}, x:${point.x}`);
+        //let text = `${count} : ${point.location.yaw.toFixed(2)}`;
+        //addLabel(mesh, text);
+        //const panoLoc = { ...this.panorama.location };
+        //const locations = [{ pitch: -15, yaw: point.location.yaw, distance: point.location.distance }];
+        //const locations = [{ ...point.location }];
+        //getLocationFromPanorama({ panorama: this.panorama, locations }).then(result => {
+        //    var mapLocation = [];
+        //    let distance;
+        //    result.forEach((f, i) => {
+        //        if (f) {
+        //            distance = this.calculateDistance(panoLoc.lat, panoLoc.lon, f.lat, f.lon).toFixed(10);
+        //            distance = parseFloat(distance).toFixed(2);
+        //            mapLocation = [`${point.location.yaw.toFixed(2)}° = ${distance}m`, f.lat, f.lon];
+        //        } else {
+        //            distance = null;
+        //        }
+        //    });
+        //    addMarker(mapLocation);
+        //});
     }
 
     calculateLocation(point) {
@@ -383,6 +461,10 @@ class DrawHelper {
             } else {
                 yaw = 270 - parseFloat(yaw);
             }
+
+            //sapmayı hesapla
+            const panoYaw = this.panorama['pano-orientation'].yaw;
+            yaw = yaw + panoYaw - 90.0;
         }
 
         //pitch

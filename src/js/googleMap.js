@@ -16,12 +16,15 @@ const icons = {
 var index;
 
 export const setLocation = (newLat, newLng) => {
-    if (map) {
-        map.setCenter({
-            lat: newLat,
-            lng: newLng
-        });
+    deleteMarkers();
+    if (!map) {
+        map = window['maps'].map;
+        infowindow = window['maps'].map;
     }
+    map.setCenter({
+        lat: newLat,
+        lng: newLng
+    });
 }
 
 const deleteMarkers = () => {
@@ -32,10 +35,6 @@ const deleteMarkers = () => {
 }
 
 export const addMarkers = (locations) => {
-    if (!map) {
-        map = window['maps'].map;
-        infowindow = window['maps'].map;
-    }
     deleteMarkers();
     if (!locations) { locations = [] };
     var center = locations.find(f => f[0] === 'Merkez');
