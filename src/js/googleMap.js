@@ -27,7 +27,7 @@ export const setLocation = (newLat, newLng) => {
     });
 }
 
-const deleteMarkers = () => {
+export const deleteMarkers = () => {
     for (let i = 0; i < markers.length; i++) {
         markers[i].setMap(null);
     }
@@ -41,10 +41,6 @@ export const addMarkers = (locations) => {
     if (center) {
         setLocation(center[1], center[2]);
     }
-    var center = ['Merkez', 41.0432437468, 29.00626049, 'info'];
-    locations.push(center);
-
-
     for (index = 0; index < locations.length; index++) {
         const loc = locations[index];
         addMarker(loc, index);

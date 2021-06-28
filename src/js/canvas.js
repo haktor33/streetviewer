@@ -512,8 +512,10 @@ function init(containerid) {
 
     drawButton = document.getElementById("btnDraw");
     directionButton = document.getElementById("btnDirection");
+    clearButton = document.getElementById("btnClear");
+    uiTotalDiv = document.getElementById("divTotal");
     raycaster = new THREE.Raycaster();
-    drawHelper = new DrawHelper(scene, camera, controls, raycaster, drawButton, directionButton, container);
+    drawHelper = new DrawHelper(scene, camera, controls, raycaster, drawButton, directionButton, clearButton, uiTotalDiv, container);
 
     const interaction = new Interaction(renderer, scene, camera);
 
@@ -521,7 +523,7 @@ function init(containerid) {
     window.addEventListener('resize', onWindowResize, false);
     drawButton.addEventListener("click", (evt) => { drawHelper.btnDrawClick(); }, false);
     directionButton.addEventListener("click", (evt) => { drawHelper.btnDirectionClick(); }, false);
-
+    clearButton.addEventListener("click", (evt) => { drawHelper.btnClearClick(); }, false);
     elementResizeEvent(container, function () {
         onWindowResize();
     });
@@ -534,7 +536,7 @@ function init(containerid) {
 let container, header, footer, skybox;
 let pointLight, camera, scene, controls, renderer, labelRenderer;
 let currentpanorama;
-let raycaster, drawButton, directionButton;
+let raycaster, drawButton, directionButton, clearButton, uiTotalDiv;
 let drawHelper;
 let eventhandler;
 let currentpromise;

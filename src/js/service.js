@@ -83,7 +83,9 @@ function ServiceCall(opts) {
             body: JSON.stringify(requestbody)
         }).then(response => response.json())
             .then(response => {
-                if (response.result.panoramas) {
+                if (response.exception) {
+                    resolve([]);
+                } else if (response.result.panoramas) {
                     resolve(new Panorama(response.result.panoramas[0], config.baseDataUrl));
                 }
                 else if (response.result.locations) {

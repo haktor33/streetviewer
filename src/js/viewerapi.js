@@ -57,7 +57,8 @@ function setLocation(coordinates) {
     //1000033153181     --dar sokak
     //1000033153174     --dar sokak 2
     //1000032604047     --camii
-    setID("1000033153181");
+    //1000032727986     --camii
+    setID("1000032727986");
     return;
 
     let locationopts = { config: options.config };

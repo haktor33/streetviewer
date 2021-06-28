@@ -30,7 +30,6 @@
         }
 
         .ui {
-            position: relative;           
             box-shadow: 0px 10px 14px -7px #276873;
             background: linear-gradient(to bottom, #599bb3 5%, #408c99 100%);
             background-color: #599bb3;
@@ -44,6 +43,7 @@
             padding: 6px 24px;
             text-decoration: none;
             text-shadow: 0px 1px 0px #3d768a;
+            opacity: 0.8;
         }
 
             .ui:hover {
@@ -56,19 +56,38 @@
                 top: 1px;
             }
 
-        .uiDiv {
+        .uiProcess {
             z-index: 9999;
             position: fixed;
-            top:20px;
+            top: 20px;
+        }
+
+        #divTotal {
+            margin-top: 4px;
+            box-shadow: 0px 10px 14px -7px #276873;
+            background: linear-gradient(to bottom, #599bb3 5%, #408c99 100%);
+            background-color: #599bb3;
+            border-radius: 8px;
+            color: #ffffff;
+            font-family: Arial;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 6px 24px;
+            text-decoration: none;
+            text-shadow: 0px 1px 0px #3d768a;
+            opacity: 0.8;
         }
     </style>
     <link rel="icon" href="favicon.ico">
 </head>
 <body>
-    <div class="uiDiv">
+    <div class="uiProcess ">
         <button id="btnDirection" class="ui">Yatay</button>
         <button id="btnDraw" class="ui">Çizimi Başlat</button>
+        <button id="btnClear" class="ui">Temizle</button>
+        <div id="divTotal"></div>
     </div>
+
     <div id="earthmineviewer"> </div>
     <div class="map" id="map"></div>
     <script src="./js/viewerapi.js"></script>

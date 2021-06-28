@@ -110545,8 +110545,10 @@ function init(containerid) {
   });
   drawButton = document.getElementById("btnDraw");
   directionButton = document.getElementById("btnDirection");
+  clearButton = document.getElementById("btnClear");
+  uiTotalDiv = document.getElementById("divTotal");
   raycaster = new three__WEBPACK_IMPORTED_MODULE_1__["Raycaster"]();
-  drawHelper = new _drawHelper__WEBPACK_IMPORTED_MODULE_9__["default"](scene, camera, controls, raycaster, drawButton, directionButton, container);
+  drawHelper = new _drawHelper__WEBPACK_IMPORTED_MODULE_9__["default"](scene, camera, controls, raycaster, drawButton, directionButton, clearButton, uiTotalDiv, container);
   var interaction = new three_interaction__WEBPACK_IMPORTED_MODULE_4__["Interaction"](renderer, scene, camera);
   eventhandler = new _events__WEBPACK_IMPORTED_MODULE_5__["eventHandler"](["connectionclick", "camerachanged"]);
   window.addEventListener('resize', onWindowResize, false);
@@ -110555,6 +110557,9 @@ function init(containerid) {
   }, false);
   directionButton.addEventListener("click", function (evt) {
     drawHelper.btnDirectionClick();
+  }, false);
+  clearButton.addEventListener("click", function (evt) {
+    drawHelper.btnClearClick();
   }, false);
   element_resize_event__WEBPACK_IMPORTED_MODULE_6___default()(container, function () {
     onWindowResize();
@@ -110565,7 +110570,7 @@ function init(containerid) {
 var container, header, footer, skybox;
 var pointLight, camera, scene, controls, renderer, labelRenderer;
 var currentpanorama;
-var raycaster, drawButton, directionButton;
+var raycaster, drawButton, directionButton, clearButton, uiTotalDiv;
 var drawHelper;
 var eventhandler;
 var currentpromise;
@@ -110645,15 +110650,17 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 
 var count = 0;
-var precisione = 1;
+var tolerance = 2;
 
 var DrawHelper = /*#__PURE__*/function () {
-  function DrawHelper(scene, camera, controls, raycaster, drawButton, directionButton, canvas) {
+  function DrawHelper(scene, camera, controls, raycaster, drawButton, directionButton, clearButton, uiTotalDiv, canvas) {
     _classCallCheck(this, DrawHelper);
 
     this.scene = scene;
     this.drawButton = drawButton;
     this.drawDirection = directionButton;
+    this.clearButton = clearButton;
+    this.uiTotalDiv = uiTotalDiv;
     this.camera = camera;
     this.controls = controls;
     this.raycaster = raycaster;
@@ -110662,8 +110669,27 @@ var DrawHelper = /*#__PURE__*/function () {
   }
 
   _createClass(DrawHelper, [{
+    key: "setPanorama",
+    value: function setPanorama(panorama) {
+      this.panorama = panorama;
+
+      if (this.panorama.location) {
+        var _this$panorama$locati = this.panorama.location,
+            lat = _this$panorama$locati.lat,
+            lon = _this$panorama$locati.lon;
+        Object(_googleMap__WEBPACK_IMPORTED_MODULE_3__["setLocation"])(lat, lon);
+      }
+
+      this.clear();
+      this.stop();
+    }
+  }, {
     key: "reset",
     value: function reset() {
+      this.horizontalLenght = null;
+      this.verticalLenght = null;
+      this.uiTotalDiv.style.display = "none";
+      this.clearButton.style.display = "none";
       this.skyboxMesh = null;
       this.geo = null;
       this.material = null;
@@ -110681,18 +110707,6 @@ var DrawHelper = /*#__PURE__*/function () {
       this.pointGeometries = [];
       this.pointMaterials = [];
       this.pointTextures = [];
-    }
-  }, {
-    key: "setPanorama",
-    value: function setPanorama(panorama) {
-      this.panorama = panorama;
-
-      if (this.panorama.location) {
-        var _this$panorama$locati = this.panorama.location,
-            lat = _this$panorama$locati.lat,
-            lon = _this$panorama$locati.lon;
-        Object(_googleMap__WEBPACK_IMPORTED_MODULE_3__["setLocation"])(lat, lon);
-      }
     }
   }, {
     key: "clear",
@@ -110746,13 +110760,20 @@ var DrawHelper = /*#__PURE__*/function () {
       this.pointTextures = [];
     }
   }, {
+    key: "btnClearClick",
+    value: function btnClearClick() {
+      this.clear();
+      this.reset();
+      this.stop();
+      this.drawDirection.innerHTML = "Yatay";
+      Object(_googleMap__WEBPACK_IMPORTED_MODULE_3__["deleteMarkers"])();
+    }
+  }, {
     key: "btnDrawClick",
     value: function btnDrawClick() {
       if (this.drawButton.innerHTML === "Çizimi Başlat") {
-        this.drawButton.innerHTML = "Çizimi Durdur";
         this.start();
       } else {
-        this.drawButton.innerHTML = "Çizimi Başlat";
         this.stop();
       }
     }
@@ -110770,8 +110791,13 @@ var DrawHelper = /*#__PURE__*/function () {
     value: function start() {
       var _this3 = this;
 
-      this.clear();
-      this.reset();
+      if (this.horizontalLenght && this.verticalLenght) {
+        this.clear();
+        this.reset();
+      }
+
+      this.clearButton.style.display = "";
+      this.drawButton.innerHTML = "Çizimi Durdur";
       this.started = true;
       this.controls.enabled = false;
       this.skyboxMesh = this.scene.getObjectByName("skybox");
@@ -110790,13 +110816,32 @@ var DrawHelper = /*#__PURE__*/function () {
   }, {
     key: "stop",
     value: function stop() {
+      var _this4 = this;
+
+      this.drawButton.innerHTML = "Çizimi Başlat";
       window.removeEventListener('pointerdown', this.mouseDownEvent);
       window.removeEventListener("mousemove", this.mouseMoveEvent);
       this.controls.enabled = true;
 
-      if (count > 2) {//this.drawPolygon();
-      } else if (count > 1) {
-        this.drawLine();
+      if (count === 2) {
+        this.getLocation().then(function (result) {
+          if (result) {
+            if (_this4.horizontalLenght && _this4.verticalLenght) {
+              _this4.uiTotalDiv.style.display = "";
+              var total = parseFloat(_this4.horizontalLenght) * parseFloat(_this4.verticalLenght);
+              var text = "En:  ".concat(_this4.horizontalLenght, "  m");
+              text += "<br/>Boy:  ".concat(_this4.verticalLenght, "  m");
+              text += "<br/>Toplam:  ".concat(total.toFixed(2), "  m<sup>2</sup>");
+              _this4.uiTotalDiv.innerHTML = text;
+            } else {
+              _this4.btnDirectionClick(); //var that = this;
+              ////setTimeout(function () { that.start(); }, 1000);
+
+            }
+          } else {
+            alert('Lütfen Çizimi Tekrarlayınız!');
+          }
+        });
       }
     }
   }, {
@@ -110804,114 +110849,128 @@ var DrawHelper = /*#__PURE__*/function () {
     value: function onMouseMove(evt, that) {
       that.mouse.x = evt.clientX / window.innerWidth * 2 - 1;
       that.mouse.y = -(evt.clientY / window.innerHeight) * 2 + 1;
-      that.mouse.z = 0; //this.mouse.unproject(this.camera);
+      that.mouse.z = 0;
     }
   }, {
     key: "onMouseDown",
     value: function onMouseDown(evt, that) {
-      if (evt.which == 3) {
+      if (evt.which === 3) {
         that.btnDrawClick();
       } else {
         that.addPoint();
       }
     }
   }, {
-    key: "getAreaFromPolygon",
-    value: function getAreaFromPolygon() {
-      // create a simple square shape. We duplicate the top left and bottom right
-      // vertices because each vertex needs to appear once per triangle.
-      var Triangle = new three__WEBPACK_IMPORTED_MODULE_0__["Triangle"]();
-      Triangle.a = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](20, 0, 0);
-      Triangle.b = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, 0, 10);
-      Triangle.c = new three__WEBPACK_IMPORTED_MODULE_0__["Vector3"](0, 30, 0);
-      var S = Triangle.getArea();
-      console.log('Triangle area', S);
-    }
-  }, {
-    key: "drawPolygon",
-    value: function drawPolygon() {
-      var geometry = new three__WEBPACK_IMPORTED_MODULE_0__["BufferGeometry"]();
-      var vertices = new Float32Array(this.points.length * 3);
+    key: "getLocation",
+    value: function getLocation() {
+      var _this5 = this;
 
-      for (var i = 0; i < this.points.length; i++) {
-        vertices[i * 3 + 0] = this.points[i].x;
-        vertices[i * 3 + 1] = this.points[i].y;
-        vertices[i * 3 + 2] = this.points[i].z;
-      }
+      return new Promise(function (resolve, reject) {
+        var vertices = new Float32Array(_this5.points.length * 3);
+        var locations = [];
+        var tempLoc;
 
-      var position = new three__WEBPACK_IMPORTED_MODULE_0__["BufferAttribute"](vertices, 3);
-      geometry.setAttribute('position', position);
-      var colors = [];
-      var c = new three__WEBPACK_IMPORTED_MODULE_0__["Color"](0xffffff);
+        for (var i = 0; i < _this5.points.length; i++) {
+          var point = _this5.points[i];
+          vertices[i * 3 + 0] = point.x;
+          vertices[i * 3 + 1] = point.y;
+          vertices[i * 3 + 2] = point.z;
 
-      for (var _i = 0; _i < geometry.attributes.position.count / 2; _i++) {
-        c.setHex(Math.random() * 0xffffff);
-        colors.push(c.b, c.g, c.r, c.b, c.g, c.r); // the same colour for two points
-      }
+          for (var j = -1 * tolerance; j <= tolerance; j++) {
+            if (j === 0) {
+              locations.push(_objectSpread({}, point.location));
+            } else {
+              tempLoc = _objectSpread({}, point.location);
 
-      geometry.setAttribute("color", new three__WEBPACK_IMPORTED_MODULE_0__["BufferAttribute"](new Float32Array(colors), 3));
-      var indexes = new Uint16Array([0, 1, 2, 0, 2, 3 //0, 3, 4,
-      ]); //var indexes = [];//new Uint16Array([]);
-      //var counter = 0;
-      //for (let i = 0; i < this.points.length; i++) {
-      //    counter++;
-      //    indexes.push(i);
-      //    if (counter === 3) {
-      //        counter = 0;
-      //        indexes.push(0);
-      //        i--;
-      //    }
-      //}
-      // The index data is assigned to the index attribute of the geometry
+              if (_this5.drawDirection.innerHTML === "Yatay") {
+                tempLoc.yaw = tempLoc.yaw + j;
+                tempLoc.pitch = 0.0;
+              } else {
+                tempLoc.pitch = parseFloat(tempLoc.pitch) + j;
+              }
 
-      geometry.index = new three__WEBPACK_IMPORTED_MODULE_0__["BufferAttribute"](indexes, 1); //1 as a group
+              locations.push(_objectSpread({}, tempLoc));
+            }
+          }
+        }
 
-      var material = new three__WEBPACK_IMPORTED_MODULE_0__["MeshPhongMaterial"]({
-        color: 0xff0000,
-        opacity: 0.5,
-        transparent: true
-      }); //var material = new THREE.LineBasicMaterial({ vertexColors: THREE.VertexColors });
+        var panoLoc = _objectSpread({}, _this5.panorama.location);
 
-      var mesh = new three__WEBPACK_IMPORTED_MODULE_0__["Mesh"](geometry, material);
-      this.scene.add(mesh); // material
-      //var material = new THREE.LineBasicMaterial({ vertexColors: THREE.VertexColors, linewidth: 20 });
-      //// line
-      //var lines = new THREE.Object3D();
-      //var line = new THREE.LineSegments(geometry, material);
-      //lines.add(line);
-      //this.scene.add(lines);
-      //line.geometry.attributes.position.needsUpdate = true; // required after the first render
-      //line.geometry.attributes.color.needsUpdate = true;
+        var sameLocationCount = tolerance * 2 + 1;
+        var pointLocations = [];
+        var mapLocations = [];
+        var center = ['Merkez', panoLoc.lat, panoLoc.lon, 'info'];
+        mapLocations.push(center);
+        var firstPoint = _this5.points[0];
+        var lastPoint = _this5.points[_this5.points.length - 1];
+        var centerPoint = {
+          x: (firstPoint.x + lastPoint.x) / 2.0,
+          y: (firstPoint.y + lastPoint.y) / 2.0,
+          z: (firstPoint.z + lastPoint.z) / 2.0
+        };
+        var yawDifferent = Math.abs(firstPoint.location.yaw - lastPoint.location.yaw).toFixed(2);
+
+        if (yawDifferent > 45) {
+          alert("Uyar\u0131 : \u0130ki Nokta Aras\u0131 Aral\u0131k ".concat(yawDifferent, "\xB0 dir!"));
+        }
+
+        Object(_service__WEBPACK_IMPORTED_MODULE_1__["getLocationFromPanorama"])({
+          panorama: _this5.panorama,
+          locations: locations
+        }).then(function (result) {
+          var drawLocs;
+
+          if (result.length > 0) {
+            var mapLocation;
+            var originDistance;
+            result.forEach(function (f, i) {
+              originDistance = null;
+
+              if (f) {
+                originDistance = _this5.calculateDistance(panoLoc.lat, panoLoc.lon, f.lat, f.lon);
+                originDistance = parseFloat(originDistance).toFixed(2);
+                mapLocation = ["konum ".concat(i, " = ").concat(originDistance, "m"), f.lat, f.lon, 'parking'];
+
+                if (i < sameLocationCount) {
+                  pointLocations.push(_objectSpread(_objectSpread({}, f), {}, {
+                    type: 'first',
+                    originDistance: originDistance
+                  }));
+                } else {
+                  pointLocations.push(_objectSpread(_objectSpread({}, f), {}, {
+                    type: 'second',
+                    originDistance: originDistance
+                  }));
+                }
+
+                mapLocations.push(mapLocation);
+              }
+            });
+
+            var firstLoc = _this5.findBestLocation(pointLocations.filter(function (f) {
+              return f.type === 'first';
+            }));
+
+            var secondLoc = _this5.findBestLocation(pointLocations.filter(function (f) {
+              return f.type === 'second';
+            }));
+
+            if (firstLoc && secondLoc) {
+              drawLocs = _this5.drawLine(vertices, firstLoc, secondLoc, centerPoint);
+              mapLocations = mapLocations.concat(drawLocs);
+              Object(_googleMap__WEBPACK_IMPORTED_MODULE_3__["addMarkers"])(mapLocations);
+            }
+          }
+
+          resolve(drawLocs);
+        });
+      });
     }
   }, {
     key: "drawLine",
-    value: function drawLine() {
-      var _this4 = this;
-
+    value: function drawLine(vertices, firstLoc, secondLoc, centerPoint) {
       var geometry = new three__WEBPACK_IMPORTED_MODULE_0__["BufferGeometry"]();
       this.geometries.push(geometry);
-      var vertices = new Float32Array(this.points.length * 3);
-      var locations = [];
-      var tempLoc;
-
-      for (var i = 0; i < this.points.length; i++) {
-        var point = this.points[i];
-        vertices[i * 3 + 0] = point.x;
-        vertices[i * 3 + 1] = point.y;
-        vertices[i * 3 + 2] = point.z;
-
-        for (var j = -1 * precisione; j <= precisione; j++) {
-          if (j === 0) {
-            locations.push(_objectSpread({}, point.location));
-          } else {
-            tempLoc = _objectSpread({}, point.location);
-            tempLoc.yaw += j * 2;
-            tempLoc.pitch = 0;
-            locations.push(_objectSpread({}, tempLoc));
-          }
-        }
-      }
-
       var position = new three__WEBPACK_IMPORTED_MODULE_0__["BufferAttribute"](vertices, 3);
       geometry.setAttribute('position', position); //material
 
@@ -110923,72 +110982,25 @@ var DrawHelper = /*#__PURE__*/function () {
       var mesh = new three__WEBPACK_IMPORTED_MODULE_0__["LineSegments"](geometry, material, three__WEBPACK_IMPORTED_MODULE_0__["LinePieces"]);
       this.meshes.push(mesh);
       this.scene.add(mesh);
-
-      var panoLoc = _objectSpread({}, this.panorama.location);
-
-      var sameLocationCount = precisione * 2 + 1;
-      var pointLocations = [];
-      var mapLocations = [];
-      Object(_service__WEBPACK_IMPORTED_MODULE_1__["getLocationFromPanorama"])({
-        panorama: this.panorama,
-        locations: locations
-      }).then(function (result) {
-        console.log(result);
-
-        if (result.length > 0) {
-          var mapLocation;
-          var originDistance;
-          result.forEach(function (f, i) {
-            originDistance = null;
-
-            if (f) {
-              originDistance = _this4.calculateDistance(panoLoc.lat, panoLoc.lon, f.lat, f.lon).toFixed(10);
-              originDistance = parseFloat(originDistance).toFixed(2);
-              mapLocation = ["konum ".concat(i, " = ").concat(originDistance, "m"), f.lat, f.lon, 'parking'];
-
-              if (i < sameLocationCount) {
-                pointLocations.push(_objectSpread(_objectSpread({}, f), {}, {
-                  type: 'first',
-                  originDistance: originDistance
-                }));
-              } else {
-                pointLocations.push(_objectSpread(_objectSpread({}, f), {}, {
-                  type: 'second',
-                  originDistance: originDistance
-                }));
-              }
-
-              mapLocations.push(mapLocation);
-            }
-          });
-
-          var drawLocs = _this4.addLineLabel(mesh, pointLocations);
-
-          mapLocations = mapLocations.concat(drawLocs);
-          Object(_googleMap__WEBPACK_IMPORTED_MODULE_3__["addMarkers"])(mapLocations);
-        } else {
-          alert("Beklenmedik Hata!");
-        }
-      });
+      var mapLocations = this.addLineLabel(mesh, firstLoc, secondLoc, centerPoint);
+      return mapLocations;
     }
   }, {
     key: "addLineLabel",
-    value: function addLineLabel(mesh, pointLocations) {
-      var firstLoc = this.findBestLocation(pointLocations.filter(function (f) {
-        return f.type === 'first';
-      }));
-      var secondLoc = this.findBestLocation(pointLocations.filter(function (f) {
-        return f.type === 'second';
-      }));
-      var distance = this.calculateDistance(firstLoc.lat, firstLoc.lon, secondLoc.lat, secondLoc.lon).toFixed(10);
-      var firstPoint = this.points[0];
-      var lastPoint = this.points[this.points.length - 1];
-      var position = {
-        x: (firstPoint.x + lastPoint.x) / 2.0,
-        y: (firstPoint.y + lastPoint.y) / 2.0,
-        z: (firstPoint.z + lastPoint.z) / 2.0
-      };
-      Object(_label__WEBPACK_IMPORTED_MODULE_2__["addLabel"])(mesh, distance, position);
+    value: function addLineLabel(mesh, firstLoc, secondLoc, centerPoint) {
+      var distance, text;
+
+      if (this.drawDirection.innerHTML === "Yatay") {
+        distance = this.calculateDistance(firstLoc.lat, firstLoc.lon, secondLoc.lat, secondLoc.lon).toFixed(2);
+        this.horizontalLenght = distance;
+        text = "Yatay:".concat(distance);
+      } else {
+        distance = Math.abs(firstLoc.alt - secondLoc.alt).toFixed(2);
+        this.verticalLenght = distance;
+        text = "Dikey:".concat(distance);
+      }
+
+      Object(_label__WEBPACK_IMPORTED_MODULE_2__["addLabel"])(mesh, text, centerPoint);
       var mapLocations = [];
       mapLocations.push(["cizim bas = ".concat(firstLoc.originDistance, "m"), firstLoc.lat, firstLoc.lon, 'library']);
       mapLocations.push(["cizim bit = ".concat(secondLoc.originDistance, "m"), secondLoc.lat, secondLoc.lon, 'library']);
@@ -111014,7 +111026,7 @@ var DrawHelper = /*#__PURE__*/function () {
   }, {
     key: "test",
     value: function test() {
-      var _this5 = this;
+      var _this6 = this;
 
       var angels = [];
 
@@ -111044,7 +111056,7 @@ var DrawHelper = /*#__PURE__*/function () {
         mapLocations.push(center);
         result.forEach(function (f, i) {
           if (f) {
-            distance = _this5.calculateDistance(panoLoc.lat, panoLoc.lon, f.lat, f.lon).toFixed(10);
+            distance = _this6.calculateDistance(panoLoc.lat, panoLoc.lon, f.lat, f.lon).toFixed(10);
             distance = parseFloat(distance).toFixed(2);
             mapLocations.push(["".concat(angels[i], "\xB0 = ").concat(distance, "m"), f.lat, f.lon]);
           } else {
@@ -111119,7 +111131,7 @@ var DrawHelper = /*#__PURE__*/function () {
       this.points.push(point); //let text = `${count} : ${point.location.yaw.toFixed(2)}`;
       //addLabel(mesh, text);
       //const panoLoc = { ...this.panorama.location };
-      //const locations = [{ pitch: -15, yaw: point.location.yaw, distance: point.location.distance }];
+      ////const locations = [{ pitch: -15, yaw: point.location.yaw, distance: point.location.distance }];
       //const locations = [{ ...point.location }];
       //getLocationFromPanorama({ panorama: this.panorama, locations }).then(result => {
       //    var mapLocation = [];
@@ -111177,13 +111189,12 @@ var DrawHelper = /*#__PURE__*/function () {
           yaw = 270 + parseFloat(yaw);
         } else {
           yaw = 270 - parseFloat(yaw);
-        } //sapmayı hesapla
+        }
+      } //sapmayı hesapla
 
 
-        var panoYaw = this.panorama['pano-orientation'].yaw;
-        yaw = yaw + panoYaw - 90.0;
-      } //pitch
-
+      var panoYaw = this.panorama['pano-orientation'].yaw;
+      yaw = yaw + panoYaw - 90.0; //pitch
 
       if (Math.abs(point.z) > Math.abs(point.x)) {
         //z-y koordinat duzlemi icin
@@ -111359,12 +111370,13 @@ var eventHandler = function eventHandler(eventNames) {
 /*!*****************************!*\
   !*** ./src/js/googleMap.js ***!
   \*****************************/
-/*! exports provided: setLocation, addMarkers, addMarker */
+/*! exports provided: setLocation, deleteMarkers, addMarkers, addMarker */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setLocation", function() { return setLocation; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deleteMarkers", function() { return deleteMarkers; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addMarkers", function() { return addMarkers; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addMarker", function() { return addMarker; });
 var map, infowindow;
@@ -111395,7 +111407,6 @@ var setLocation = function setLocation(newLat, newLng) {
     lng: newLng
   });
 };
-
 var deleteMarkers = function deleteMarkers() {
   for (var i = 0; i < markers.length; i++) {
     markers[i].setMap(null);
@@ -111403,7 +111414,6 @@ var deleteMarkers = function deleteMarkers() {
 
   markers = [];
 };
-
 var addMarkers = function addMarkers(locations) {
   deleteMarkers();
 
@@ -111419,9 +111429,6 @@ var addMarkers = function addMarkers(locations) {
   if (center) {
     setLocation(center[1], center[2]);
   }
-
-  var center = ['Merkez', 41.0432437468, 29.00626049, 'info'];
-  locations.push(center);
 
   for (index = 0; index < locations.length; index++) {
     var loc = locations[index];
@@ -111676,7 +111683,9 @@ function ServiceCall(opts) {
     }).then(function (response) {
       return response.json();
     }).then(function (response) {
-      if (response.result.panoramas) {
+      if (response.exception) {
+        resolve([]);
+      } else if (response.result.panoramas) {
         resolve(new _panorama__WEBPACK_IMPORTED_MODULE_1__["Panorama"](response.result.panoramas[0], config.baseDataUrl));
       } else if (response.result.locations) {
         resolve(response.result.locations);
@@ -111764,7 +111773,8 @@ function setLocation(coordinates) {
   //1000033153181     --dar sokak
   //1000033153174     --dar sokak 2
   //1000032604047     --camii
-  setID("1000033153181");
+  //1000032727986     --camii
+  setID("1000032727986");
   return;
   var locationopts = {
     config: options.config
