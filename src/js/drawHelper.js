@@ -17,13 +17,16 @@ class DrawHelper {
         this.raycaster = raycaster;
         this.canvas = canvas;
         this.reset();
+        this.controlMapIsActive = window['controlMapIsActive'];
     }
 
     setPanorama(panorama) {
         this.panorama = panorama;
         if (this.panorama.location) {
             const { lat, lon } = this.panorama.location;
-            setLocation(lat, lon);
+            if (this.controlMapIsActive) {
+                setLocation(lat, lon);
+            }
         }
         this.clear();
         this.stop();
@@ -101,7 +104,9 @@ class DrawHelper {
         this.reset();
         this.stop();
         this.drawDirection.innerHTML = "Yatay";
-        deleteMarkers();
+        if (this.controlMapIsActive) {
+            deleteMarkers();
+        }
     }
 
     btnDrawClick() {
@@ -195,8 +200,9 @@ class DrawHelper {
                     } else {
                         tempLoc = { ...point.location };
                         if (this.drawDirection.innerHTML === "Yatay") {
-                            tempLoc.yaw = tempLoc.yaw + j;
-                            tempLoc.pitch = 0.0;
+                            tempLoc.yaw = parseFloat(tempLoc.yaw) + j;
+                            tempLoc.pitch = parseFloat(tempLoc.pitch) + j;
+                            //tempLoc.pitch = 0.0;
                         } else {
                             tempLoc.pitch = parseFloat(tempLoc.pitch) + j;
                         }
@@ -243,7 +249,10 @@ class DrawHelper {
                     if (firstLoc && secondLoc) {
                         drawLocs = this.drawLine(vertices, firstLoc, secondLoc, centerPoint);
                         mapLocations = mapLocations.concat(drawLocs);
-                        addMarkers(mapLocations);
+                        if (this.controlMapIsActive) {
+                            addMarkers(mapLocations);
+                        }
+
                     }
                 }
                 resolve(drawLocs);
@@ -450,7 +459,7 @@ class DrawHelper {
                 yaw = 270 + parseFloat(yaw);
             } else {
                 yaw = 270 - parseFloat(yaw);
-            }            
+            }
         }
         //sapmayı hesapla
         const panoYaw = this.panorama['pano-orientation'].yaw;

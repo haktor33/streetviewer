@@ -1,5 +1,5 @@
 function initMap() {
-    var map = new google.maps.Map(document.getElementById('map'), {
+    var map = new google.maps.Map(document.getElementById('googleMapDiv'), {
         zoom: 20,
         center: new google.maps.LatLng(41.0432437468, 29.006260494),
         mapTypeId: google.maps.MapTypeId.ROADMAP

@@ -110666,6 +110666,7 @@ var DrawHelper = /*#__PURE__*/function () {
     this.raycaster = raycaster;
     this.canvas = canvas;
     this.reset();
+    this.controlMapIsActive = window['controlMapIsActive'];
   }
 
   _createClass(DrawHelper, [{
@@ -110677,7 +110678,10 @@ var DrawHelper = /*#__PURE__*/function () {
         var _this$panorama$locati = this.panorama.location,
             lat = _this$panorama$locati.lat,
             lon = _this$panorama$locati.lon;
-        Object(_googleMap__WEBPACK_IMPORTED_MODULE_3__["setLocation"])(lat, lon);
+
+        if (this.controlMapIsActive) {
+          Object(_googleMap__WEBPACK_IMPORTED_MODULE_3__["setLocation"])(lat, lon);
+        }
       }
 
       this.clear();
@@ -110766,7 +110770,10 @@ var DrawHelper = /*#__PURE__*/function () {
       this.reset();
       this.stop();
       this.drawDirection.innerHTML = "Yatay";
-      Object(_googleMap__WEBPACK_IMPORTED_MODULE_3__["deleteMarkers"])();
+
+      if (this.controlMapIsActive) {
+        Object(_googleMap__WEBPACK_IMPORTED_MODULE_3__["deleteMarkers"])();
+      }
     }
   }, {
     key: "btnDrawClick",
@@ -110883,8 +110890,8 @@ var DrawHelper = /*#__PURE__*/function () {
               tempLoc = _objectSpread({}, point.location);
 
               if (_this5.drawDirection.innerHTML === "Yatay") {
-                tempLoc.yaw = tempLoc.yaw + j;
-                tempLoc.pitch = 0.0;
+                tempLoc.yaw = parseFloat(tempLoc.yaw) + j;
+                tempLoc.pitch = parseFloat(tempLoc.pitch) + j; //tempLoc.pitch = 0.0;
               } else {
                 tempLoc.pitch = parseFloat(tempLoc.pitch) + j;
               }
@@ -110958,7 +110965,10 @@ var DrawHelper = /*#__PURE__*/function () {
             if (firstLoc && secondLoc) {
               drawLocs = _this5.drawLine(vertices, firstLoc, secondLoc, centerPoint);
               mapLocations = mapLocations.concat(drawLocs);
-              Object(_googleMap__WEBPACK_IMPORTED_MODULE_3__["addMarkers"])(mapLocations);
+
+              if (_this5.controlMapIsActive) {
+                Object(_googleMap__WEBPACK_IMPORTED_MODULE_3__["addMarkers"])(mapLocations);
+              }
             }
           }
 
@@ -111774,8 +111784,8 @@ function setLocation(coordinates) {
   //1000033153174     --dar sokak 2
   //1000032604047     --camii
   //1000032727986     --camii
-  setID("1000032727986");
-  return;
+  //setID("1000033153174");
+  //return;
   var locationopts = {
     config: options.config
   };
