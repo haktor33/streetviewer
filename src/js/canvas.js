@@ -33,6 +33,7 @@ function clearScene() {
     textures = [];
     materials = [];
     geometries = [];
+    placesList = [];
 
     drawHelper.clear();
 }
@@ -80,12 +81,10 @@ function setConnectedPanoramas(panorama) {
     panorama.panoramaobject.connections.forEach(connection => {
         setArrow(connection["pano-id"], connection["relative-location"], panorama);
     });
-    addPlacePoints(panorama);
 }
 
-const maxPlaceLevel = 3;
-function addPlacePoints(panorama) {
-    findPlaceByPanaroma(panorama, 0).then(places => {
+function addPlacePoints() {
+    findPlaceByPanaroma(currentpanorama, 0).then(places => {
         console.log(places);
         places.forEach(place => {
             addPlacePoint(place);
@@ -93,17 +92,33 @@ function addPlacePoints(panorama) {
     });
 }
 
-function findPlaceByPanaroma(panorama, placesLevel, parentId) {
+function findPlaceByPanaroma(panorama, placesLevel, place) {
+    const { panoramaid: parentId, angel: parentAngel } = place || { parentId: null, angel: null };
     return new Promise(resolve => {
         if (placesLevel === maxPlaceLevel) { resolve(null); return; };
         let places = []
         const promises = [];
+        const parent = { yaw: panorama.panoramaobject["pano-orientation"].yaw };
+
         panorama.panoramaobject.connections.forEach(connection => {
-            const place = { placesLevel, parentId, panoramaid: connection["pano-id"], direction: connection["relative-location"], parent: { yaw: panorama.panoramaobject["pano-orientation"].yaw } };
+            const direction = connection["relative-location"];
+            const yaw = 270.0 + (-1.0 * (parent.yaw - direction.yaw));
+            const angel = (yaw + 360.0) % 360;
+            //if (placesLevel === 0 && (angel + 10.0) % 90 > 25) {
+            //    return;
+            //}
+            //parent ile ayni dogrultuda olmak zorunda
+            if (parentAngel) {
+                const diff = Math.abs(angel - parentAngel);
+                if (diff > 20 && placesLevel > 0) {
+                    return;
+                }
+            }
+            const place = { placesLevel, parentId, panoramaid: connection["pano-id"], direction, parent, angel };
             if (places.filter(f => f.panoramaid === place.panoramaid).length === 0) {
                 places.push(place);
             }
-            promises.push(findChildPanorama(place.panoramaid, placesLevel + 1));
+            promises.push(findChildPanorama(place, placesLevel + 1));
 
         });
         Promise.all(promises).then(values => {
@@ -121,10 +136,10 @@ function findPlaceByPanaroma(panorama, placesLevel, parentId) {
     });
 }
 
-function findChildPanorama(id, placesLevel) {
+function findChildPanorama(place, placesLevel) {
     return new Promise(resolve => {
-        getPanoramabyID(id).then(panorama => {
-            findPlaceByPanaroma(panorama, placesLevel, id).then(childs => {
+        getPanoramabyID(place.panoramaid).then(panorama => {
+            findPlaceByPanaroma(panorama, placesLevel, place).then(childs => {
                 resolve(childs);
             });
         });
@@ -141,11 +156,8 @@ function setArrow(panoramaid, direction, panorama) {
     let scaleval = GetScaleFactor();
     let positionfactor = GetPositionFactor();
     loader.load(url,
-
         function (texture) {
-
             const geometry = new THREE.CircleGeometry(64 * wfactor, 64);
-
             geometry.name = panoramaid;
             const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, side: THREE.DoubleSide })
             const circle = new THREE.Mesh(geometry, material);
@@ -154,33 +166,24 @@ function setArrow(panoramaid, direction, panorama) {
             let directionyaw = direction.yaw;
             let panoyaw = panorama.panoramaobject["pano-orientation"].yaw;
             const yaw = 270 + (-1 * (panoyaw - directionyaw))
-            // const yaw = panoyaw
-
             materials.push(material);
             meshes.push(circle);
             geometries.push(geometry);
             textures.push(texture);
             circle.yaw = yaw;
-
-
             circle.position.set(Math.cos(THREE.MathUtils.degToRad(yaw)) * positionfactor, getZlevel(), Math.sin(THREE.MathUtils.degToRad(yaw)) * positionfactor);
-
             circle.rotateX(THREE.MathUtils.degToRad(90))
             circle.rotateZ(THREE.MathUtils.degToRad(yaw - 90))
-
 
             //addLabel(circle, ((directionyaw + 720.0) % 360).toFixed(2));
             scene.add(circle);
             circle.on('click', function (ev) {
-
                 eventhandler.dispatchEvent("connectionclick",
                     { bubbles: true, cancelable: true, panoramaid: ev.target.geometry.name });
-
             });
 
             circle.on('mouseout', function (ev) { circle.material.transparent = true; });
             circle.on('mouseover', function (ev) { circle.material.transparent = false; });
-
         }
         ,
         function () { },  // onProgress function
@@ -189,48 +192,36 @@ function setArrow(panoramaid, direction, panorama) {
 }
 
 function addPlacePoint({ panoramaid, direction, parent, placesLevel, parentId }) {
+    if (placesList.includes(panoramaid)) { return; }
+    placesList.push(panoramaid);
 
     let directionyaw = direction.yaw;
     let directionDistance = parseFloat(direction.distance);
     let panoyaw = parent.yaw;
     const yaw = 270.0 + (-1.0 * (panoyaw - directionyaw));
-    //0 - 90 - 180 - 270 acilarindaki panoramalari kullan ) +-10 fark sapma icin
     const angel = (yaw + 360.0) % 360;
-    if ((angel + 10.0) % 90 > 20) {
-        return;
-    }
 
     const multiplier = 300.0 * directionDistance;
     let levelDiff = parseInt(placesLevel) * 1000.0
-
     let position = { x: Math.cos(THREE.MathUtils.degToRad(yaw)) * multiplier * 0.8, y: -900.0, z: Math.sin(THREE.MathUtils.degToRad(yaw)) * multiplier };
     if (parentId) {
         const parentMesh = scene.getObjectByName("point" + parentId);
         if (!parentMesh) { return; }
-        //parent ile ayni dogrultuda olmak zorunda
-        const diff = Math.abs(angel - parentMesh.yaw);
-        if (diff > 10) {
-            return;
-        }
         position = parentMesh.position;
     } else {
         position = { x: Math.cos(THREE.MathUtils.degToRad(yaw)) * multiplier * 0.8, y: -900.0, z: Math.sin(THREE.MathUtils.degToRad(yaw)) * multiplier };
     }
+    const circleR = 64; (parseInt(placesLevel) + 1) * 32
+    const geometry = new THREE.CircleGeometry(circleR, circleR);
 
-    const geometry = new THREE.CircleGeometry(64, 64);
-
-    //geometry.name = "point" + panoramaid;
     const material = new THREE.MeshBasicMaterial({ color: 0x0094ff, side: THREE.DoubleSide })
     const circle = new THREE.Mesh(geometry, material);
     circle.name = "point" + panoramaid;
-    circle.yaw = angel;
 
     materials.push(material);
     meshes.push(circle);
     geometries.push(geometry);
 
-
-    //circle.position.set(Math.cos(THREE.MathUtils.degToRad(yaw)) * positionfactor * 20, -50, Math.sin(THREE.MathUtils.degToRad(yaw)) * positionfactor * 20);
     circle.position.x = position.x;
     circle.position.y = position.y;
     circle.position.z = position.z;
@@ -243,7 +234,8 @@ function addPlacePoint({ panoramaid, direction, parent, placesLevel, parentId })
 
     circle.rotateX(THREE.MathUtils.degToRad(90))
 
-    addLabel(circle, `${placesLevel}:${yaw.toFixed(2)}`);
+    addLabel(circle, `${placesLevel}:${angel.toFixed(2)}`);
+    //addLabel(circle, `${placesLevel}:${parentId}:${panoramaid}`);
     scene.add(circle);
     circle.on('click', function (ev) {
         const panoramaid = ev.target.name.replace('point', '');
@@ -279,6 +271,7 @@ function setNorthArrow(panorama) {
 
             northarrow.position.set(0, getZlevel(), 0);
             //addLabel(northarrow, (panoyaw).toFixed(2));
+            //addLabel(northarrow, panorama.panoramaobject["pano-id"]);
 
             northarrow.scale.set(scaleval, scaleval, scaleval);
             northarrow.rotateZ(THREE.MathUtils.degToRad(panoramayaw));
@@ -297,7 +290,7 @@ function setPanorama(panorama) {
     }
 
     clearScene();
-
+    placesList.push(panorama.panoramaobject["pano-id"]);
     currentpanorama = panorama;
     drawHelper.setPanorama(panorama.panoramaobject);
 
@@ -672,7 +665,7 @@ function init(containerid, getPanoById) {
     directionButton.addEventListener("click", (evt) => { drawHelper.btnDirectionClick(); }, false);
     clearButton.addEventListener("click", (evt) => { drawHelper.btnClearClick(); }, false);
     screenShotButton.addEventListener("click", (evt) => { saveAsImage(); }, false);
-    pointsButton.addEventListener("click", (evt) => { alert('de'); }, false);
+    pointsButton.addEventListener("click", (evt) => { addPlacePoints(); }, false);
     elementResizeEvent(container, function () {
         onWindowResize();
     });
@@ -682,6 +675,7 @@ function init(containerid, getPanoById) {
     animate();
 }
 
+const maxPlaceLevel = 3;
 let getPanoramabyID;
 let container, header, footer, skybox;
 let pointLight, camera, scene, controls, renderer, labelRenderer;
@@ -690,6 +684,6 @@ let raycaster, drawButton, directionButton, clearButton, pointsButton, screenSho
 let drawHelper, strDownloadMime = "image/octet-stream";
 let eventhandler;
 let currentpromise;
-let geometries = [], textures = [], materials = [], meshes = [];
+let geometries = [], textures = [], materials = [], meshes = [], placesList = [];
 
 export default { init, setPanorama, on, off, onWindowResize }
