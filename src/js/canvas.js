@@ -78,8 +78,57 @@ function getCanvasImage(images, direction) {
 
 function setConnectedPanoramas(panorama) {
     panorama.panoramaobject.connections.forEach(connection => {
-        setArrow(connection["pano-id"], connection["relative-location"], panorama)
-    })
+        setArrow(connection["pano-id"], connection["relative-location"], panorama);
+    });
+    addPlacePoints(panorama);
+}
+
+const maxPlaceLevel = 3;
+function addPlacePoints(panorama) {
+    findPlaceByPanaroma(panorama, 0).then(places => {
+        console.log(places);
+        places.forEach(place => {
+            addPlacePoint(place);
+        });
+    });
+}
+
+function findPlaceByPanaroma(panorama, placesLevel, parentId) {
+    return new Promise(resolve => {
+        if (placesLevel === maxPlaceLevel) { resolve(null); return; };
+        let places = []
+        const promises = [];
+        panorama.panoramaobject.connections.forEach(connection => {
+            const place = { placesLevel, parentId, panoramaid: connection["pano-id"], direction: connection["relative-location"], parent: { yaw: panorama.panoramaobject["pano-orientation"].yaw } };
+            if (places.filter(f => f.panoramaid === place.panoramaid).length === 0) {
+                places.push(place);
+            }
+            promises.push(findChildPanorama(place.panoramaid, placesLevel + 1));
+
+        });
+        Promise.all(promises).then(values => {
+            values.forEach(childs => {
+                if (childs) {
+                    childs.forEach(child => {
+                        if (places.filter(f => f.panoramaid === child.panoramaid).length === 0) {
+                            places.push(child);
+                        }
+                    });
+                }
+            });
+            resolve(places);
+        });
+    });
+}
+
+function findChildPanorama(id, placesLevel) {
+    return new Promise(resolve => {
+        getPanoramabyID(id).then(panorama => {
+            findPlaceByPanaroma(panorama, placesLevel, id).then(childs => {
+                resolve(childs);
+            });
+        });
+    });
 }
 
 function setArrow(panoramaid, direction, panorama) {
@@ -137,6 +186,75 @@ function setArrow(panoramaid, direction, panorama) {
         function () { },  // onProgress function
         function (error) { console.log(error) } // onError function
     );
+}
+
+function addPlacePoint({ panoramaid, direction, parent, placesLevel, parentId }) {
+
+    let directionyaw = direction.yaw;
+    let directionDistance = parseFloat(direction.distance);
+    let panoyaw = parent.yaw;
+    const yaw = 270.0 + (-1.0 * (panoyaw - directionyaw));
+    //0 - 90 - 180 - 270 acilarindaki panoramalari kullan ) +-10 fark sapma icin
+    const angel = (yaw + 360.0) % 360;
+    if ((angel + 10.0) % 90 > 20) {
+        return;
+    }
+
+    const multiplier = 300.0 * directionDistance;
+    let levelDiff = parseInt(placesLevel) * 1000.0
+
+    let position = { x: Math.cos(THREE.MathUtils.degToRad(yaw)) * multiplier * 0.8, y: -900.0, z: Math.sin(THREE.MathUtils.degToRad(yaw)) * multiplier };
+    if (parentId) {
+        const parentMesh = scene.getObjectByName("point" + parentId);
+        if (!parentMesh) { return; }
+        //parent ile ayni dogrultuda olmak zorunda
+        const diff = Math.abs(angel - parentMesh.yaw);
+        if (diff > 10) {
+            return;
+        }
+        position = parentMesh.position;
+    } else {
+        position = { x: Math.cos(THREE.MathUtils.degToRad(yaw)) * multiplier * 0.8, y: -900.0, z: Math.sin(THREE.MathUtils.degToRad(yaw)) * multiplier };
+    }
+
+    const geometry = new THREE.CircleGeometry(64, 64);
+
+    //geometry.name = "point" + panoramaid;
+    const material = new THREE.MeshBasicMaterial({ color: 0x0094ff, side: THREE.DoubleSide })
+    const circle = new THREE.Mesh(geometry, material);
+    circle.name = "point" + panoramaid;
+    circle.yaw = angel;
+
+    materials.push(material);
+    meshes.push(circle);
+    geometries.push(geometry);
+
+
+    //circle.position.set(Math.cos(THREE.MathUtils.degToRad(yaw)) * positionfactor * 20, -50, Math.sin(THREE.MathUtils.degToRad(yaw)) * positionfactor * 20);
+    circle.position.x = position.x;
+    circle.position.y = position.y;
+    circle.position.z = position.z;
+
+    if ((angel > 80 && angel < 100) || (angel > 260 && angel < 280)) {
+        circle.position.z += (position.z > 0 ? 1 : -1) * levelDiff;
+    } else {
+        circle.position.x += (position.x > 0 ? 1 : -1) * levelDiff;
+    }
+
+    circle.rotateX(THREE.MathUtils.degToRad(90))
+
+    addLabel(circle, `${placesLevel}:${yaw.toFixed(2)}`);
+    scene.add(circle);
+    circle.on('click', function (ev) {
+        const panoramaid = ev.target.name.replace('point', '');
+        eventhandler.dispatchEvent("connectionclick",
+            { bubbles: true, cancelable: true, panoramaid });
+
+    });
+
+    circle.on('mouseout', function (ev) { circle.material.color.set(0x0094ff) });
+    circle.on('mouseover', function (ev) { circle.material.color.set(0xffffff) });
+
 }
 
 function setNorthArrow(panorama) {
@@ -401,6 +519,32 @@ function onWindowResize() {
     labelRenderer.setSize(w, h);
 }
 
+var saveFile = function (strData, filename) {
+    var link = document.createElement('a');
+    if (typeof link.download === 'string') {
+        document.body.appendChild(link); //Firefox requires the link to be in the body
+        link.download = filename;
+        link.href = strData;
+        link.click();
+        document.body.removeChild(link); //remove the link when done
+    } else {
+        location.replace(uri);
+    }
+}
+
+function saveAsImage() {
+    var imgData;
+    try {
+        var strMime = "image/jpeg";
+        imgData = renderer.domElement.toDataURL(strMime);
+        saveFile(imgData.replace(strMime, strDownloadMime), "screenShot.jpg");
+    } catch (e) {
+        console.log(e);
+        return;
+    }
+
+}
+
 function animate() {
     requestAnimationFrame(animate);
     render();
@@ -412,7 +556,7 @@ function render() {
 }
 
 function getZlevel() {
-    return -0.5 * GetPositionFactor();
+    return -2 * GetPositionFactor();
 }
 
 function on(name, callback) {
@@ -443,7 +587,8 @@ function getCameraDistance() {
     return distance;
 }
 
-function init(containerid) {
+function init(containerid, getPanoById) {
+    getPanoramabyID = getPanoById;
     container = document.getElementById(containerid);
     let viewerdivs = setHtmlControls(containerid);
     let viewerdiv = viewerdivs.body;
@@ -453,8 +598,8 @@ function init(containerid) {
     var w = container.offsetWidth;
     var h = container.offsetHeight;
 
-    camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 20000);
-    camera.position.set(0, 0, 0);
+    camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 20000);
+    camera.position.set(0, 0, 500);
     scene = new THREE.Scene();
 
     //lights
@@ -465,7 +610,7 @@ function init(containerid) {
     scene.add(pointLight);
 
     //renderer
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     labelRenderer = new CSS2DRenderer();
     document.body.appendChild(labelRenderer.domElement);
@@ -510,6 +655,8 @@ function init(containerid) {
     });
 
 
+    screenShotButton = document.getElementById("btnScreenShot");
+    pointsButton = document.getElementById("btnPoints");
     drawButton = document.getElementById("btnDraw");
     directionButton = document.getElementById("btnDirection");
     clearButton = document.getElementById("btnClear");
@@ -524,6 +671,8 @@ function init(containerid) {
     drawButton.addEventListener("click", (evt) => { drawHelper.btnDrawClick(); }, false);
     directionButton.addEventListener("click", (evt) => { drawHelper.btnDirectionClick(); }, false);
     clearButton.addEventListener("click", (evt) => { drawHelper.btnClearClick(); }, false);
+    screenShotButton.addEventListener("click", (evt) => { saveAsImage(); }, false);
+    pointsButton.addEventListener("click", (evt) => { alert('de'); }, false);
     elementResizeEvent(container, function () {
         onWindowResize();
     });
@@ -533,11 +682,12 @@ function init(containerid) {
     animate();
 }
 
+let getPanoramabyID;
 let container, header, footer, skybox;
 let pointLight, camera, scene, controls, renderer, labelRenderer;
 let currentpanorama;
-let raycaster, drawButton, directionButton, clearButton, uiTotalDiv;
-let drawHelper;
+let raycaster, drawButton, directionButton, clearButton, pointsButton, screenShotButton, uiTotalDiv;
+let drawHelper, strDownloadMime = "image/octet-stream";
 let eventhandler;
 let currentpromise;
 let geometries = [], textures = [], materials = [], meshes = [];

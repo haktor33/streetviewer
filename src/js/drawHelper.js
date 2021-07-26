@@ -103,14 +103,15 @@ class DrawHelper {
         this.clear();
         this.reset();
         this.stop();
-        this.drawDirection.innerHTML = "Yatay";
+        this.drawDirection.children[0].alt = "Yatay";
+        this.drawDirection.children[0].src = "./icons/scalehorizontal.png";
         if (this.controlMapIsActive) {
             deleteMarkers();
         }
     }
 
     btnDrawClick() {
-        if (this.drawButton.innerHTML === "Çizimi Başlat") {
+        if (this.drawButton.children[0].alt === "Çizimi Başlat") {
             this.start();
         } else {
             this.stop();
@@ -118,10 +119,12 @@ class DrawHelper {
     }
 
     btnDirectionClick() {
-        if (this.drawDirection.innerHTML === "Yatay") {
-            this.drawDirection.innerHTML = "Dikey";
+        if (this.drawDirection.children[0].alt === "Yatay") {
+            this.drawDirection.children[0].alt = "Dikey";
+            this.drawDirection.children[0].src = "./icons/scalevertical.png";
         } else {
-            this.drawDirection.innerHTML = "Yatay";
+            this.drawDirection.children[0].alt = "Yatay";
+            this.drawDirection.children[0].src = "./icons/scalehorizontal.png";
         }
     }
 
@@ -131,7 +134,7 @@ class DrawHelper {
             this.reset();
         }
         this.clearButton.style.display = "";
-        this.drawButton.innerHTML = "Çizimi Durdur";
+        this.drawButton.children[0].alt = "Çizimi Durdur";
         this.started = true;
         this.controls.enabled = false;
         this.skyboxMesh = this.scene.getObjectByName("skybox");
@@ -142,7 +145,7 @@ class DrawHelper {
     }
 
     stop() {
-        this.drawButton.innerHTML = "Çizimi Başlat";
+        this.drawButton.children[0].alt = "Çizimi Başlat";
         window.removeEventListener('pointerdown', this.mouseDownEvent);
         window.removeEventListener("mousemove", this.mouseMoveEvent);
         this.controls.enabled = true;
@@ -199,7 +202,7 @@ class DrawHelper {
                         locations.push({ ...point.location })
                     } else {
                         tempLoc = { ...point.location };
-                        if (this.drawDirection.innerHTML === "Yatay") {
+                        if (this.drawDirection.children[0].alt === "Yatay") {
                             tempLoc.yaw = parseFloat(tempLoc.yaw) + j;
                             tempLoc.pitch = parseFloat(tempLoc.pitch) + j;
                             //tempLoc.pitch = 0.0;
@@ -281,7 +284,7 @@ class DrawHelper {
     addLineLabel(mesh, firstLoc, secondLoc, centerPoint) {
         let distance, text;
 
-        if (this.drawDirection.innerHTML === "Yatay") {
+        if (this.drawDirection.children[0].alt === "Yatay") {
             distance = this.calculateDistance(firstLoc.lat, firstLoc.lon, secondLoc.lat, secondLoc.lon).toFixed(2);
             this.horizontalLenght = distance;
             text = `Yatay:${distance}`;

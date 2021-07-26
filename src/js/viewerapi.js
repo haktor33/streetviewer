@@ -25,7 +25,7 @@ function init(opts) {
 
     window['eartMineConfig'] = options.config;
 
-    canvas.init(opts.control);
+    canvas.init(opts.control, getPanoramabyID);
 
     canvas.on("connectionclick", (evt) => setID(evt.panoramaid))
     canvas.on("camerachanged", (evt) => {
@@ -40,16 +40,17 @@ function init(opts) {
 }
 
 function setID(id) {
-
-    let locationopts = { config: options.config };
-
-    service.getPanoramabyID(id, locationopts).then(panorama => {
+    getPanoramabyID(id).then(panorama => {
         panorama = panorama;
         canvas.setPanorama(panorama);
     },
         err => { throw (err) }
     );
+}
 
+function getPanoramabyID(id) {
+    let locationopts = { config: options.config };
+    return service.getPanoramabyID(id, locationopts);
 }
 
 function setLocation(coordinates) {

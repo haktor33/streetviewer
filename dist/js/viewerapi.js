@@ -110137,6 +110137,74 @@ function setConnectedPanoramas(panorama) {
   panorama.panoramaobject.connections.forEach(function (connection) {
     setArrow(connection["pano-id"], connection["relative-location"], panorama);
   });
+  addPlacePoints(panorama);
+}
+
+var maxPlaceLevel = 3;
+
+function addPlacePoints(panorama) {
+  findPlaceByPanaroma(panorama, 0).then(function (places) {
+    console.log(places);
+    places.forEach(function (place) {
+      addPlacePoint(place);
+    });
+  });
+}
+
+function findPlaceByPanaroma(panorama, placesLevel, parentId) {
+  return new Promise(function (resolve) {
+    if (placesLevel === maxPlaceLevel) {
+      resolve(null);
+      return;
+    }
+
+    ;
+    var places = [];
+    var promises = [];
+    panorama.panoramaobject.connections.forEach(function (connection) {
+      var place = {
+        placesLevel: placesLevel,
+        parentId: parentId,
+        panoramaid: connection["pano-id"],
+        direction: connection["relative-location"],
+        parent: {
+          yaw: panorama.panoramaobject["pano-orientation"].yaw
+        }
+      };
+
+      if (places.filter(function (f) {
+        return f.panoramaid === place.panoramaid;
+      }).length === 0) {
+        places.push(place);
+      }
+
+      promises.push(findChildPanorama(place.panoramaid, placesLevel + 1));
+    });
+    Promise.all(promises).then(function (values) {
+      values.forEach(function (childs) {
+        if (childs) {
+          childs.forEach(function (child) {
+            if (places.filter(function (f) {
+              return f.panoramaid === child.panoramaid;
+            }).length === 0) {
+              places.push(child);
+            }
+          });
+        }
+      });
+      resolve(places);
+    });
+  });
+}
+
+function findChildPanorama(id, placesLevel) {
+  return new Promise(function (resolve) {
+    getPanoramabyID(id).then(function (panorama) {
+      findPlaceByPanaroma(panorama, placesLevel, id).then(function (childs) {
+        resolve(childs);
+      });
+    });
+  });
 }
 
 function setArrow(panoramaid, direction, panorama) {
@@ -110188,6 +110256,96 @@ function setArrow(panoramaid, direction, panorama) {
     console.log(error);
   } // onError function
   );
+}
+
+function addPlacePoint(_ref) {
+  var panoramaid = _ref.panoramaid,
+      direction = _ref.direction,
+      parent = _ref.parent,
+      placesLevel = _ref.placesLevel,
+      parentId = _ref.parentId;
+  var directionyaw = direction.yaw;
+  var directionDistance = parseFloat(direction.distance);
+  var panoyaw = parent.yaw;
+  var yaw = 270.0 + -1.0 * (panoyaw - directionyaw); //0 - 90 - 180 - 270 acilarindaki panoramalari kullan ) +-10 fark sapma icin
+
+  var angel = (yaw + 360.0) % 360;
+
+  if ((angel + 10.0) % 90 > 20) {
+    return;
+  }
+
+  var multiplier = 300.0 * directionDistance;
+  var levelDiff = parseInt(placesLevel) * 1000.0;
+  var position = {
+    x: Math.cos(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(yaw)) * multiplier * 0.8,
+    y: -900.0,
+    z: Math.sin(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(yaw)) * multiplier
+  };
+
+  if (parentId) {
+    var parentMesh = scene.getObjectByName("point" + parentId);
+
+    if (!parentMesh) {
+      return;
+    } //parent ile ayni dogrultuda olmak zorunda
+
+
+    var diff = Math.abs(angel - parentMesh.yaw);
+
+    if (diff > 10) {
+      return;
+    }
+
+    position = parentMesh.position;
+  } else {
+    position = {
+      x: Math.cos(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(yaw)) * multiplier * 0.8,
+      y: -900.0,
+      z: Math.sin(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(yaw)) * multiplier
+    };
+  }
+
+  var geometry = new three__WEBPACK_IMPORTED_MODULE_1__["CircleGeometry"](64, 64); //geometry.name = "point" + panoramaid;
+
+  var material = new three__WEBPACK_IMPORTED_MODULE_1__["MeshBasicMaterial"]({
+    color: 0x0094ff,
+    side: three__WEBPACK_IMPORTED_MODULE_1__["DoubleSide"]
+  });
+  var circle = new three__WEBPACK_IMPORTED_MODULE_1__["Mesh"](geometry, material);
+  circle.name = "point" + panoramaid;
+  circle.yaw = angel;
+  materials.push(material);
+  meshes.push(circle);
+  geometries.push(geometry); //circle.position.set(Math.cos(THREE.MathUtils.degToRad(yaw)) * positionfactor * 20, -50, Math.sin(THREE.MathUtils.degToRad(yaw)) * positionfactor * 20);
+
+  circle.position.x = position.x;
+  circle.position.y = position.y;
+  circle.position.z = position.z;
+
+  if (angel > 80 && angel < 100 || angel > 260 && angel < 280) {
+    circle.position.z += (position.z > 0 ? 1 : -1) * levelDiff;
+  } else {
+    circle.position.x += (position.x > 0 ? 1 : -1) * levelDiff;
+  }
+
+  circle.rotateX(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(90));
+  Object(_label__WEBPACK_IMPORTED_MODULE_7__["addLabel"])(circle, "".concat(placesLevel, ":").concat(yaw.toFixed(2)));
+  scene.add(circle);
+  circle.on('click', function (ev) {
+    var panoramaid = ev.target.name.replace('point', '');
+    eventhandler.dispatchEvent("connectionclick", {
+      bubbles: true,
+      cancelable: true,
+      panoramaid: panoramaid
+    });
+  });
+  circle.on('mouseout', function (ev) {
+    circle.material.color.set(0x0094ff);
+  });
+  circle.on('mouseover', function (ev) {
+    circle.material.color.set(0xffffff);
+  });
 }
 
 function setNorthArrow(panorama) {
@@ -110446,6 +110604,34 @@ function onWindowResize() {
   labelRenderer.setSize(w, h);
 }
 
+var saveFile = function saveFile(strData, filename) {
+  var link = document.createElement('a');
+
+  if (typeof link.download === 'string') {
+    document.body.appendChild(link); //Firefox requires the link to be in the body
+
+    link.download = filename;
+    link.href = strData;
+    link.click();
+    document.body.removeChild(link); //remove the link when done
+  } else {
+    location.replace(uri);
+  }
+};
+
+function saveAsImage() {
+  var imgData;
+
+  try {
+    var strMime = "image/jpeg";
+    imgData = renderer.domElement.toDataURL(strMime);
+    saveFile(imgData.replace(strMime, strDownloadMime), "screenShot.jpg");
+  } catch (e) {
+    console.log(e);
+    return;
+  }
+}
+
 function animate() {
   requestAnimationFrame(animate);
   render();
@@ -110457,7 +110643,7 @@ function render() {
 }
 
 function getZlevel() {
-  return -0.5 * GetPositionFactor();
+  return -2 * GetPositionFactor();
 }
 
 function on(name, callback) {
@@ -110486,7 +110672,8 @@ function getCameraDistance() {
   return distance;
 }
 
-function init(containerid) {
+function init(containerid, getPanoById) {
+  getPanoramabyID = getPanoById;
   container = document.getElementById(containerid);
   var viewerdivs = setHtmlControls(containerid);
   var viewerdiv = viewerdivs.body;
@@ -110494,8 +110681,8 @@ function init(containerid) {
   footer = viewerdivs.footer;
   var w = container.offsetWidth;
   var h = container.offsetHeight;
-  camera = new three__WEBPACK_IMPORTED_MODULE_1__["PerspectiveCamera"](40, w / h, 0.1, 20000);
-  camera.position.set(0, 0, 0);
+  camera = new three__WEBPACK_IMPORTED_MODULE_1__["PerspectiveCamera"](75, w / h, 0.1, 20000);
+  camera.position.set(0, 0, 500);
   scene = new three__WEBPACK_IMPORTED_MODULE_1__["Scene"](); //lights
 
   var ambient = new three__WEBPACK_IMPORTED_MODULE_1__["AmbientLight"](0xffffff);
@@ -110503,7 +110690,9 @@ function init(containerid) {
   pointLight = new three__WEBPACK_IMPORTED_MODULE_1__["PointLight"](0xffffff, 2);
   scene.add(pointLight); //renderer
 
-  renderer = new three__WEBPACK_IMPORTED_MODULE_1__["WebGLRenderer"]();
+  renderer = new three__WEBPACK_IMPORTED_MODULE_1__["WebGLRenderer"]({
+    preserveDrawingBuffer: true
+  });
   renderer.setPixelRatio(window.devicePixelRatio);
   labelRenderer = new three_examples_jsm_renderers_CSS2DRenderer__WEBPACK_IMPORTED_MODULE_3__["CSS2DRenderer"]();
   document.body.appendChild(labelRenderer.domElement);
@@ -110543,6 +110732,8 @@ function init(containerid) {
       orientation: getCameraOrientation()
     });
   });
+  screenShotButton = document.getElementById("btnScreenShot");
+  pointsButton = document.getElementById("btnPoints");
   drawButton = document.getElementById("btnDraw");
   directionButton = document.getElementById("btnDirection");
   clearButton = document.getElementById("btnClear");
@@ -110561,17 +110752,25 @@ function init(containerid) {
   clearButton.addEventListener("click", function (evt) {
     drawHelper.btnClearClick();
   }, false);
+  screenShotButton.addEventListener("click", function (evt) {
+    saveAsImage();
+  }, false);
+  pointsButton.addEventListener("click", function (evt) {
+    alert('de');
+  }, false);
   element_resize_event__WEBPACK_IMPORTED_MODULE_6___default()(container, function () {
     onWindowResize();
   });
   animate();
 }
 
+var getPanoramabyID;
 var container, header, footer, skybox;
 var pointLight, camera, scene, controls, renderer, labelRenderer;
 var currentpanorama;
-var raycaster, drawButton, directionButton, clearButton, uiTotalDiv;
-var drawHelper;
+var raycaster, drawButton, directionButton, clearButton, pointsButton, screenShotButton, uiTotalDiv;
+var drawHelper,
+    strDownloadMime = "image/octet-stream";
 var eventhandler;
 var currentpromise;
 var geometries = [],
@@ -110769,7 +110968,8 @@ var DrawHelper = /*#__PURE__*/function () {
       this.clear();
       this.reset();
       this.stop();
-      this.drawDirection.innerHTML = "Yatay";
+      this.drawDirection.children[0].alt = "Yatay";
+      this.drawDirection.children[0].src = "./icons/scalehorizontal.png";
 
       if (this.controlMapIsActive) {
         Object(_googleMap__WEBPACK_IMPORTED_MODULE_3__["deleteMarkers"])();
@@ -110778,7 +110978,7 @@ var DrawHelper = /*#__PURE__*/function () {
   }, {
     key: "btnDrawClick",
     value: function btnDrawClick() {
-      if (this.drawButton.innerHTML === "Çizimi Başlat") {
+      if (this.drawButton.children[0].alt === "Çizimi Başlat") {
         this.start();
       } else {
         this.stop();
@@ -110787,10 +110987,12 @@ var DrawHelper = /*#__PURE__*/function () {
   }, {
     key: "btnDirectionClick",
     value: function btnDirectionClick() {
-      if (this.drawDirection.innerHTML === "Yatay") {
-        this.drawDirection.innerHTML = "Dikey";
+      if (this.drawDirection.children[0].alt === "Yatay") {
+        this.drawDirection.children[0].alt = "Dikey";
+        this.drawDirection.children[0].src = "./icons/scalevertical.png";
       } else {
-        this.drawDirection.innerHTML = "Yatay";
+        this.drawDirection.children[0].alt = "Yatay";
+        this.drawDirection.children[0].src = "./icons/scalehorizontal.png";
       }
     }
   }, {
@@ -110804,7 +111006,7 @@ var DrawHelper = /*#__PURE__*/function () {
       }
 
       this.clearButton.style.display = "";
-      this.drawButton.innerHTML = "Çizimi Durdur";
+      this.drawButton.children[0].alt = "Çizimi Durdur";
       this.started = true;
       this.controls.enabled = false;
       this.skyboxMesh = this.scene.getObjectByName("skybox");
@@ -110825,7 +111027,7 @@ var DrawHelper = /*#__PURE__*/function () {
     value: function stop() {
       var _this4 = this;
 
-      this.drawButton.innerHTML = "Çizimi Başlat";
+      this.drawButton.children[0].alt = "Çizimi Başlat";
       window.removeEventListener('pointerdown', this.mouseDownEvent);
       window.removeEventListener("mousemove", this.mouseMoveEvent);
       this.controls.enabled = true;
@@ -110889,7 +111091,7 @@ var DrawHelper = /*#__PURE__*/function () {
             } else {
               tempLoc = _objectSpread({}, point.location);
 
-              if (_this5.drawDirection.innerHTML === "Yatay") {
+              if (_this5.drawDirection.children[0].alt === "Yatay") {
                 tempLoc.yaw = parseFloat(tempLoc.yaw) + j;
                 tempLoc.pitch = parseFloat(tempLoc.pitch) + j; //tempLoc.pitch = 0.0;
               } else {
@@ -111000,7 +111202,7 @@ var DrawHelper = /*#__PURE__*/function () {
     value: function addLineLabel(mesh, firstLoc, secondLoc, centerPoint) {
       var distance, text;
 
-      if (this.drawDirection.innerHTML === "Yatay") {
+      if (this.drawDirection.children[0].alt === "Yatay") {
         distance = this.calculateDistance(firstLoc.lat, firstLoc.lon, secondLoc.lat, secondLoc.lon).toFixed(2);
         this.horizontalLenght = distance;
         text = "Yatay:".concat(distance);
@@ -111754,7 +111956,7 @@ function init(opts) {
 
   options.config = new _config__WEBPACK_IMPORTED_MODULE_2__["default"](opts.config);
   window['eartMineConfig'] = options.config;
-  _canvas__WEBPACK_IMPORTED_MODULE_1__["default"].init(opts.control);
+  _canvas__WEBPACK_IMPORTED_MODULE_1__["default"].init(opts.control, getPanoramabyID);
   _canvas__WEBPACK_IMPORTED_MODULE_1__["default"].on("connectionclick", function (evt) {
     return setID(evt.panoramaid);
   });
@@ -111768,15 +111970,19 @@ function init(opts) {
 }
 
 function setID(id) {
-  var locationopts = {
-    config: options.config
-  };
-  _service__WEBPACK_IMPORTED_MODULE_0__["getPanoramabyID"](id, locationopts).then(function (panorama) {
+  getPanoramabyID(id).then(function (panorama) {
     panorama = panorama;
     _canvas__WEBPACK_IMPORTED_MODULE_1__["default"].setPanorama(panorama);
   }, function (err) {
     throw err;
   });
+}
+
+function getPanoramabyID(id) {
+  var locationopts = {
+    config: options.config
+  };
+  return _service__WEBPACK_IMPORTED_MODULE_0__["getPanoramabyID"](id, locationopts);
 }
 
 function setLocation(coordinates) {

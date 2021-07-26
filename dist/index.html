@@ -31,8 +31,8 @@
 
         .ui {
             box-shadow: 0px 10px 14px -7px #276873;
-            background: linear-gradient(to bottom, #599bb3 5%, #408c99 100%);
-            background-color: #599bb3;
+            background: linear-gradient(to bottom, #fff 5%, #808080 100%);
+            background-color: #fff;
             border-radius: 8px;
             display: inline-block;
             cursor: pointer;
@@ -40,14 +40,14 @@
             font-family: Arial;
             font-size: 12px;
             font-weight: bold;
-            padding: 6px 24px;
+            padding: 2px 4px;
             text-decoration: none;
             text-shadow: 0px 1px 0px #3d768a;
             opacity: 0.8;
         }
 
             .ui:hover {
-                background: linear-gradient(to bottom, #408c99 5%, #599bb3 100%);
+                background: linear-gradient(to bottom, #808080 5%, #fff 100%);
                 background-color: #408c99;
             }
 
@@ -65,14 +65,14 @@
         #divTotal {
             margin-top: 4px;
             box-shadow: 0px 10px 14px -7px #276873;
-            background: linear-gradient(to bottom, #599bb3 5%, #408c99 100%);
-            background-color: #599bb3;
+            background: linear-gradient(to bottom, #808080 5%, #6f6b6b 100%);
+            background-color: #fff;
             border-radius: 8px;
             color: #ffffff;
             font-family: Arial;
             font-size: 12px;
             font-weight: bold;
-            padding: 6px 24px;
+            padding: 6px 12px;
             text-decoration: none;
             text-shadow: 0px 1px 0px #3d768a;
             opacity: 0.8;
@@ -82,9 +82,11 @@
 </head>
 <body>
     <div class="uiProcess ">
-        <button id="btnDirection" class="ui">Yatay</button>
-        <button id="btnDraw" class="ui">Çizimi Başlat</button>
-        <button id="btnClear" class="ui">Temizle</button>
+        <button id="btnScreenShot" title="Ekran Görüntüsü" class="ui"><img width="15" alt="screenshot" src="./icons/camera.png" /></button>
+        <button id="btnPoints" title="Çekim Noktaları" class="ui"><img width="15" alt="photopoints" src="./icons/place.png" /></button>
+        <button id="btnDirection" title="Çizim Yönü" class="ui"><img width="15" alt="Yatay" src="./icons/scalehorizontal.png" /></button>
+        <button id="btnDraw" title="Çizim" class="ui"><img width="15" alt="Çizimi Başlat" src="./icons/pen.png"/></button>
+        <button id="btnClear" class="ui" title="Temizle"><img width="15" alt="Temizle" src="./icons/clear.png" /></button>
         <div id="divTotal"></div>
     </div>
 
@@ -93,7 +95,7 @@
     <script src="./js/viewerapi.js"></script>
     <script src="./js/googleInitMap.js"></script>
     <script>
-        window['controlMapIsActive'] = true;
+        window['controlMapIsActive'] = false;
         viewerapi.init({
             control: "earthmineviewer",
             config:
