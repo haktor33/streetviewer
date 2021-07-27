@@ -110342,8 +110342,8 @@ function addPlacePoint(_ref2) {
     circle.position.x += (position.x > 0 ? 1 : -1) * levelDiff;
   }
 
-  circle.rotateX(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(90));
-  Object(_label__WEBPACK_IMPORTED_MODULE_7__["addLabel"])(circle, "".concat(placesLevel, ":").concat(angel.toFixed(2))); //addLabel(circle, `${placesLevel}:${parentId}:${panoramaid}`);
+  circle.rotateX(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(90)); //addLabel(circle, `${placesLevel}:${angel.toFixed(2)}`);
+  //addLabel(circle, `${placesLevel}:${parentId}:${panoramaid}`);
 
   scene.add(circle);
   circle.on('click', function (ev) {
@@ -111134,12 +111134,10 @@ var DrawHelper = /*#__PURE__*/function () {
           x: (firstPoint.x + lastPoint.x) / 2.0,
           y: (firstPoint.y + lastPoint.y) / 2.0,
           z: (firstPoint.z + lastPoint.z) / 2.0
-        };
-        var yawDifferent = Math.abs(firstPoint.location.yaw - lastPoint.location.yaw).toFixed(2);
-
-        if (yawDifferent > 45) {
-          alert("Uyar\u0131 : \u0130ki Nokta Aras\u0131 Aral\u0131k ".concat(yawDifferent, "\xB0 dir!"));
-        }
+        }; //const yawDifferent = Math.abs(firstPoint.location.yaw - lastPoint.location.yaw).toFixed(2);
+        //if (yawDifferent > 45) {
+        //    alert(`Uyarı : İki Nokta Arası Aralık ${yawDifferent}° dir!`)
+        //}
 
         Object(_service__WEBPACK_IMPORTED_MODULE_1__["getLocationFromPanorama"])({
           panorama: _this5.panorama,

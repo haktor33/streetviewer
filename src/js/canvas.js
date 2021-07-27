@@ -234,7 +234,7 @@ function addPlacePoint({ panoramaid, direction, parent, placesLevel, parentId })
 
     circle.rotateX(THREE.MathUtils.degToRad(90))
 
-    addLabel(circle, `${placesLevel}:${angel.toFixed(2)}`);
+    //addLabel(circle, `${placesLevel}:${angel.toFixed(2)}`);
     //addLabel(circle, `${placesLevel}:${parentId}:${panoramaid}`);
     scene.add(circle);
     circle.on('click', function (ev) {
