@@ -110096,6 +110096,7 @@ function clearScene() {
   textures = [];
   materials = [];
   geometries = [];
+  placesList = [];
   drawHelper.clear();
 }
 
@@ -110137,13 +110138,10 @@ function setConnectedPanoramas(panorama) {
   panorama.panoramaobject.connections.forEach(function (connection) {
     setArrow(connection["pano-id"], connection["relative-location"], panorama);
   });
-  addPlacePoints(panorama);
 }
 
-var maxPlaceLevel = 3;
-
-function addPlacePoints(panorama) {
-  findPlaceByPanaroma(panorama, 0).then(function (places) {
+function addPlacePoints() {
+  findPlaceByPanaroma(currentpanorama, 0).then(function (places) {
     console.log(places);
     places.forEach(function (place) {
       addPlacePoint(place);
@@ -110151,7 +110149,14 @@ function addPlacePoints(panorama) {
   });
 }
 
-function findPlaceByPanaroma(panorama, placesLevel, parentId) {
+function findPlaceByPanaroma(panorama, placesLevel, place) {
+  var _ref = place || {
+    parentId: null,
+    angel: null
+  },
+      parentId = _ref.panoramaid,
+      parentAngel = _ref.angel;
+
   return new Promise(function (resolve) {
     if (placesLevel === maxPlaceLevel) {
       resolve(null);
@@ -110161,15 +110166,32 @@ function findPlaceByPanaroma(panorama, placesLevel, parentId) {
     ;
     var places = [];
     var promises = [];
+    var parent = {
+      yaw: panorama.panoramaobject["pano-orientation"].yaw
+    };
     panorama.panoramaobject.connections.forEach(function (connection) {
+      var direction = connection["relative-location"];
+      var yaw = 270.0 + -1.0 * (parent.yaw - direction.yaw);
+      var angel = (yaw + 360.0) % 360; //if (placesLevel === 0 && (angel + 10.0) % 90 > 25) {
+      //    return;
+      //}
+      //parent ile ayni dogrultuda olmak zorunda
+
+      if (parentAngel) {
+        var diff = Math.abs(angel - parentAngel);
+
+        if (diff > 20 && placesLevel > 0) {
+          return;
+        }
+      }
+
       var place = {
         placesLevel: placesLevel,
         parentId: parentId,
         panoramaid: connection["pano-id"],
-        direction: connection["relative-location"],
-        parent: {
-          yaw: panorama.panoramaobject["pano-orientation"].yaw
-        }
+        direction: direction,
+        parent: parent,
+        angel: angel
       };
 
       if (places.filter(function (f) {
@@ -110178,7 +110200,7 @@ function findPlaceByPanaroma(panorama, placesLevel, parentId) {
         places.push(place);
       }
 
-      promises.push(findChildPanorama(place.panoramaid, placesLevel + 1));
+      promises.push(findChildPanorama(place, placesLevel + 1));
     });
     Promise.all(promises).then(function (values) {
       values.forEach(function (childs) {
@@ -110197,10 +110219,10 @@ function findPlaceByPanaroma(panorama, placesLevel, parentId) {
   });
 }
 
-function findChildPanorama(id, placesLevel) {
+function findChildPanorama(place, placesLevel) {
   return new Promise(function (resolve) {
-    getPanoramabyID(id).then(function (panorama) {
-      findPlaceByPanaroma(panorama, placesLevel, id).then(function (childs) {
+    getPanoramabyID(place.panoramaid).then(function (panorama) {
+      findPlaceByPanaroma(panorama, placesLevel, place).then(function (childs) {
         resolve(childs);
       });
     });
@@ -110226,8 +110248,7 @@ function setArrow(panoramaid, direction, panorama) {
     circle.scale.set(scaleval, scaleval, scaleval);
     var directionyaw = direction.yaw;
     var panoyaw = panorama.panoramaobject["pano-orientation"].yaw;
-    var yaw = 270 + -1 * (panoyaw - directionyaw); // const yaw = panoyaw
-
+    var yaw = 270 + -1 * (panoyaw - directionyaw);
     materials.push(material);
     meshes.push(circle);
     geometries.push(geometry);
@@ -110258,23 +110279,23 @@ function setArrow(panoramaid, direction, panorama) {
   );
 }
 
-function addPlacePoint(_ref) {
-  var panoramaid = _ref.panoramaid,
-      direction = _ref.direction,
-      parent = _ref.parent,
-      placesLevel = _ref.placesLevel,
-      parentId = _ref.parentId;
-  var directionyaw = direction.yaw;
-  var directionDistance = parseFloat(direction.distance);
-  var panoyaw = parent.yaw;
-  var yaw = 270.0 + -1.0 * (panoyaw - directionyaw); //0 - 90 - 180 - 270 acilarindaki panoramalari kullan ) +-10 fark sapma icin
+function addPlacePoint(_ref2) {
+  var panoramaid = _ref2.panoramaid,
+      direction = _ref2.direction,
+      parent = _ref2.parent,
+      placesLevel = _ref2.placesLevel,
+      parentId = _ref2.parentId;
 
-  var angel = (yaw + 360.0) % 360;
-
-  if ((angel + 10.0) % 90 > 20) {
+  if (placesList.includes(panoramaid)) {
     return;
   }
 
+  placesList.push(panoramaid);
+  var directionyaw = direction.yaw;
+  var directionDistance = parseFloat(direction.distance);
+  var panoyaw = parent.yaw;
+  var yaw = 270.0 + -1.0 * (panoyaw - directionyaw);
+  var angel = (yaw + 360.0) % 360;
   var multiplier = 300.0 * directionDistance;
   var levelDiff = parseInt(placesLevel) * 1000.0;
   var position = {
@@ -110288,13 +110309,6 @@ function addPlacePoint(_ref) {
 
     if (!parentMesh) {
       return;
-    } //parent ile ayni dogrultuda olmak zorunda
-
-
-    var diff = Math.abs(angel - parentMesh.yaw);
-
-    if (diff > 10) {
-      return;
     }
 
     position = parentMesh.position;
@@ -110306,19 +110320,18 @@ function addPlacePoint(_ref) {
     };
   }
 
-  var geometry = new three__WEBPACK_IMPORTED_MODULE_1__["CircleGeometry"](64, 64); //geometry.name = "point" + panoramaid;
-
+  var circleR = 64;
+  (parseInt(placesLevel) + 1) * 32;
+  var geometry = new three__WEBPACK_IMPORTED_MODULE_1__["CircleGeometry"](circleR, circleR);
   var material = new three__WEBPACK_IMPORTED_MODULE_1__["MeshBasicMaterial"]({
     color: 0x0094ff,
     side: three__WEBPACK_IMPORTED_MODULE_1__["DoubleSide"]
   });
   var circle = new three__WEBPACK_IMPORTED_MODULE_1__["Mesh"](geometry, material);
   circle.name = "point" + panoramaid;
-  circle.yaw = angel;
   materials.push(material);
   meshes.push(circle);
-  geometries.push(geometry); //circle.position.set(Math.cos(THREE.MathUtils.degToRad(yaw)) * positionfactor * 20, -50, Math.sin(THREE.MathUtils.degToRad(yaw)) * positionfactor * 20);
-
+  geometries.push(geometry);
   circle.position.x = position.x;
   circle.position.y = position.y;
   circle.position.z = position.z;
@@ -110329,8 +110342,9 @@ function addPlacePoint(_ref) {
     circle.position.x += (position.x > 0 ? 1 : -1) * levelDiff;
   }
 
-  circle.rotateX(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(90));
-  Object(_label__WEBPACK_IMPORTED_MODULE_7__["addLabel"])(circle, "".concat(placesLevel, ":").concat(yaw.toFixed(2)));
+  circle.rotateX(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(90)); //addLabel(circle, `${placesLevel}:${angel.toFixed(2)}`);
+  //addLabel(circle, `${placesLevel}:${parentId}:${panoramaid}`);
+
   scene.add(circle);
   circle.on('click', function (ev) {
     var panoramaid = ev.target.name.replace('point', '');
@@ -110367,6 +110381,7 @@ function setNorthArrow(panorama) {
     var panoyaw = panorama.panoramaobject["pano-orientation"].yaw;
     var panoramayaw = 180 + -1 * panoyaw;
     northarrow.position.set(0, getZlevel(), 0); //addLabel(northarrow, (panoyaw).toFixed(2));
+    //addLabel(northarrow, panorama.panoramaobject["pano-id"]);
 
     northarrow.scale.set(scaleval, scaleval, scaleval);
     northarrow.rotateZ(three__WEBPACK_IMPORTED_MODULE_1__["MathUtils"].degToRad(panoramayaw));
@@ -110384,6 +110399,7 @@ function setPanorama(panorama) {
   }
 
   clearScene();
+  placesList.push(panorama.panoramaobject["pano-id"]);
   currentpanorama = panorama;
   drawHelper.setPanorama(panorama.panoramaobject);
   camera.fov = 40;
@@ -110756,7 +110772,7 @@ function init(containerid, getPanoById) {
     saveAsImage();
   }, false);
   pointsButton.addEventListener("click", function (evt) {
-    alert('de');
+    addPlacePoints();
   }, false);
   element_resize_event__WEBPACK_IMPORTED_MODULE_6___default()(container, function () {
     onWindowResize();
@@ -110764,6 +110780,7 @@ function init(containerid, getPanoById) {
   animate();
 }
 
+var maxPlaceLevel = 3;
 var getPanoramabyID;
 var container, header, footer, skybox;
 var pointLight, camera, scene, controls, renderer, labelRenderer;
@@ -110776,7 +110793,8 @@ var currentpromise;
 var geometries = [],
     textures = [],
     materials = [],
-    meshes = [];
+    meshes = [],
+    placesList = [];
 /* harmony default export */ __webpack_exports__["default"] = ({
   init: init,
   setPanorama: setPanorama,
@@ -111116,12 +111134,10 @@ var DrawHelper = /*#__PURE__*/function () {
           x: (firstPoint.x + lastPoint.x) / 2.0,
           y: (firstPoint.y + lastPoint.y) / 2.0,
           z: (firstPoint.z + lastPoint.z) / 2.0
-        };
-        var yawDifferent = Math.abs(firstPoint.location.yaw - lastPoint.location.yaw).toFixed(2);
-
-        if (yawDifferent > 45) {
-          alert("Uyar\u0131 : \u0130ki Nokta Aras\u0131 Aral\u0131k ".concat(yawDifferent, "\xB0 dir!"));
-        }
+        }; //const yawDifferent = Math.abs(firstPoint.location.yaw - lastPoint.location.yaw).toFixed(2);
+        //if (yawDifferent > 45) {
+        //    alert(`Uyarı : İki Nokta Arası Aralık ${yawDifferent}° dir!`)
+        //}
 
         Object(_service__WEBPACK_IMPORTED_MODULE_1__["getLocationFromPanorama"])({
           panorama: _this5.panorama,

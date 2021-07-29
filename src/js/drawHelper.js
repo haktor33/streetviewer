@@ -224,10 +224,10 @@ class DrawHelper {
             const firstPoint = this.points[0];
             const lastPoint = this.points[this.points.length - 1];
             const centerPoint = { x: (firstPoint.x + lastPoint.x) / 2.0, y: (firstPoint.y + lastPoint.y) / 2.0, z: (firstPoint.z + lastPoint.z) / 2.0 };
-            const yawDifferent = Math.abs(firstPoint.location.yaw - lastPoint.location.yaw).toFixed(2);
-            if (yawDifferent > 45) {
-                alert(`Uyarı : İki Nokta Arası Aralık ${yawDifferent}° dir!`)
-            }
+            //const yawDifferent = Math.abs(firstPoint.location.yaw - lastPoint.location.yaw).toFixed(2);
+            //if (yawDifferent > 45) {
+            //    alert(`Uyarı : İki Nokta Arası Aralık ${yawDifferent}° dir!`)
+            //}
             getLocationFromPanorama({ panorama: this.panorama, locations }).then(result => {
                 let drawLocs;
                 if (result.length > 0) {
