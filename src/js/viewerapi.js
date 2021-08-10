@@ -33,9 +33,9 @@ function init(opts) {
             { data: evt });
     })
 
-    //if (opts.coordinates) {
-    //    setLocation(opts.coordinates)
-    //}     
+    if (opts.coordinates) {
+        setLocation(opts.coordinates)
+    }     
 
 }
 
@@ -63,8 +63,8 @@ function setLocation(coordinates) {
     //return;
 
     let locationopts = { config: options.config };
-
     service.getPanoramabyCoordinates(coordinates, locationopts).then(panorama => {
+        
         panorama = panorama;
         if (!panorama.panoramaobject) {
             throw ("panorama not found");

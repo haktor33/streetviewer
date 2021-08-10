@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { getLocationFromPanorama } from './service';
 import { addLabel } from './label';
-import { deleteMarkers, addMarker, addMarkers, setLocation } from './googleMap';
+import { imgarrow, imgnortharrow, drawimg, horizontalimg, clearimg, screenshotimg, photopointsimg, verticalimg } from './image.datas';
+
 var count = 0;
 const tolerance = 2;
 
@@ -22,14 +23,14 @@ class DrawHelper {
 
     setPanorama(panorama) {
         this.panorama = panorama;
-        if (this.panorama.location) {
-            const { lat, lon } = this.panorama.location;
-            if (this.controlMapIsActive) {
-                setLocation(lat, lon);
-            }
-        }
         this.clear();
         this.stop();
+    }
+
+    setSize(w, h) {
+        this.pageWidth = w;
+        this.pageHeight = h;
+        console.log(`width=${w} height=${h}`);
     }
 
     reset() {
@@ -104,10 +105,7 @@ class DrawHelper {
         this.reset();
         this.stop();
         this.drawDirection.children[0].alt = "Yatay";
-        this.drawDirection.children[0].src = "./icons/scalehorizontal.png";
-        if (this.controlMapIsActive) {
-            deleteMarkers();
-        }
+        this.drawDirection.children[0].src = horizontalimg;
     }
 
     btnDrawClick() {
@@ -121,10 +119,10 @@ class DrawHelper {
     btnDirectionClick() {
         if (this.drawDirection.children[0].alt === "Yatay") {
             this.drawDirection.children[0].alt = "Dikey";
-            this.drawDirection.children[0].src = "./icons/scalevertical.png";
+            this.drawDirection.children[0].src = verticalimg;
         } else {
             this.drawDirection.children[0].alt = "Yatay";
-            this.drawDirection.children[0].src = "./icons/scalehorizontal.png";
+            this.drawDirection.children[0].src = horizontalimg;
         }
     }
 
@@ -161,8 +159,6 @@ class DrawHelper {
                         this.uiTotalDiv.innerHTML = text;
                     } else {
                         this.btnDirectionClick();
-                        //var that = this;
-                        ////setTimeout(function () { that.start(); }, 1000);
                     }
                 } else {
                     alert('Lütfen Çizimi Tekrarlayınız!');
@@ -173,8 +169,12 @@ class DrawHelper {
     }
 
     onMouseMove(evt, that) {
-        that.mouse.x = (evt.clientX / window.innerWidth) * 2 - 1;
-        that.mouse.y = -(evt.clientY / window.innerHeight) * 2 + 1;
+        //that.mouse.x = (evt.clientX / this.pageWidth) * 2 - 1;
+        //that.mouse.y = -(evt.clientY / this.pageHeight) * 2 + 1;
+
+        that.mouse.x = evt.offsetX / this.pageWidth * 2 - 1;
+        that.mouse.y = -(evt.offsetY / this.pageHeight) * 2 + 1;
+
         that.mouse.z = 0;
     }
 
@@ -224,10 +224,6 @@ class DrawHelper {
             const firstPoint = this.points[0];
             const lastPoint = this.points[this.points.length - 1];
             const centerPoint = { x: (firstPoint.x + lastPoint.x) / 2.0, y: (firstPoint.y + lastPoint.y) / 2.0, z: (firstPoint.z + lastPoint.z) / 2.0 };
-            //const yawDifferent = Math.abs(firstPoint.location.yaw - lastPoint.location.yaw).toFixed(2);
-            //if (yawDifferent > 45) {
-            //    alert(`Uyarı : İki Nokta Arası Aralık ${yawDifferent}° dir!`)
-            //}
             getLocationFromPanorama({ panorama: this.panorama, locations }).then(result => {
                 let drawLocs;
                 if (result.length > 0) {
@@ -252,10 +248,6 @@ class DrawHelper {
                     if (firstLoc && secondLoc) {
                         drawLocs = this.drawLine(vertices, firstLoc, secondLoc, centerPoint);
                         mapLocations = mapLocations.concat(drawLocs);
-                        if (this.controlMapIsActive) {
-                            addMarkers(mapLocations);
-                        }
-
                     }
                 }
                 resolve(drawLocs);
@@ -313,36 +305,6 @@ class DrawHelper {
         return bestLoc;
     }
 
-    test() {
-        const angels = [];
-        for (var i = 0.0; i <= 360.0; i += 90) {
-            angels.push(i);
-        }
-
-        const sapma = 0;//this.panorama['pano-orientation'].yaw;
-        const locations = angels.map(m => ({ pitch: -15, yaw: parseFloat(m - sapma), distance: 15 }));
-        const panoLoc = { ...this.panorama.location };
-
-        getLocationFromPanorama({ panorama: this.panorama, locations }).then(result => {
-            const mapLocations = [];
-            let distance;
-            var center = ['Merkez', panoLoc.lat, panoLoc.lon, 'info'];
-            mapLocations.push(center);
-            result.forEach((f, i) => {
-                if (f) {
-                    distance = this.calculateDistance(panoLoc.lat, panoLoc.lon, f.lat, f.lon).toFixed(10);
-                    distance = parseFloat(distance).toFixed(2);
-                    mapLocations.push([`${angels[i]}° = ${distance}m`, f.lat, f.lon]);
-                } else {
-                    distance = null;
-                }
-                console.log(`${angels[i]}:${distance}`);
-
-            });
-
-            addMarkers(mapLocations);
-        });
-    }
 
     //This function takes in latitude and longitude of two location and returns the distance between them as the crow flies (in km)
     calculateDistance(lat1, lon1, lat2, lon2) {
@@ -400,26 +362,6 @@ class DrawHelper {
         point.location = this.calculateLocation(point);;
         this.points.push(point);
 
-
-        //let text = `${count} : ${point.location.yaw.toFixed(2)}`;
-        //addLabel(mesh, text);
-        //const panoLoc = { ...this.panorama.location };
-        ////const locations = [{ pitch: -15, yaw: point.location.yaw, distance: point.location.distance }];
-        //const locations = [{ ...point.location }];
-        //getLocationFromPanorama({ panorama: this.panorama, locations }).then(result => {
-        //    var mapLocation = [];
-        //    let distance;
-        //    result.forEach((f, i) => {
-        //        if (f) {
-        //            distance = this.calculateDistance(panoLoc.lat, panoLoc.lon, f.lat, f.lon).toFixed(10);
-        //            distance = parseFloat(distance).toFixed(2);
-        //            mapLocation = [`${point.location.yaw.toFixed(2)}° = ${distance}m`, f.lat, f.lon];
-        //        } else {
-        //            distance = null;
-        //        }
-        //    });
-        //    addMarker(mapLocation);
-        //});
     }
 
     calculateLocation(point) {

@@ -28,7 +28,6 @@
             height: 50% !important;
             width: 20% !important;
         }
-
         .ui {
             box-shadow: 0px 10px 14px -7px #276873;
             background: linear-gradient(to bottom, #fff 5%, #808080 100%);
@@ -62,7 +61,7 @@
             top: 20px;
         }
 
-        #divTotal {
+        .divTotal {
             margin-top: 4px;
             box-shadow: 0px 10px 14px -7px #276873;
             background: linear-gradient(to bottom, #808080 5%, #6f6b6b 100%);
@@ -81,21 +80,12 @@
     <link rel="icon" href="favicon.ico">
 </head>
 <body>
-    <div class="uiProcess ">
-        <button id="btnScreenShot" title="Ekran Görüntüsü" class="ui"><img width="15" alt="screenshot" src="./icons/camera.png" /></button>
-        <button id="btnPoints" title="Çekim Noktaları" class="ui"><img width="15" alt="photopoints" src="./icons/place.png" /></button>
-        <button id="btnDirection" title="Çizim Yönü" class="ui"><img width="15" alt="Yatay" src="./icons/scalehorizontal.png" /></button>
-        <button id="btnDraw" title="Çizim" class="ui"><img width="15" alt="Çizimi Başlat" src="./icons/pen.png"/></button>
-        <button id="btnClear" class="ui" title="Temizle"><img width="15" alt="Temizle" src="./icons/clear.png" /></button>
-        <div id="divTotal"></div>
-    </div>
-
     <div id="earthmineviewer"> </div>
     <div class="map" id="googleMapDiv"></div>
     <script src="./js/viewerapi.js"></script>
-    <script src="./js/googleInitMap.js"></script>
+    <!--<script src="./js/googleInitMap.js"></script>-->
     <script>
-        window['controlMapIsActive'] = false;
+        //window['controlMapIsActive'] = false;
         viewerapi.init({
             control: "earthmineviewer",
             config:

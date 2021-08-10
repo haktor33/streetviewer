@@ -8,7 +8,7 @@ import { eventHandler } from './events';
 import elementResizeEvent from 'element-resize-event';
 
 import { addLabel } from './label';
-import { imgarrow, imgnortharrow } from './image.datas';
+import { imgarrow, imgnortharrow, drawimg, horizontalimg, clearimg, screenshotimg, photopointsimg } from './image.datas';
 import DrawHelper from './drawHelper';
 
 function clearScene() {
@@ -392,16 +392,22 @@ function setHeaderandFooter(panorama) {
     let location = panorama.panoramaobject.location;
     header.innerHTML = `Enlem: ${location.lat.toFixed(5)} Boylam: ${location.lon.toFixed(5)} Kot: ${location.alt.toFixed(2)}`;
 
-    let d = Date.parse(panorama.panoramaobject.timestamp);
+    const panoTimestamp = panorama?.panoramaobject?.timestamp || null;
+    let d = null;
+    try {
+        let d = Date.parse(panoTimestamp);
+        const ye = new Intl.DateTimeFormat('tr', { year: 'numeric' }).format(d);
+        const mo = new Intl.DateTimeFormat('tr', { month: 'long' }).format(d);
+        const da = new Intl.DateTimeFormat('tr', { day: '2-digit' }).format(d);
+        const weekday = new Intl.DateTimeFormat('tr', { weekday: 'long' }).format(d);
+        const hour = new Intl.DateTimeFormat('tr', { hour: '2-digit' }).format(d);
+        const minute = new Intl.DateTimeFormat('tr', { minute: '2-digit' }).format(d);
 
-    const ye = new Intl.DateTimeFormat('tr', { year: 'numeric' }).format(d);
-    const mo = new Intl.DateTimeFormat('tr', { month: 'long' }).format(d);
-    const da = new Intl.DateTimeFormat('tr', { day: '2-digit' }).format(d);
-    const weekday = new Intl.DateTimeFormat('tr', { weekday: 'long' }).format(d);
-    const hour = new Intl.DateTimeFormat('tr', { hour: '2-digit' }).format(d);
-    const minute = new Intl.DateTimeFormat('tr', { minute: '2-digit' }).format(d);
+        footer.innerHTML = `${da} ${mo} ${ye} - ${weekday}/${hour}:${minute}`;
+    } catch (e) { debugger; }
 
-    footer.innerHTML = `${da} ${mo} ${ye} - ${weekday}/${hour}:${minute}`;
+
+
 
 }
 
@@ -420,6 +426,43 @@ function setHtmlControls(containerid) {
     let zoomin = document.createElement("li");
     let zoomout = document.createElement("li");
 
+    let uiProcessDiv = document.createElement("div");
+    uiProcessDiv.classList.add('uiProcess');
+
+    screenShotButton = document.createElement("button");
+    screenShotButton.title = "Ekran Görüntüsü";
+    screenShotButton.innerHTML = `<img width="15" alt="screenshot" src=${screenshotimg} />`;
+    screenShotButton.classList.add('ui');
+    uiProcessDiv.appendChild(screenShotButton);
+
+    pointsButton = document.createElement("button");
+    pointsButton.title = "Çekim Noktaları";
+    pointsButton.innerHTML = `<img width="15" alt="photopoints"  src=${photopointsimg} />`;
+    pointsButton.classList.add('ui');
+    uiProcessDiv.appendChild(pointsButton);
+
+    directionButton = document.createElement("button");
+    directionButton.title = "Çizim Yönü";
+    directionButton.innerHTML = `<img width="15" alt="Yatay"  src=${horizontalimg} />`;
+    directionButton.classList.add('ui');
+    uiProcessDiv.appendChild(directionButton);
+
+    drawButton = document.createElement("button");
+    drawButton.title = "Çizim";
+    drawButton.innerHTML = `<img width="15" alt="Çizimi Başlat"  src=${drawimg} />`;
+    drawButton.classList.add('ui');
+    uiProcessDiv.appendChild(drawButton);
+
+    clearButton = document.createElement("button");
+    clearButton.title = "Temizle";
+    clearButton.innerHTML = `<img width="15" alt="clear"  src=${clearimg} />`;
+    clearButton.classList.add('ui');
+    uiProcessDiv.appendChild(clearButton);
+
+    uiTotalDiv = document.createElement("div");
+    uiTotalDiv.classList.add('divTotal');
+    uiProcessDiv.appendChild(uiTotalDiv);
+
 
     viewerdiv.classList.add('emviewer');
     header.classList.add('emheader');
@@ -437,24 +480,29 @@ function setHtmlControls(containerid) {
     zoomcontrollist.appendChild(zoomin);
     zoomcontrollist.appendChild(zoomout);
     zoomcontrol.appendChild(zoomcontrollist);
+    zoomcontrollist.addEventListener('click', SetZoom);
 
-    zoomcontrollist.addEventListener('click', SetZoom)
-
+    drawButton.addEventListener("click", (evt) => { drawHelper.btnDrawClick(); }, false);
+    directionButton.addEventListener("click", (evt) => { drawHelper.btnDirectionClick(); }, false);
+    clearButton.addEventListener("click", (evt) => { drawHelper.btnClearClick(); }, false);
+    screenShotButton.addEventListener("click", (evt) => { saveAsImage(); }, false);
+    pointsButton.addEventListener("click", (evt) => { addPlacePoints(); }, false);
 
     header.appendChild(headerlabel);
     footer.appendChild(footerlabel);
     footer.appendChild(footerlogo);
 
+    viewerdiv.appendChild(uiProcessDiv);
     viewerdiv.appendChild(header);
     viewerdiv.appendChild(vbody);
     viewerdiv.appendChild(footer);
     viewerdiv.appendChild(zoomcontrol);
 
+
+
     container.appendChild(viewerdiv);
 
-
     return { body: vbody, header: headerlabel, footer: footerlabel };
-
 
 }
 
@@ -509,6 +557,7 @@ function onWindowResize() {
     camera.updateProjectionMatrix();
 
     renderer.setSize(w, h);
+    drawHelper.setSize(w, h);
     labelRenderer.setSize(w, h);
 }
 
@@ -585,6 +634,7 @@ function init(containerid, getPanoById) {
     container = document.getElementById(containerid);
     let viewerdivs = setHtmlControls(containerid);
     let viewerdiv = viewerdivs.body;
+
     header = viewerdivs.header;
     footer = viewerdivs.footer;
 
@@ -647,30 +697,17 @@ function init(containerid, getPanoById) {
 
     });
 
-
-    screenShotButton = document.getElementById("btnScreenShot");
-    pointsButton = document.getElementById("btnPoints");
-    drawButton = document.getElementById("btnDraw");
-    directionButton = document.getElementById("btnDirection");
-    clearButton = document.getElementById("btnClear");
-    uiTotalDiv = document.getElementById("divTotal");
     raycaster = new THREE.Raycaster();
     drawHelper = new DrawHelper(scene, camera, controls, raycaster, drawButton, directionButton, clearButton, uiTotalDiv, container);
+    drawHelper.setSize(w, h);
 
     const interaction = new Interaction(renderer, scene, camera);
 
     eventhandler = new eventHandler(["connectionclick", "camerachanged"]);
     window.addEventListener('resize', onWindowResize, false);
-    drawButton.addEventListener("click", (evt) => { drawHelper.btnDrawClick(); }, false);
-    directionButton.addEventListener("click", (evt) => { drawHelper.btnDirectionClick(); }, false);
-    clearButton.addEventListener("click", (evt) => { drawHelper.btnClearClick(); }, false);
-    screenShotButton.addEventListener("click", (evt) => { saveAsImage(); }, false);
-    pointsButton.addEventListener("click", (evt) => { addPlacePoints(); }, false);
     elementResizeEvent(container, function () {
         onWindowResize();
     });
-
-
 
     animate();
 }
