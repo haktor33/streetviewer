@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { getLocationFromPanorama } from './service';
 import { addLabel } from './label';
-import { imgarrow, imgnortharrow, drawimg, horizontalimg, clearimg, screenshotimg, photopointsimg, verticalimg } from './image.datas';
+import { horizontalimg, verticalimg } from './image.datas';
 
 var count = 0;
 const tolerance = 2;
@@ -150,22 +150,35 @@ class DrawHelper {
         if (count === 2) {
             this.getLocation().then(result => {
                 if (result) {
+
                     if (this.horizontalLenght && this.verticalLenght) {
-                        this.uiTotalDiv.style.display = "";
-                        const total = parseFloat(this.horizontalLenght) * parseFloat(this.verticalLenght);
-                        let text = `En:  ${this.horizontalLenght}  m`;
-                        text += `<br/>Boy:  ${this.verticalLenght}  m`;
-                        text += `<br/>Toplam:  ${total.toFixed(2)}  m<sup>2</sup>`;
-                        this.uiTotalDiv.innerHTML = text;
+
                     } else {
                         this.btnDirectionClick();
                     }
+                    this.showTotalLabel();
                 } else {
                     alert('Lütfen Çizimi Tekrarlayınız!');
                 }
 
             });
         }
+    }
+
+    showTotalLabel() {
+        this.uiTotalDiv.style.display = "";
+        let text = "";
+        if (this.horizontalLenght) {
+            text += `En:  ${this.horizontalLenght}  m`;
+        }
+        if (this.verticalLenght) {
+            text += `<br/>Boy:  ${this.verticalLenght}  m`;
+        }
+        if (this.horizontalLenght && this.verticalLenght) {
+            const total = parseFloat(this.horizontalLenght) * parseFloat(this.verticalLenght);
+            text += `<br/>Toplam:  ${total.toFixed(2)}  m<sup>2</sup>`;
+        }
+        this.uiTotalDiv.innerHTML = text;
     }
 
     onMouseMove(evt, that) {

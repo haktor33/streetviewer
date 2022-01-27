@@ -10,6 +10,7 @@ let eventhandler;
 
 
 function init(opts) {
+
     options = opts;
     eventhandler = new eventHandler(["camerachanged"]);
     if (!opts) {

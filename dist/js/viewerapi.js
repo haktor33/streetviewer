@@ -110552,27 +110552,32 @@ function setHtmlControls(containerid) {
   var zoomout = document.createElement("li");
   var uiProcessDiv = document.createElement("div");
   uiProcessDiv.classList.add('uiProcess');
-  screenShotButton = document.createElement("button");
+  screenShotButton = document.createElement("div");
+  screenShotButton.type = "button";
   screenShotButton.title = "Ekran Görüntüsü";
   screenShotButton.innerHTML = "<img width=\"15\" alt=\"screenshot\" src=".concat(_image_datas__WEBPACK_IMPORTED_MODULE_8__["screenshotimg"], " />");
   screenShotButton.classList.add('ui');
   uiProcessDiv.appendChild(screenShotButton);
-  pointsButton = document.createElement("button");
+  pointsButton = document.createElement("div");
+  screenShotButton.type = "button";
   pointsButton.title = "Çekim Noktaları";
   pointsButton.innerHTML = "<img width=\"15\" alt=\"photopoints\"  src=".concat(_image_datas__WEBPACK_IMPORTED_MODULE_8__["photopointsimg"], " />");
   pointsButton.classList.add('ui');
   uiProcessDiv.appendChild(pointsButton);
-  directionButton = document.createElement("button");
+  directionButton = document.createElement("div");
+  screenShotButton.type = "button";
   directionButton.title = "Çizim Yönü";
   directionButton.innerHTML = "<img width=\"15\" alt=\"Yatay\"  src=".concat(_image_datas__WEBPACK_IMPORTED_MODULE_8__["horizontalimg"], " />");
   directionButton.classList.add('ui');
   uiProcessDiv.appendChild(directionButton);
-  drawButton = document.createElement("button");
+  drawButton = document.createElement("div");
+  screenShotButton.type = "button";
   drawButton.title = "Çizim";
   drawButton.innerHTML = "<img width=\"15\" alt=\"\xC7izimi Ba\u015Flat\"  src=".concat(_image_datas__WEBPACK_IMPORTED_MODULE_8__["drawimg"], " />");
   drawButton.classList.add('ui');
   uiProcessDiv.appendChild(drawButton);
-  clearButton = document.createElement("button");
+  clearButton = document.createElement("div");
+  screenShotButton.type = "button";
   clearButton.title = "Temizle";
   clearButton.innerHTML = "<img width=\"15\" alt=\"clear\"  src=".concat(_image_datas__WEBPACK_IMPORTED_MODULE_8__["clearimg"], " />");
   clearButton.classList.add('ui');
@@ -111082,21 +111087,37 @@ var DrawHelper = /*#__PURE__*/function () {
       if (count === 2) {
         this.getLocation().then(function (result) {
           if (result) {
-            if (_this4.horizontalLenght && _this4.verticalLenght) {
-              _this4.uiTotalDiv.style.display = "";
-              var total = parseFloat(_this4.horizontalLenght) * parseFloat(_this4.verticalLenght);
-              var text = "En:  ".concat(_this4.horizontalLenght, "  m");
-              text += "<br/>Boy:  ".concat(_this4.verticalLenght, "  m");
-              text += "<br/>Toplam:  ".concat(total.toFixed(2), "  m<sup>2</sup>");
-              _this4.uiTotalDiv.innerHTML = text;
-            } else {
+            if (_this4.horizontalLenght && _this4.verticalLenght) {} else {
               _this4.btnDirectionClick();
             }
+
+            _this4.showTotalLabel();
           } else {
             alert('Lütfen Çizimi Tekrarlayınız!');
           }
         });
       }
+    }
+  }, {
+    key: "showTotalLabel",
+    value: function showTotalLabel() {
+      this.uiTotalDiv.style.display = "";
+      var text = "";
+
+      if (this.horizontalLenght) {
+        text += "En:  ".concat(this.horizontalLenght, "  m");
+      }
+
+      if (this.verticalLenght) {
+        text += "<br/>Boy:  ".concat(this.verticalLenght, "  m");
+      }
+
+      if (this.horizontalLenght && this.verticalLenght) {
+        var total = parseFloat(this.horizontalLenght) * parseFloat(this.verticalLenght);
+        text += "<br/>Toplam:  ".concat(total.toFixed(2), "  m<sup>2</sup>");
+      }
+
+      this.uiTotalDiv.innerHTML = text;
     }
   }, {
     key: "onMouseMove",

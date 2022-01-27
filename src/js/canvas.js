@@ -429,31 +429,36 @@ function setHtmlControls(containerid) {
     let uiProcessDiv = document.createElement("div");
     uiProcessDiv.classList.add('uiProcess');
 
-    screenShotButton = document.createElement("button");
+    screenShotButton = document.createElement("div");
+    screenShotButton.type="button"
     screenShotButton.title = "Ekran Görüntüsü";
     screenShotButton.innerHTML = `<img width="15" alt="screenshot" src=${screenshotimg} />`;
     screenShotButton.classList.add('ui');
     uiProcessDiv.appendChild(screenShotButton);
 
-    pointsButton = document.createElement("button");
+    pointsButton = document.createElement("div");
+    screenShotButton.type = "button"
     pointsButton.title = "Çekim Noktaları";
     pointsButton.innerHTML = `<img width="15" alt="photopoints"  src=${photopointsimg} />`;
     pointsButton.classList.add('ui');
     uiProcessDiv.appendChild(pointsButton);
 
-    directionButton = document.createElement("button");
+    directionButton = document.createElement("div");
+    screenShotButton.type = "button"
     directionButton.title = "Çizim Yönü";
     directionButton.innerHTML = `<img width="15" alt="Yatay"  src=${horizontalimg} />`;
     directionButton.classList.add('ui');
     uiProcessDiv.appendChild(directionButton);
 
-    drawButton = document.createElement("button");
+    drawButton = document.createElement("div");
+    screenShotButton.type = "button"
     drawButton.title = "Çizim";
     drawButton.innerHTML = `<img width="15" alt="Çizimi Başlat"  src=${drawimg} />`;
     drawButton.classList.add('ui');
     uiProcessDiv.appendChild(drawButton);
 
-    clearButton = document.createElement("button");
+    clearButton = document.createElement("div");
+    screenShotButton.type = "button"
     clearButton.title = "Temizle";
     clearButton.innerHTML = `<img width="15" alt="clear"  src=${clearimg} />`;
     clearButton.classList.add('ui');
